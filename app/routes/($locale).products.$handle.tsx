@@ -1,4 +1,5 @@
-import {redirect, useLoaderData} from 'react-router';
+import React from 'react';
+import {redirect, useLoaderData, useNavigate} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {
   getSelectedProductOptions,
@@ -8,9 +9,8 @@ import {
   getAdjacentAndFirstAvailableVariants,
   useSelectedOptionInUrlParam,
 } from '@shopify/hydrogen';
-import {ProductPrice} from '~/components/ProductPrice';
-import {ProductImage} from '~/components/ProductImage';
-import {ProductForm} from '~/components/ProductForm';
+import {ProductGallery} from '~/components/ProductGallery';
+import {ProductDetails} from '~/components/ProductDetails';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
 export const meta: Route.MetaFunction = ({data}) => {
@@ -78,6 +78,8 @@ function loadDeferredData({context, params}: Route.LoaderArgs) {
 
 export default function Product() {
   const {product} = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -95,31 +97,28 @@ export default function Product() {
     selectedOrFirstAvailableVariant: selectedVariant,
   });
 
-  const {title, descriptionHtml} = product;
+  const handleVariantChange = (variantUriQuery: string) => {
+    navigate(`?${variantUriQuery}`, {
+      replace: true,
+      preventScrollReset: true,
+    });
+  };
 
   return (
-    <div className="product">
-      <ProductImage image={selectedVariant?.image} />
-      <div className="product-main">
-        <h1>{title}</h1>
-        <ProductPrice
-          price={selectedVariant?.price}
-          compareAtPrice={selectedVariant?.compareAtPrice}
-        />
-        <br />
-        <ProductForm
-          productOptions={productOptions}
-          selectedVariant={selectedVariant}
-        />
-        <br />
-        <br />
-        <p>
-          <strong>Description</strong>
-        </p>
-        <br />
-        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
-        <br />
-      </div>
+    <div className="product-view-container">
+      <ProductGallery 
+        product={product} 
+        selectedVariant={selectedVariant}
+        onImageIndexChange={setCurrentImageIndex}
+      />
+      <ProductDetails
+        product={product}
+        selectedVariant={selectedVariant}
+        productOptions={productOptions}
+        onVariantChange={handleVariantChange}
+        currentImageIndex={currentImageIndex}
+        totalImages={15}
+      />
       <Analytics.ProductView
         data={{
           products: [
@@ -186,6 +185,20 @@ const PRODUCT_FRAGMENT = `#graphql
     description
     encodedVariantExistence
     encodedVariantAvailability
+    media(first: 10) {
+      nodes {
+        __typename
+        ... on MediaImage {
+          image {
+            id
+            url
+            altText
+            width
+            height
+          }
+        }
+      }
+    }
     options {
       name
       optionValues {

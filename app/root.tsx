@@ -175,6 +175,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         {children}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
+        <script src="/accordion.js"></script>
       </body>
     </html>
   );
