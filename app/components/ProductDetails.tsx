@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {type MappedProductOptions} from '@shopify/hydrogen';
 import type {ProductFragment} from 'storefrontapi.generated';
 import {ProductPrice} from './ProductPrice';
@@ -30,6 +30,47 @@ export function ProductDetails({
 }: ProductDetailsProps) {
   const {open} = useAside();
   const [selectedSize, setSelectedSize] = useState<string>('');
+
+  // Initialize accordion functionality when component mounts
+  useEffect(() => {
+    function initAccordionCSS() {
+      const accordionElements = document.querySelectorAll('[data-accordion-css-init]');
+      
+      accordionElements.forEach((accordion) => {
+        const closeSiblings = accordion.getAttribute('data-accordion-close-siblings') === 'true';
+
+        // Remove existing event listener to avoid duplicates
+        const newAccordion = accordion.cloneNode(true);
+        accordion.parentNode?.replaceChild(newAccordion, accordion);
+
+        newAccordion.addEventListener('click', (event) => {
+          const toggle = (event.target as Element).closest('[data-accordion-toggle]');
+          if (!toggle) return;
+
+          const singleAccordion = toggle.closest('[data-accordion-status]');
+          if (!singleAccordion) return;
+
+          const isActive = singleAccordion.getAttribute('data-accordion-status') === 'active';
+          singleAccordion.setAttribute('data-accordion-status', isActive ? 'not-active' : 'active');
+          
+          if (closeSiblings && !isActive) {
+            newAccordion.querySelectorAll('[data-accordion-status="active"]').forEach((sibling) => {
+              if (sibling !== singleAccordion) {
+                sibling.setAttribute('data-accordion-status', 'not-active');
+              }
+            });
+          }
+        });
+      });
+    }
+
+    // Small delay to ensure DOM is fully rendered
+    const timeoutId = setTimeout(() => {
+      initAccordionCSS();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, []); // Empty dependency array ensures this runs once when component mounts
 
   const sizeOption = productOptions.find(option => 
     option.name.toLowerCase() === 'size'

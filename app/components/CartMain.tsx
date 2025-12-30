@@ -22,11 +22,12 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
   const cart = useOptimisticCart(originalCart);
   const fetchers = useFetchers();
 
-  // Check if any fetcher is adding items to cart
+  // Check if any fetcher is adding items to cart (but not removing or updating)
   const isAddingToCart = fetchers.some(
     (fetcher) =>
       fetcher.state !== 'idle' &&
-      fetcher.formAction === '/cart'
+      fetcher.formAction === '/cart' &&
+      fetcher.formData?.get('cartAction') === 'LinesAdd'
   );
 
   const linesCount = Boolean(cart?.lines?.nodes?.length || 0);

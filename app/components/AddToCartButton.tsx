@@ -23,6 +23,11 @@ export function AddToCartButton({
             type="hidden"
             value={JSON.stringify(analytics)}
           />
+          <input
+            name="cartAction"
+            type="hidden"
+            value="LinesAdd"
+          />
           <button
             type="submit"
             onClick={onClick}

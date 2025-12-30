@@ -1010,7 +1010,7 @@ button.header-nav-item {
 }
 
 .size-selector-content {
-  background: #161616;
+  background: var(--color-white);
   padding: 1.5em;
   margin: 0.75em;
   border-radius: 0.25em;
@@ -1028,7 +1028,7 @@ button.header-nav-item {
 .size-option {
   background: none;
   border: none;
-  color: var(--color-white);
+  color: var(--color-black);
   font-size: var(--font-sm);
   font-family: inherit;
   text-align: left;
@@ -2255,6 +2255,7 @@ button.header-nav-item {
   display: grid;
   position: relative;
   overflow: hidden;
+  z-index: 5;
 }
 
 [data-accordion-status="active"] .accordion-css__item-bottom {
