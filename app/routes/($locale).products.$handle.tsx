@@ -11,6 +11,8 @@ import {
 } from '@shopify/hydrogen';
 import {ProductGallery} from '~/components/ProductGallery';
 import {ProductDetails} from '~/components/ProductDetails';
+import {NewArrivals} from '~/components/NewArrivals';
+import {CommunitySection} from '~/components/CommunitySection';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
 export const meta: Route.MetaFunction = ({data}) => {
@@ -45,9 +47,12 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{product}] = await Promise.all([
+  const [{product}, {products}] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
+    }),
+    storefront.query(CATALOG_QUERY, {
+      variables: {first: 8},
     }),
     // Add other queries here, so that they are loaded in parallel
   ]);
@@ -61,6 +66,7 @@ async function loadCriticalData({context, params, request}: Route.LoaderArgs) {
 
   return {
     product,
+    products,
   };
 }
 
@@ -77,7 +83,7 @@ function loadDeferredData({context, params}: Route.LoaderArgs) {
 }
 
 export default function Product() {
-  const {product} = useLoaderData<typeof loader>();
+  const {product, products} = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
@@ -105,36 +111,43 @@ export default function Product() {
   };
 
   return (
-    <div className="product-view-container">
-      <ProductGallery 
-        product={product} 
-        selectedVariant={selectedVariant}
-        onImageIndexChange={setCurrentImageIndex}
+    <>
+      <div className="product-view-container">
+        <ProductGallery 
+          product={product} 
+          selectedVariant={selectedVariant}
+          onImageIndexChange={setCurrentImageIndex}
+        />
+        <ProductDetails
+          product={product}
+          selectedVariant={selectedVariant}
+          productOptions={productOptions}
+          onVariantChange={handleVariantChange}
+          currentImageIndex={currentImageIndex}
+          totalImages={15}
+        />
+        <Analytics.ProductView
+          data={{
+            products: [
+              {
+                id: product.id,
+                title: product.title,
+                price: selectedVariant?.price.amount || '0',
+                vendor: product.vendor,
+                variantId: selectedVariant?.id || '',
+                variantTitle: selectedVariant?.title || '',
+                quantity: 1,
+              },
+            ],
+          }}
+        />
+      </div>
+      <NewArrivals
+        products={products.nodes}
+        title="New Arrivals"
       />
-      <ProductDetails
-        product={product}
-        selectedVariant={selectedVariant}
-        productOptions={productOptions}
-        onVariantChange={handleVariantChange}
-        currentImageIndex={currentImageIndex}
-        totalImages={15}
-      />
-      <Analytics.ProductView
-        data={{
-          products: [
-            {
-              id: product.id,
-              title: product.title,
-              price: selectedVariant?.price.amount || '0',
-              vendor: product.vendor,
-              variantId: selectedVariant?.id || '',
-              variantTitle: selectedVariant?.title || '',
-              quantity: 1,
-            },
-          ],
-        }}
-      />
-    </div>
+      <CommunitySection />
+    </>
   );
 }
 
@@ -243,3 +256,66 @@ const PRODUCT_QUERY = `#graphql
   }
   ${PRODUCT_FRAGMENT}
 ` as const;
+
+const COLLECTION_ITEM_FRAGMENT = `#graphql
+  fragment MoneyCollectionItem on MoneyV2 {
+    amount
+    currencyCode
+  }
+  fragment CollectionItem on Product {
+    id
+    handle
+    title
+    featuredImage {
+      id
+      altText
+      url
+      width
+      height
+    }
+    priceRange {
+      minVariantPrice {
+        ...MoneyCollectionItem
+      }
+      maxVariantPrice {
+        ...MoneyCollectionItem
+      }
+    }
+    variants(first: 10) {
+      nodes {
+        id
+        title
+        availableForSale
+        selectedOptions {
+          name
+          value
+        }
+      }
+    }
+  }
+` as const;
+
+const CATALOG_QUERY = `#graphql
+  query Catalog(
+    $country: CountryCode
+    $language: LanguageCode
+    $first: Int
+    $last: Int
+    $startCursor: String
+    $endCursor: String
+  ) @inContext(country: $country, language: $language) {
+    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {
+      nodes {
+        ...CollectionItem
+      }
+      pageInfo {
+        hasPreviousPage
+        hasNextPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+  ${COLLECTION_ITEM_FRAGMENT}
+` as const;
+
