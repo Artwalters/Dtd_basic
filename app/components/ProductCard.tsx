@@ -56,6 +56,7 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
         },
       }),
     );
+    formData.append('cartAction', 'LinesAdd');
 
     fetcher.submit(formData, {method: 'POST', action: '/cart'});
   };
