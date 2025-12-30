@@ -898,7 +898,7 @@ button.header-nav-item {
   gap: 1.5em;
 }
 
-@media (min-width: 75em) {
+@media (min-width: 120em) {
   .new-drop-grid {
     grid-template-columns: 1fr 2fr;
   }
@@ -1147,7 +1147,7 @@ button.header-nav-item {
 /* Slider setup - CSS Variables */
 .new-arrivals[data-gsap-slider-init] {
   --slider-status: on;
-  --slider-spv: 4.5;
+  --slider-spv: 4;
   --slider-gap: 1.5em;
 }
 
