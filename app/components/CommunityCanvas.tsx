@@ -194,7 +194,7 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
     '/Img/DSC_7306.webp',
   ]);
 
-  // Auto-rotate with inertia
+  // Auto-rotate with smooth inertia
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
