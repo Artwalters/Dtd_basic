@@ -15,6 +15,7 @@ import favicon from '~/assets/favicon.svg';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
+import cartStyles from '~/styles/cart.css?url';
 import neueHaasFont from '~/assets/fonts/NeueHaasGroteskDisp Pro Md-normal-500-100.ttf?url';
 import {PageLayout} from './components/PageLayout';
 import {useLenis} from '~/hooks/useLenis';
@@ -168,6 +169,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         />
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
+        <link rel="stylesheet" href={cartStyles}></link>
         <Meta />
         <Links />
       </head>

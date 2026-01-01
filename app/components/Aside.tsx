@@ -48,6 +48,38 @@ export function Aside({
         },
         {signal: abortController.signal},
       );
+      
+      // Prevent scroll on body completely, enable only on cart container
+      const handleWheel = (e: WheelEvent) => {
+        const target = e.target as Element;
+        
+        // Allow horizontal scrolling in recommended grid
+        const recommendedGrid = target.closest('.recommended-grid');
+        if (recommendedGrid) {
+          // Check if it's primarily horizontal scroll
+          if (Math.abs(e.deltaX) > 0 || (e.deltaY !== 0 && recommendedGrid.scrollWidth > recommendedGrid.clientWidth)) {
+            e.stopPropagation();
+            return;
+          }
+        }
+        
+        const cartContainer = target.closest('.cart-content-scrollable');
+        
+        if (cartContainer) {
+          // We're in the cart container, allow scrolling
+          const isScrollable = cartContainer.scrollHeight > cartContainer.clientHeight;
+          if (isScrollable) {
+            e.stopPropagation();
+            return;
+          }
+        }
+        
+        // Block all other scrolling
+        e.preventDefault();
+        e.stopPropagation();
+      };
+      
+      document.body.addEventListener('wheel', handleWheel, { passive: false, signal: abortController.signal });
     }
     return () => abortController.abort();
   }, [close, expanded]);
@@ -63,7 +95,9 @@ export function Aside({
         <header>
           <h3>{heading}</h3>
           <button className="close reset" onClick={close} aria-label="Close">
-            &times;
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
         </header>
         <main>{children}</main>

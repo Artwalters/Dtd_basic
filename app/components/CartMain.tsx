@@ -1,9 +1,11 @@
-import {useOptimisticCart} from '@shopify/hydrogen';
+import {useOptimisticCart, Money, CartForm} from '@shopify/hydrogen';
 import {Link, useFetchers} from 'react-router';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
-import {CartSummary} from './CartSummary';
+import {CartSummary, ShippingReturnsAccordion, CartCheckoutActions} from './CartSummary';
+import {RecommendedProducts} from './RecommendedProducts';
+import {useState} from 'react';
 
 export type CartLayout = 'page' | 'aside';
 
@@ -39,45 +41,70 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
 
   return (
     <div className={className}>
-      {isAddingToCart && (
-        <div className="cart-loading">
-          <div className="cart-loading-spinner" />
-          <span>Adding to cart...</span>
+      <div className="cart-content-scrollable">
+        {isAddingToCart && (
+          <div className="cart-loading">
+            <div className="cart-loading-spinner" />
+            <span>Adding to cart...</span>
+          </div>
+        )}
+        {!linesCount && !isAddingToCart ? (
+          <CartEmpty layout={layout} />
+        ) : (
+          <div className="cart-details">
+            <div aria-labelledby="cart-lines">
+              <ul>
+                {(cart?.lines?.nodes ?? []).map((line) => (
+                  <CartLineItem key={line.id} line={line} layout={layout} />
+                ))}
+              </ul>
+            </div>
+            <ShippingReturnsAccordion />
+          </div>
+        )}
+        <RecommendedProducts />
+      </div>
+      {cartHasItems && (
+        <div className="cart-footer-sticky">
+          <dl className="cart-subtotal">
+            <dt>Total</dt>
+            <dd>
+              {cart?.cost?.subtotalAmount?.amount ? (
+                <Money data={cart?.cost?.subtotalAmount} />
+              ) : (
+                '-'
+              )}
+            </dd>
+          </dl>
+          <CartCheckoutActions checkoutUrl={cart?.checkoutUrl} />
         </div>
       )}
-      <CartEmpty hidden={linesCount || isAddingToCart} layout={layout} />
-      <div className="cart-details">
-        <div aria-labelledby="cart-lines">
-          <ul>
-            {(cart?.lines?.nodes ?? []).map((line) => (
-              <CartLineItem key={line.id} line={line} layout={layout} />
-            ))}
-          </ul>
-        </div>
-        {cartHasItems && <CartSummary cart={cart} layout={layout} />}
-      </div>
     </div>
   );
 }
 
 function CartEmpty({
-  hidden = false,
+  layout,
 }: {
-  hidden: boolean;
   layout?: CartMainProps['layout'];
 }) {
   const {close} = useAside();
+
   return (
-    <div hidden={hidden}>
-      <br />
-      <p>
-        Looks like you haven&rsquo;t added anything yet, let&rsquo;s get you
-        started!
-      </p>
-      <br />
-      <Link to="/collections" onClick={close} prefetch="viewport">
-        Continue shopping →
-      </Link>
+    <div className="cart-empty-container">
+      <div className="cart-empty">
+        <p className="cart-empty-message">
+          Your cart is empty
+        </p>
+        <Link 
+          to="/collections/all" 
+          onClick={close} 
+          prefetch="viewport"
+          className="cart-empty-button"
+        >
+          See all products
+        </Link>
+      </div>
     </div>
   );
 }
