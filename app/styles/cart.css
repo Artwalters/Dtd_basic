@@ -129,7 +129,7 @@
 }
 
 .recommended-product-title {
-  font-size: var(--font-sm);
+  font-size: var(--font-base);
   font-weight: var(--weight-medium);
   color: var(--color-black);
   margin: 0 0 0.1em 0;
@@ -137,7 +137,7 @@
 }
 
 .recommended-product-price {
-  font-size: var(--font-sm);
+  font-size: var(--font-base);
   font-weight: var(--weight-bold);
   color: var(--color-black);
   margin: 0;

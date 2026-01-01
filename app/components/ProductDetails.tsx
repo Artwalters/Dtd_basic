@@ -148,7 +148,6 @@ export function ProductDetails({
       
       <div className="product-details">
         <div className="product-details-header">
-        <div className="product-brand">Dare to dream</div>
         <div className="product-title-container">
           <h1 className="product-title">{product.title}</h1>
           <button className="product-bookmark">

@@ -118,7 +118,6 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
         </div>
       )}
       <div className="new-drop-info">
-        <span className="new-drop-vendor">Dare to Dream</span>
         <span className="new-drop-product-title">{product.title}</span>
         <Money
           data={product.priceRange.minVariantPrice}

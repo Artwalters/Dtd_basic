@@ -1021,7 +1021,7 @@ button.header-nav-item {
 * --------------------------------------------------
 */
 .new-drop {
-  padding: 4em 1em;
+  padding: 4em 0.5em;
   background: var(--color-white);
 }
 
@@ -1040,13 +1040,14 @@ button.header-nav-item {
 .new-drop-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2em;
+  gap: 0.5em;
   align-items: start;
 }
 
 @media (min-width: 48em) {
   .new-drop-grid {
     grid-template-columns: 1fr 1fr;
+    gap: 0.5em;
   }
 }
 
@@ -1089,12 +1090,13 @@ button.header-nav-item {
 .new-drop-products {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5em;
+  gap: 0.5em;
 }
 
 @media (min-width: 120em) {
   .new-drop-grid {
     grid-template-columns: 1fr 2fr;
+    gap: 0.5em;
   }
 
   .new-drop-products {
@@ -1144,12 +1146,12 @@ button.header-nav-item {
 }
 
 .new-drop-product-title {
-  font-size: var(--font-sm);
+  font-size: var(--font-base);
   color: var(--color-black);
 }
 
 .new-drop-price {
-  font-size: var(--font-sm);
+  font-size: var(--font-base);
   color: var(--color-black);
   margin-top: 0.25em;
 }
@@ -1263,7 +1265,7 @@ button.header-nav-item {
 /* Mobile styles for NewDrop */
 @media (max-width: 47.99em) {
   .new-drop {
-    padding: 2em 1em;
+    padding: 2em 0.5em;
     display: flex;
     flex-direction: column;
   }
@@ -1302,7 +1304,7 @@ button.header-nav-item {
   .new-drop-products {
     order: 3;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1em;
+    gap: 0.5em;
   }
 
   .new-drop-featured-btn {
@@ -1342,14 +1344,14 @@ button.header-nav-item {
 .new-arrivals[data-gsap-slider-init] {
   --slider-status: on;
   --slider-spv: 4;
-  --slider-gap: 1.5em;
+  --slider-gap: 0.5em;
 }
 
 @media screen and (max-width: 991px) {
   .new-arrivals[data-gsap-slider-init] {
     --slider-status: on;
     --slider-spv: 3;
-    --slider-gap: 1em;
+    --slider-gap: 0.5em;
   }
 }
 
@@ -1357,7 +1359,7 @@ button.header-nav-item {
   .new-arrivals[data-gsap-slider-init] {
     --slider-status: on;
     --slider-spv: 2;
-    --slider-gap: 1em;
+    --slider-gap: 0.5em;
   }
 }
 
@@ -1374,15 +1376,24 @@ button.header-nav-item {
 
 .new-arrivals-header {
   margin-bottom: 1.5em;
-  padding: 0 1em;
+  padding: 0 0.5em;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
+}
+
+.new-arrivals-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 2em;
 }
 
 .new-arrivals-title {
+  position: absolute;
+  left: 0.5em;
   font-size: var(--font-4xl);
   text-transform: uppercase;
   color: var(--color-black);
@@ -1418,52 +1429,46 @@ button.header-nav-item {
 }
 
 .new-arrivals-slide:first-child {
-  margin-left: 1em;
+  margin-left: 0.5em;
 }
 
 .new-arrivals-slide:last-child {
-  margin-right: 1em;
+  margin-right: 0.5em;
 }
 
-/* Controls */
-.new-arrivals-controls {
-  display: flex;
-  gap: 0.5em;
-  justify-content: center;
-  align-items: center;
+/* Progress Bar */
+.new-arrivals-progress {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+}
+
+.new-arrivals-progress-track {
   width: 100%;
-  margin-top: 1.5em;
+  height: 4px;
+  background: #E0E0E0;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
 }
 
-.new-arrivals-control {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3em;
-  height: 3em;
-  background: transparent;
-  border: 1px solid var(--color-black);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  color: var(--color-black);
-}
-
-.new-arrivals-control:hover:not(:disabled) {
+.new-arrivals-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
   background: var(--color-black);
-  color: var(--color-white);
+  border-radius: 2px;
+  transition: transform 0.3s ease;
+  width: 33.33%; /* Default width, will be updated by JS */
+  transform: translateX(0);
 }
 
-.new-arrivals-control:disabled,
-[data-gsap-slider-control-status="not-active"] {
-  opacity: 0.3;
-  pointer-events: none;
-  cursor: default;
-}
-
-[data-gsap-slider-status="not-active"] .new-arrivals-controls {
+[data-gsap-slider-status="not-active"] .new-arrivals-progress {
   display: none;
 }
+
 
 /* Slider uses ProductCard (new-drop-card) - just add opacity for inactive slides */
 [data-gsap-slider-item-status="not-active"] .new-drop-card {
@@ -1480,13 +1485,8 @@ button.header-nav-item {
     font-size: var(--font-3xl);
   }
 
-  .new-arrivals-controls {
-    margin-top: 1em;
-  }
-
-  .new-arrivals-control {
-    width: 2.5em;
-    height: 2.5em;
+  .new-arrivals-progress {
+    width: 120px;
   }
 }
 

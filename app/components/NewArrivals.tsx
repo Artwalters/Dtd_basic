@@ -1,4 +1,5 @@
 import {useState, useEffect, useRef} from 'react';
+import {Link} from 'react-router';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {ProductCard} from './ProductCard';
 import gsap from 'gsap';
@@ -57,6 +58,11 @@ export function NewArrivals({
     >
       <div className="new-arrivals-header">
         <h2 className="new-arrivals-title">{title}</h2>
+        <div className="new-arrivals-progress" data-gsap-slider-progress="">
+          <div className="new-arrivals-progress-track">
+            <div className="new-arrivals-progress-fill" data-gsap-slider-progress-fill=""></div>
+          </div>
+        </div>
       </div>
       <div data-gsap-slider-collection="" className="new-arrivals-collection">
         <div data-gsap-slider-list="" className="new-arrivals-track">
@@ -71,17 +77,10 @@ export function NewArrivals({
           ))}
         </div>
       </div>
-      <div data-gsap-slider-controls="" className="new-arrivals-controls">
-        <button data-gsap-slider-control="prev" className="new-arrivals-control">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-        <button data-gsap-slider-control="next" className="new-arrivals-control">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
+      <div className="new-arrivals-footer">
+        <Link to="/collections/all" className="btn">
+          SHOP ALL
+        </Link>
       </div>
     </section>
   );
@@ -238,6 +237,14 @@ function initBasicGSAPSlider(specificRoot?: HTMLElement | null) {
       btn.setAttribute('aria-disabled', can ? 'false' : 'true');
       btn.setAttribute('data-gsap-slider-control-status', can ? 'active' : 'not-active');
     });
+
+    // Update Progress Bar
+    const progressFill = root.querySelector('[data-gsap-slider-progress-fill]') as HTMLElement;
+    if (progressFill && snapPoints.length > 0) {
+      const progress = activeIndex / (snapPoints.length - 1);
+      const percentage = progress * 100;
+      progressFill.style.transform = `translateX(${percentage * 2}%)`;
+    }
   }
 
   // Store click handlers to remove them on cleanup
