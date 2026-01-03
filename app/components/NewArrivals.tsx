@@ -63,6 +63,9 @@ export function NewArrivals({
             <div className="new-arrivals-progress-fill" data-gsap-slider-progress-fill=""></div>
           </div>
         </div>
+        <Link to="/collections/all" className="btn new-arrivals-shop-all">
+          SHOP ALL
+        </Link>
       </div>
       <div data-gsap-slider-collection="" className="new-arrivals-collection">
         <div data-gsap-slider-list="" className="new-arrivals-track">
@@ -76,11 +79,6 @@ export function NewArrivals({
             </div>
           ))}
         </div>
-      </div>
-      <div className="new-arrivals-footer">
-        <Link to="/collections/all" className="btn">
-          SHOP ALL
-        </Link>
       </div>
     </section>
   );

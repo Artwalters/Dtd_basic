@@ -1385,10 +1385,11 @@ button.header-nav-item {
   position: relative;
 }
 
-.new-arrivals-footer {
-  display: flex;
-  justify-content: center;
-  margin-top: 2em;
+.new-arrivals-shop-all {
+  position: absolute;
+  right: 0.5em;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .new-arrivals-title {
@@ -1403,6 +1404,7 @@ button.header-nav-item {
 .new-arrivals-collection {
   width: 100%;
   box-sizing: border-box;
+  padding: 0 0.5em;
 }
 
 .new-arrivals-track {
@@ -1423,17 +1425,13 @@ button.header-nav-item {
 }
 
 .new-arrivals-slide {
-  width: calc(((100% - 2em - 1px) - (var(--slider-spv) - 1) * var(--slider-gap)) / var(--slider-spv));
+  width: calc((100% - (var(--slider-spv) - 1) * var(--slider-gap)) / var(--slider-spv));
   margin-right: var(--slider-gap);
   flex: none;
 }
 
-.new-arrivals-slide:first-child {
-  margin-left: 0.5em;
-}
-
 .new-arrivals-slide:last-child {
-  margin-right: 0.5em;
+  margin-right: 0;
 }
 
 /* Progress Bar */
@@ -1470,15 +1468,15 @@ button.header-nav-item {
 }
 
 
-/* Slider uses ProductCard (new-drop-card) - just add opacity for inactive slides */
+/* Slider uses ProductCard (new-drop-card) - opacity removed for cleaner look */
 [data-gsap-slider-item-status="not-active"] .new-drop-card {
-  opacity: 0.5;
+  opacity: 1;
 }
 
 /* Mobile styles for NewArrivals */
 @media (max-width: 47.99em) {
   .new-arrivals {
-    padding: 2em 0;
+    padding: 2em 0.5em;
   }
 
   .new-arrivals-title {
@@ -1487,6 +1485,10 @@ button.header-nav-item {
 
   .new-arrivals-progress {
     width: 120px;
+  }
+
+  .new-arrivals-shop-all {
+    font-size: var(--font-sm);
   }
 }
 
