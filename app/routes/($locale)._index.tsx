@@ -1,14 +1,39 @@
 import type {Route} from './+types/_index';
 import {useLoaderData} from 'react-router';
 import {getPaginationVariables} from '@shopify/hydrogen';
-import {Hero} from '~/components/Hero';
+import {HeroSlider} from '~/components/HeroSlider';
 import {NewDrop} from '~/components/NewDrop';
 import {NewArrivals} from '~/components/NewArrivals';
 import {CommunitySection} from '~/components/CommunitySection';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 
-// Hero background image
-const heroImage = '/hero-bg.jpg';
+// Hero slides data
+const heroSlides = [
+  {
+    id: '1',
+    backgroundImage: '/hero-bg.jpg',
+    subtitle: 'our first collection',
+    title: 'BE PART OF THE START',
+    buttonText: 'SHOP NOW',
+    buttonLink: '/collections/all'
+  },
+  {
+    id: '2',
+    backgroundImage: '/hero-bg.jpg',
+    subtitle: 'new arrivals',
+    title: 'FRESH STYLES DAILY',
+    buttonText: 'DISCOVER',
+    buttonLink: '/collections/new'
+  },
+  {
+    id: '3',
+    backgroundImage: '/hero-bg.jpg',
+    subtitle: 'limited edition',
+    title: 'EXCLUSIVE DROPS',
+    buttonText: 'GET YOURS',
+    buttonLink: '/collections/limited'
+  }
+];
 
 export const meta: Route.MetaFunction = () => {
   return [{title: 'Dare to Dream'}];
@@ -43,17 +68,11 @@ export default function Homepage() {
 
   return (
     <>
-      <Hero
-        backgroundImage={heroImage}
-        subtitle="our first collection"
-        title="BE PART OF THE START"
-        buttonText="SHOP NOW"
-        buttonLink="/collections/all"
-      />
+      <HeroSlider slides={heroSlides} />
       <NewDrop
         products={products.nodes}
         title="Genesis drop"
-        featuredImage={heroImage}
+        featuredImage={heroSlides[0].backgroundImage}
       />
       <NewArrivals
         products={products.nodes}
