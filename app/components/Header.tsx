@@ -8,6 +8,8 @@ import {
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {useHeaderScroll} from '~/hooks/useHeaderScroll';
+import {useTheme} from '~/contexts/ThemeContext';
+import logoHorizontalWhite from '~/assets/logo-full-text-horizontal-white.svg';
 
 interface HeaderProps {
   header: HeaderQuery;
@@ -36,7 +38,7 @@ export function Header({
       </nav>
 
       <NavLink to="/" className="header-logo">
-        <span className="header-logo-text">DARE TO DREAM</span>
+        <img src={logoHorizontalWhite} alt="Dare to Dream" className="header-logo-image" />
       </NavLink>
 
       <nav className="header-nav-right">
@@ -61,6 +63,19 @@ function SearchToggle() {
   return (
     <button className="header-nav-item reset" onClick={() => open('search')}>
       Search
+    </button>
+  );
+}
+
+function ThemeToggle() {
+  const {theme, toggleTheme} = useTheme();
+  return (
+    <button 
+      className="header-nav-item reset" 
+      onClick={toggleTheme}
+      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+    >
+      {theme === 'light' ? '🌙' : '☀️'}
     </button>
   );
 }

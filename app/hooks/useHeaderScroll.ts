@@ -1,11 +1,13 @@
 import {useEffect, useRef} from 'react';
 import {gsap} from 'gsap';
+import {ScrollTrigger} from 'gsap/ScrollTrigger';
 import {getLenis} from './useLenis';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function useHeaderScroll() {
   const headerRef = useRef<HTMLElement>(null);
   const lastScrollY = useRef(0);
-  const isHidden = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -13,57 +15,43 @@ export function useHeaderScroll() {
     const header = headerRef.current;
     if (!header) return;
 
-    // Wait for Lenis to be initialized
-    const checkLenis = setInterval(() => {
-      const lenis = getLenis();
-      if (lenis) {
-        clearInterval(checkLenis);
-        setupScrollListener(lenis);
-      }
-    }, 100);
-
-    function setupScrollListener(lenis: any) {
-      lenis.on('scroll', ({scroll, direction}: {scroll: number; direction: number}) => {
-        // Don't hide header at the top of the page
-        if (scroll < 100) {
-          if (isHidden.current) {
-            gsap.to(header, {
-              yPercent: 0,
-              duration: 0.3,
-              ease: 'power2.out',
-            });
-            isHidden.current = false;
+    // Check if we're on the home page (has hero section)
+    const isHomePage = window.location.pathname === '/';
+    
+    if (isHomePage) {
+      // Setup scroll-based color changes for home page
+      ScrollTrigger.create({
+        trigger: document.body,
+        start: `${window.innerHeight}px top`,
+        onToggle: (self) => {
+          if (self.isActive) {
+            // Past hero section - dark text with white bg
+            header.classList.add('header-dark');
+          } else {
+            // In hero section - white text, no bg
+            header.classList.remove('header-dark');
           }
-          lastScrollY.current = scroll;
-          return;
-        }
-
-        // direction: 1 = scrolling down, -1 = scrolling up
-        if (direction === 1 && !isHidden.current) {
-          // Scrolling down - hide header
-          gsap.to(header, {
-            yPercent: -100,
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-          isHidden.current = true;
-        } else if (direction === -1 && isHidden.current) {
-          // Scrolling up - show header
-          gsap.to(header, {
-            yPercent: 0,
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-          isHidden.current = false;
-        }
-
-        lastScrollY.current = scroll;
+        },
+        refreshPriority: -1
       });
-    }
 
-    return () => {
-      clearInterval(checkLenis);
-    };
+      // Wait for Lenis and update ScrollTrigger
+      const checkLenis = setInterval(() => {
+        const lenis = getLenis();
+        if (lenis) {
+          clearInterval(checkLenis);
+          lenis.on('scroll', ScrollTrigger.update);
+        }
+      }, 100);
+
+      return () => {
+        clearInterval(checkLenis);
+        ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      };
+    } else {
+      // Other pages - always dark text with white bg
+      header.classList.add('header-dark');
+    }
   }, []);
 
   return headerRef;

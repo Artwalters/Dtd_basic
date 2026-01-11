@@ -3,10 +3,13 @@ import {OrbitControls, useGLTF, useAnimations, Environment, useTexture, useFBO} 
 import {Suspense, useEffect, useRef, useState, useMemo, useCallback} from 'react';
 import {useDrag} from '@use-gesture/react';
 import * as THREE from 'three';
+import {useTheme} from '~/contexts/ThemeContext';
 
 function Model() {
   const {scene, animations} = useGLTF('/3D/dtd_logo7.glb', '/draco/');
   const {actions, names} = useAnimations(animations, scene);
+  const modelRef = useRef<THREE.Group>(null);
+  const {viewport, pointer} = useThree();
 
   // Load PBR textures
   const textures = useTexture({
@@ -34,6 +37,7 @@ function Model() {
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;
+        child.material.fog = false; // Disable fog for 3D model
       }
     });
   }, [scene, material]);
@@ -50,7 +54,22 @@ function Model() {
     };
   }, [actions, names]);
 
-  return <primitive object={scene} scale={0.45} rotation={[0, -Math.PI / 2, 0]} />;
+  // Subtle mouse interaction
+  useFrame(() => {
+    if (modelRef.current) {
+      // Subtle movement following mouse (very small values)
+      const targetX = pointer.x * 0.1;
+      const targetY = pointer.y * 0.05;
+      
+      // Smooth interpolation for natural movement
+      modelRef.current.rotation.y += (targetX - modelRef.current.rotation.y + (-Math.PI / 2)) * 0.02;
+      modelRef.current.rotation.x += (targetY - modelRef.current.rotation.x) * 0.02;
+      modelRef.current.position.x += (targetX - modelRef.current.position.x) * 0.02;
+      modelRef.current.position.y += (targetY - modelRef.current.position.y) * 0.02;
+    }
+  });
+
+  return <primitive ref={modelRef} object={scene} scale={0.45} rotation={[0, -Math.PI / 2, 0]} />;
 }
 
 // Godray post-processing shaders
@@ -65,6 +84,9 @@ void main() {
 const godrayFragmentShader = `
 uniform float time;
 uniform sampler2D uMap;
+uniform float godrayIntensity;
+uniform float brightness;
+uniform float contrast;
 varying vec2 vUv;
 
 float PI = 3.141592653589793238;
@@ -94,11 +116,11 @@ void main() {
   color /= total;
 
   // Godray blending
-  vec4 finalColor = mix(original, 1. - (1. - color)*(1. - original), 0.15);
+  vec4 finalColor = mix(original, 1. - (1. - color)*(1. - original), godrayIntensity);
 
   // Brightness en contrast
-  finalColor.rgb *= 1.2;
-  finalColor.rgb = pow(finalColor.rgb, vec3(0.95));
+  finalColor.rgb *= brightness;
+  finalColor.rgb = pow(finalColor.rgb, vec3(contrast));
 
   gl_FragColor = finalColor;
 }
@@ -107,6 +129,7 @@ void main() {
 // Godray Post-Processing Effect
 function GodrayEffect({children}: {children: React.ReactNode}) {
   const {gl, scene, camera, size} = useThree();
+  const {theme} = useTheme();
 
   // Create render target
   const renderTarget = useFBO(size.width, size.height, {
@@ -126,11 +149,14 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
       uniforms: {
         uMap: {value: null},
         time: {value: 0},
+        godrayIntensity: {value: theme === 'dark' ? 0.05 : 0.08},
+        brightness: {value: theme === 'dark' ? 0.95 : 1.0},
+        contrast: {value: theme === 'dark' ? 0.99 : 0.98},
       },
       vertexShader: godrayVertexShader,
       fragmentShader: godrayFragmentShader,
     });
-  }, []);
+  }, [theme]);
 
   // Fullscreen quad
   const quad = useMemo(() => {
@@ -175,7 +201,7 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
   const groupRef = useRef<THREE.Group>(null);
   const timeScaleRef = useRef(1);
   const targetTimeScaleRef = useRef(1);
-  const {size, viewport} = useThree();
+  const {size, viewport, pointer} = useThree();
 
   // Load all images from the Img directory
   const textures = useTexture([
@@ -194,7 +220,16 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
     '/Img/DSC_7306.webp',
   ]);
 
-  // Auto-rotate with smooth inertia
+  // Set correct color space for realistic colors
+  useEffect(() => {
+    textures.forEach(texture => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.flipY = true;
+      texture.needsUpdate = true;
+    });
+  }, [textures]);
+
+  // Auto-rotate with smooth inertia + subtle mouse tilt
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
@@ -203,6 +238,14 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
 
     // Apply rotation
     groupRef.current.rotation.y += delta * baseSpeed * timeScaleRef.current;
+    
+    // Subtle tilt based on mouse position
+    const targetTiltX = pointer.y * 0.03; // Up/down mouse movement
+    const targetTiltZ = pointer.x * 0.05; // Left/right mouse movement
+    
+    // Smooth interpolation for natural tilting
+    groupRef.current.rotation.x += (targetTiltX - groupRef.current.rotation.x) * 0.02;
+    groupRef.current.rotation.z += (targetTiltZ - groupRef.current.rotation.z) * 0.02;
   });
 
   // Drag handler - smooth direct control, direction persists on release
@@ -277,9 +320,14 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
           geometry={curvedGeometry}
           rotation={[0, -angle + Math.PI, 0]} // Position around circle
         >
-          <meshBasicMaterial
-            map={textureArray[textureIndex]}
+          <meshStandardMaterial
+            emissiveMap={textureArray[textureIndex]}
+            emissive={new THREE.Color(1.3, 1.3, 1.3)}
+            color={new THREE.Color(0, 0, 0)}
             side={THREE.DoubleSide}
+            toneMapped={false}
+            roughness={1}
+            metalness={0}
           />
         </mesh>
       );
@@ -290,25 +338,52 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
   return <group ref={groupRef}>{panels}</group>;
 }
 
-function SceneContent() {
+function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) {
+  const {theme} = useTheme();
+  const {scene} = useThree();
+  const fogColor = theme === 'dark' ? '#1a1a1a' : '#ffffff';
+  const bgColor = theme === 'dark' ? '#1a1a1a' : '#ffffff';
+  
+  // Set scene background to null for transparency
+  useEffect(() => {
+    scene.background = null;
+  }, [scene]);
+  
+  // Responsive fog based on screen size
+  const getFogParams = () => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth <= 479) {
+        return [6, 12]; // Mobile Portrait - fog further out
+      } else if (window.innerWidth <= 767) {
+        return [5, 10]; // Mobile Landscape - fog further out
+      } else if (window.innerWidth <= 991) {
+        return [4, 8]; // Tablet - fog further out
+      }
+    }
+    return [2.5, 4.5]; // Desktop - default
+  };
+  
   return (
     <>
-      {/* White fog to fade out back panels */}
-      <fog attach="fog" args={['#ffffff', 4.5, 6]} />
+      {/* Dynamic fog color based on theme */}
+      <fog attach="fog" args={[fogColor, ...getFogParams()]} />
       <Suspense fallback={null}>
         <Model />
         <ImageCarousel radius={1.6} baseSpeed={0.15} panelCount={14} />
-        <Environment files="/3D/studio_small_09_1k.hdr" />
+        <Environment 
+          files="/3D/studio_small_09_1k.hdr" 
+          environmentRotation={hdriRotation}
+        />
       </Suspense>
       <OrbitControls enableZoom={false} enableRotate={false} enablePan={false} />
     </>
   );
 }
 
-function Scene() {
+function Scene({hdriRotation}: {hdriRotation: [number, number, number]}) {
   return (
     <GodrayEffect>
-      <SceneContent />
+      <SceneContent hdriRotation={hdriRotation} />
     </GodrayEffect>
   );
 }
@@ -316,6 +391,22 @@ function Scene() {
 export default function CommunityCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  
+  // Responsive camera position
+  const getCameraPosition = () => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth <= 479) {
+        return [0, 0, 10]; // Mobile Portrait - zoom in closer
+      } else if (window.innerWidth <= 767) {
+        return [0, 0, 8]; // Mobile Landscape - zoom in closer
+      } else if (window.innerWidth <= 991) {
+        return [0, 0, 6]; // Tablet - zoom in closer
+      }
+    }
+    return [0, 0, 4]; // Desktop - default
+  };
+  
+  const [cameraPosition, setCameraPosition] = useState(getCameraPosition);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -326,6 +417,16 @@ export default function CommunityCanvas() {
       observer.observe(containerRef.current);
     }
     return () => observer.disconnect();
+  }, []);
+  
+  // Handle resize for responsive camera
+  useEffect(() => {
+    const handleResize = () => {
+      setCameraPosition(getCameraPosition());
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Drag gesture for carousel control
@@ -346,12 +447,12 @@ export default function CommunityCanvas() {
       style={{width: '100%', height: '100%', cursor: 'grab', touchAction: 'none'}}
     >
       <Canvas
-        camera={{position: [0, 0, 4], fov: 50}}
+        camera={{position: cameraPosition, fov: 50}}
         dpr={[1, 2]}
         frameloop={isVisible ? 'always' : 'never'}
         gl={{antialias: true, powerPreference: 'high-performance'}}
       >
-        <Scene />
+        <Scene hdriRotation={[46 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180]} />
       </Canvas>
     </div>
   );

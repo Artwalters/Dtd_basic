@@ -19,6 +19,7 @@ import cartStyles from '~/styles/cart.css?url';
 import neueHaasFont from '~/assets/fonts/NeueHaasGroteskDisp Pro Md-normal-500-100.ttf?url';
 import {PageLayout} from './components/PageLayout';
 import {useLenis} from '~/hooks/useLenis';
+import {ThemeProvider} from '~/contexts/ThemeContext';
 
 export type RootLoader = typeof loader;
 
@@ -197,15 +198,17 @@ export default function App() {
   }
 
   return (
-    <Analytics.Provider
-      cart={data.cart}
-      shop={data.shop}
-      consent={data.consent}
-    >
-      <PageLayout {...data}>
-        <Outlet />
-      </PageLayout>
-    </Analytics.Provider>
+    <ThemeProvider>
+      <Analytics.Provider
+        cart={data.cart}
+        shop={data.shop}
+        consent={data.consent}
+      >
+        <PageLayout {...data}>
+          <Outlet />
+        </PageLayout>
+      </Analytics.Provider>
+    </ThemeProvider>
   );
 }
 
