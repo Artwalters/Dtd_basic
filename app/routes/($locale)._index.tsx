@@ -74,11 +74,11 @@ export default function Homepage() {
         title="Genesis drop"
         featuredImage="/Img/new-drop-featured.jpg"
       />
+      <CommunitySection />
       <NewArrivals
         products={products.nodes}
         title="New Arrivals"
       />
-      <CommunitySection />
     </>
   );
 }

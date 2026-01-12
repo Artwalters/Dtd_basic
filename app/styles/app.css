@@ -621,12 +621,27 @@ button.reset:hover:not(:has(> *)) {
   top: -2.25em; /* Extend up to cover announcement bar */
   left: 0;
   right: 0;
-  height: calc(100% + 2.25em + 8em); /* Cover announcement + header + fade area */
+  height: calc(100% + 2.25em + 4em); /* Cover announcement + header + fade area */
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.64) 0%,
-    rgba(0, 0, 0, 0.4) 30%,
-    rgba(0, 0, 0, 0) 100%
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.78) 3%,
+    rgba(0, 0, 0, 0.75) 6%,
+    rgba(0, 0, 0, 0.71) 10%,
+    rgba(0, 0, 0, 0.66) 14%,
+    rgba(0, 0, 0, 0.59) 19%,
+    rgba(0, 0, 0, 0.51) 25%,
+    rgba(0, 0, 0, 0.43) 34%,
+    rgba(0, 0, 0, 0.31) 47%,
+    rgba(0, 0, 0, 0.22) 56.5%,
+    rgba(0, 0, 0, 0.16) 65%,
+    rgba(0, 0, 0, 0.1) 73%,
+    rgba(0, 0, 0, 0.06) 80.2%,
+    rgba(0, 0, 0, 0.034) 86.1%,
+    rgba(0, 0, 0, 0.017) 91%,
+    rgba(0, 0, 0, 0.006) 95.2%,
+    rgba(0, 0, 0, 0.002) 98.2%,
+    transparent 100%
   );
   pointer-events: none;
   z-index: -1; /* Behind header content */
