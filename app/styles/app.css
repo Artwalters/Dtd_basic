@@ -288,6 +288,44 @@ img {
   color: var(--color-white);
 }
 
+.btn.btn-white,
+a.btn.btn-white,
+.hero-slide-bottom .btn.btn-white {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  font-size: var(--font-sm);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.btn.btn-white:hover:not(:disabled),
+a.btn.btn-white:hover:not(:disabled),
+.hero-slide-bottom .btn.btn-white:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #FFFFFF;
+}
+
+.btn-outline-dark {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-black);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  font-size: var(--font-sm);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.btn-outline-dark:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.25);
+  color: var(--color-black);
+}
+
 /*
 * --------------------------------------------------
 * Non anchor links
@@ -310,6 +348,7 @@ body:has(.overlay.expanded) {
 
 aside {
   background: var(--color-white);
+  color: var(--color-black);
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.08);
   height: 100vh;
   width: min(var(--aside-width), 100vw);
@@ -328,12 +367,14 @@ aside header {
   height: 3.5em;
   justify-content: space-between;
   padding: 0 2em;
+  background: var(--color-white);
 }
 
 aside header h3 {
   margin: 0;
   font-size: var(--font-lg);
   font-weight: var(--weight-medium);
+  color: var(--color-black);
 }
 
 aside header .close {
@@ -347,6 +388,7 @@ aside header .close {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--color-black);
 }
 
 aside header .close:hover {
@@ -356,6 +398,7 @@ aside header .close:hover {
 aside header .close svg {
   width: 100%;
   height: 100%;
+  stroke: var(--color-black);
 }
 
 aside header h2 {
@@ -455,6 +498,104 @@ button.reset:hover:not(:has(> *)) {
 
 /*
 * --------------------------------------------------
+* components/AnnouncementBar
+* --------------------------------------------------
+*/
+.announcement-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 51;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 2.25em;
+  background: rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  padding: 0 1em;
+}
+
+
+.announcement-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.announcement-text {
+  font-size: var(--font-sm);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.announcement-text.visible {
+  opacity: 1;
+}
+
+.announcement-spacer {
+  flex: 1;
+}
+
+.language-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  padding-left: 1em;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  height: 100%;
+}
+
+.language-btn {
+  font-size: var(--font-sm);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  letter-spacing: var(--tracking-wide);
+  color: rgba(255, 255, 255, 0.4);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.language-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.language-btn.active {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.announcement-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.5em;
+  font-size: 1em;
+  transition: color 0.2s ease;
+}
+
+.announcement-close:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/*
+* --------------------------------------------------
 * components/Header
 * --------------------------------------------------
 */
@@ -465,24 +606,30 @@ button.reset:hover:not(:has(> *)) {
   justify-content: space-between;
   height: auto;
   min-height: var(--header-height);
-  padding: 1em 2em;
+  padding: 1em;
   position: fixed;
-  top: 0;
+  top: 2.25em;
   right: 0;
   left: 0;
   z-index: 50;
 }
 
+/* Header gradient - covers both announcement bar and header area */
 .header::before {
   content: '';
   position: absolute;
-  top: 0;
+  top: -2.25em; /* Extend up to cover announcement bar */
   left: 0;
   right: 0;
-  height: 200%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.628) 19%, rgba(0, 0, 0, 0.46) 34%, rgba(0, 0, 0, 0.324) 47%, rgba(0, 0, 0, 0.236) 56.5%, rgba(0, 0, 0, 0.165) 65%, rgba(0, 0, 0, 0.107) 73%, rgba(0, 0, 0, 0.064) 80.2%, rgba(0, 0, 0, 0.036) 86.1%, rgba(0, 0, 0, 0.018) 91%, rgba(0, 0, 0, 0.007) 95.2%, rgba(0, 0, 0, 0.002) 98.2%, transparent 100%);
+  height: calc(100% + 2.25em + 8em); /* Cover announcement + header + fade area */
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.64) 0%,
+    rgba(0, 0, 0, 0.4) 30%,
+    rgba(0, 0, 0, 0) 100%
+  );
   pointer-events: none;
-  z-index: -1;
+  z-index: -1; /* Behind header content */
 }
 
 /* Header with dark text and white background */
@@ -503,35 +650,101 @@ button.reset:hover:not(:has(> *)) {
   color: var(--color-black);
 }
 
-.header a,
-.header button {
-  color: #dedede;
-}
+/* Removed to allow glass button white color to take precedence */
 
 .header-nav-left,
 .header-nav-right {
   display: flex;
   align-items: center;
-  gap: 1.5em;
+  gap: 0.4em;
+}
+
+/* Glass button style - Figma design */
+.btn-glass {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65em 0.75em;
+  font-size: var(--font-sm);
+  font-family: inherit;
+  font-weight: var(--weight-normal);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  line-height: 1;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  color: #FFFFFF;
+  cursor: pointer;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
+  text-decoration: none;
+  color: #FFFFFF;
+}
+
+.btn-glass:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Glass button with icon (cart/bag) */
+.btn-glass--icon {
+  padding: 0.65em;
+  gap: 0.5em;
+}
+
+/* Glass button with text and count */
+.btn-glass--cart {
+  padding: 0.65em 0.75em;
+  gap: 0.35em;
+}
+
+.btn-glass--cart .divider {
+  opacity: 0.6;
 }
 
 .header-nav-item {
-  font-size: var(--font-sm);
+  font-size: var(--font-base);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
-  color: var(--color-white);
-  background: none;
-  border: none;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
   cursor: pointer;
   text-decoration: none;
   font-family: inherit;
   font-weight: var(--weight-normal);
-  padding: 0;
+  padding: 1em 1.25em;
   margin: 0;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 3.5em; /* Fixed height for consistency */
+  box-sizing: border-box;
+}
+
+/* Icon-only buttons need same height */
+.header-nav-item.btn-glass--icon {
+  width: 3.5em;
+  padding: 0;
 }
 
 .header-nav-item:hover {
-  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
   text-decoration: none;
 }
 
@@ -667,21 +880,26 @@ button.reset:hover:not(:has(> *)) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-white);
-  color: var(--color-black);
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 500;
   font-size: 0.6125rem;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   padding: 0.75rem 1.25rem;
-  border-radius: 2px;
+  border-radius: 4px;
   text-decoration: none;
-  transition: opacity 0.2s ease;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 .footer-community-btn:hover {
-  opacity: 0.85;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #FFFFFF;
 }
 
 .footer-description {
@@ -845,16 +1063,27 @@ button.reset:hover:not(:has(> *)) {
   gap: 0.5em;
 }
 
+.cart-line-details a {
+  color: var(--color-black);
+  text-decoration: none;
+}
+
+.cart-line-details a:hover {
+  text-decoration: underline;
+}
+
 .cart-line-title {
   font-size: var(--font-base);
   font-weight: var(--weight-medium);
   line-height: 1.4;
   margin: 0;
+  color: var(--color-black);
 }
 
 .cart-line-price {
   font-size: var(--font-base);
   font-weight: var(--weight-normal);
+  color: var(--color-black);
 }
 
 .cart-summary-page {
@@ -913,13 +1142,14 @@ button.reset:hover:not(:has(> *)) {
   min-width: 2em;
   text-align: center;
   font-size: var(--font-base);
+  color: var(--color-black);
 }
 
 /* Use .btn .btn--ghost .text-sm for remove buttons */
 .cart-remove-button {
   background: none;
   border: none;
-  color: #666;
+  color: var(--color-grey);
   font-size: var(--font-sm);
   text-decoration: underline;
   cursor: pointer;
@@ -927,8 +1157,16 @@ button.reset:hover:not(:has(> *)) {
   transition: color 0.2s;
 }
 
+.cart-remove-button svg {
+  stroke: var(--color-grey);
+}
+
 .cart-remove-button:hover {
   color: var(--color-black);
+}
+
+.cart-remove-button:hover svg {
+  stroke: var(--color-black);
 }
 
 .cart-discount {
@@ -943,14 +1181,17 @@ button.reset:hover:not(:has(> *)) {
   justify-content: space-between;
   font-size: var(--font-base);
   margin-bottom: 1em;
+  color: var(--color-black);
 }
 
 .cart-subtotal dt {
   font-weight: var(--weight-normal);
+  color: var(--color-black);
 }
 
 .cart-subtotal dd {
   font-weight: var(--weight-medium);
+  color: var(--color-black);
 }
 
 .cart-checkout-actions {
@@ -978,6 +1219,52 @@ button.reset:hover:not(:has(> *)) {
   color: var(--color-black);
 }
 
+/* Cart Accordion (Shipping & Returns) */
+.cart-accordion {
+  margin-bottom: 1.5em;
+  border-top: 1px solid var(--color-grey);
+}
+
+.cart-accordion-item {
+  border-bottom: 1px solid var(--color-grey);
+}
+
+.cart-accordion-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 1em 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-base);
+  font-family: inherit;
+  color: var(--color-black);
+  text-align: left;
+}
+
+.cart-accordion-trigger:hover {
+  opacity: 0.7;
+}
+
+.cart-accordion-icon {
+  font-size: var(--font-lg);
+  font-weight: var(--weight-normal);
+  color: var(--color-black);
+}
+
+.cart-accordion-content {
+  padding-bottom: 1em;
+}
+
+.cart-accordion-content p {
+  margin: 0;
+  font-size: var(--font-sm);
+  line-height: 1.6;
+  color: var(--color-black);
+}
+
 .cart-empty {
   text-align: center;
   padding: 3em 0;
@@ -985,17 +1272,22 @@ button.reset:hover:not(:has(> *)) {
 
 .cart-empty-message {
   font-size: var(--font-lg);
-  color: #666;
+  color: var(--color-grey);
   margin-bottom: 1.5em;
 }
 
-.cart-empty-link {
+.cart-empty-link,
+.cart-empty-button {
   font-size: var(--font-base);
   color: var(--color-black);
   text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-.cart-empty-link:hover {
+.cart-empty-link:hover,
+.cart-empty-button:hover {
   text-decoration: none;
 }
 /*
@@ -1483,6 +1775,19 @@ button.reset:hover:not(:has(> *)) {
   margin-bottom: 0;
 }
 
+/* Override btn-outline-dark on dark background */
+.new-drop-header .btn-outline-dark {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.new-drop-header .btn-outline-dark:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #FFFFFF;
+}
+
 .new-drop-products {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1776,6 +2081,20 @@ button.reset:hover:not(:has(> *)) {
   right: 0.5em;
   top: 50%;
   transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-black);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  font-size: var(--font-sm);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.new-arrivals-shop-all:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.25);
+  color: var(--color-black);
 }
 
 .new-arrivals-title {
@@ -2997,20 +3316,23 @@ button.reset:hover:not(:has(> *)) {
 
 .community-submit-btn {
   padding: 1em 2em;
-  border: none;
-  background: var(--color-black);
-  color: var(--color-white);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--color-black);
   font-family: inherit;
   font-size: var(--font-xs);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
   font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 
 .community-submit-btn:hover {
-  opacity: 0.8;
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.25);
 }
 
 .community-privacy {

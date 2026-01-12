@@ -1,4 +1,4 @@
-import {Suspense} from 'react';
+import {Suspense, useState, useEffect} from 'react';
 import {Await, NavLink, useAsyncValue} from 'react-router';
 import {
   type CartViewPayload,
@@ -9,6 +9,62 @@ import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {useHeaderScroll} from '~/hooks/useHeaderScroll';
 import {useTheme} from '~/contexts/ThemeContext';
+
+const ANNOUNCEMENT_MESSAGES = [
+  'Free delivery on orders over €160',
+  '"Genesis" collection now available',
+];
+
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'nl', label: 'Nederlands' },
+  { code: 'de', label: 'Deutsch' },
+];
+
+function AnnouncementBar() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const [activeLanguage, setActiveLanguage] = useState('en');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsVisible(false);
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % ANNOUNCEMENT_MESSAGES.length);
+        setIsVisible(true);
+      }, 300);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="announcement-bar">
+      <div className="announcement-spacer" />
+      <div className="announcement-center">
+        <p className={`announcement-text ${isVisible ? 'visible' : ''}`}>
+          {ANNOUNCEMENT_MESSAGES[currentIndex]}
+        </p>
+      </div>
+      <div className="language-switcher">
+        {LANGUAGES.map((lang) => (
+          <button
+            key={lang.code}
+            className={`language-btn ${activeLanguage === lang.code ? 'active' : ''}`}
+            onClick={() => setActiveLanguage(lang.code)}
+          >
+            {lang.label}
+          </button>
+        ))}
+        <button className="announcement-close" aria-label="Close announcement">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M1 1L11 11M1 11L11 1" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
 
 interface HeaderProps {
   header: HeaderQuery;
@@ -26,7 +82,9 @@ export function Header({
   const { headerRef, isScrolled } = useHeaderScroll();
 
   return (
-    <header ref={headerRef} className="header">
+    <>
+      <AnnouncementBar />
+      <header ref={headerRef} className="header">
       <nav className="header-nav-left">
         <NavLink to="/community" className="header-nav-item">
           Community
@@ -45,11 +103,11 @@ export function Header({
 
       <nav className="header-nav-right">
         <SearchToggle />
-        <Suspense fallback="Account">
-          <Await resolve={isLoggedIn} errorElement={<NavLink to="/account" className="header-nav-item">Account</NavLink>}>
+        <Suspense fallback={<NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account"><UserIcon /></NavLink>}>
+          <Await resolve={isLoggedIn} errorElement={<NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account"><UserIcon /></NavLink>}>
             {(isLoggedIn) => (
-              <NavLink to="/account" className="header-nav-item">
-                Account
+              <NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account">
+                <UserIcon />
               </NavLink>
             )}
           </Await>
@@ -57,14 +115,31 @@ export function Header({
         <CartToggle cart={cart} />
       </nav>
     </header>
+    </>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    >
+      <path d="M11 17.5C14.5899 17.5 17.5 14.5899 17.5 11C17.5 7.41015 14.5899 4.5 11 4.5C7.41015 4.5 4.5 7.41015 4.5 11C4.5 14.5899 7.41015 17.5 11 17.5Z" />
+      <path d="M20.4 20.5L15.5 15.7" />
+    </svg>
   );
 }
 
 function SearchToggle() {
   const {open} = useAside();
   return (
-    <button className="header-nav-item reset" onClick={() => open('search')}>
-      Search
+    <button className="header-nav-item btn-glass--icon reset" onClick={() => open('search')} aria-label="Search">
+      <SearchIcon />
     </button>
   );
 }
@@ -82,27 +157,83 @@ function ThemeToggle() {
   );
 }
 
+function UserIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    >
+      <path d="M12 11.5C14.2091 11.5 16 9.70914 16 7.5C16 5.29086 14.2091 3.5 12 3.5C9.79086 3.5 8 5.29086 8 7.5C8 9.70914 9.79086 11.5 12 11.5Z" />
+      <path d="M4.5 21V17L7.5 14L12 15.5L16.5 14L19.5 17V21" />
+    </svg>
+  );
+}
+
+function BagIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <path d="M16 10a4 4 0 0 1-8 0" />
+    </svg>
+  );
+}
+
 function CartBadge({count}: {count: number | null}) {
   const {open} = useAside();
   const {publish, shop, cart, prevCart} = useAnalytics();
 
   return (
-    <a
-      href="/cart"
-      className="header-nav-item"
-      onClick={(e) => {
-        e.preventDefault();
-        open('cart');
-        publish('cart_viewed', {
-          cart,
-          prevCart,
-          shop,
-          url: window.location.href || '',
-        } as CartViewPayload);
-      }}
-    >
-      Cart{count !== null && count > 0 ? ` (${count})` : ''}
-    </a>
+    <>
+      <a
+        href="/cart"
+        className="header-nav-item btn-glass--icon"
+        onClick={(e) => {
+          e.preventDefault();
+          open('cart');
+          publish('cart_viewed', {
+            cart,
+            prevCart,
+            shop,
+            url: window.location.href || '',
+          } as CartViewPayload);
+        }}
+        aria-label="Open shopping bag"
+      >
+        <BagIcon />
+      </a>
+      <a
+        href="/cart"
+        className="header-nav-item btn-glass--cart"
+        onClick={(e) => {
+          e.preventDefault();
+          open('cart');
+          publish('cart_viewed', {
+            cart,
+            prevCart,
+            shop,
+            url: window.location.href || '',
+          } as CartViewPayload);
+        }}
+      >
+        <span>Bag</span>
+        <span className="divider">/</span>
+        <span>{count ?? 0}</span>
+      </a>
+    </>
   );
 }
 
