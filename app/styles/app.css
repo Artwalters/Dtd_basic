@@ -791,6 +791,12 @@ button.reset:hover:not(:has(> *)) {
   justify-content: center;
 }
 
+/* 3D Navbar Logo */
+.navbar-logo-3d {
+  width: 500px;
+  height: 150px;
+}
+
 .header-logo-image {
   height: 4em;
   width: auto;

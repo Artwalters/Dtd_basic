@@ -1,4 +1,4 @@
-import {Suspense, useState, useEffect} from 'react';
+import {Suspense, useState, useEffect, lazy} from 'react';
 import {Await, NavLink, useAsyncValue} from 'react-router';
 import {
   type CartViewPayload,
@@ -9,6 +9,8 @@ import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {useHeaderScroll} from '~/hooks/useHeaderScroll';
 import {useTheme} from '~/contexts/ThemeContext';
+
+const NavbarLogo3D = lazy(() => import('~/components/NavbarLogo3D'));
 
 const ANNOUNCEMENT_MESSAGES = [
   'Free delivery on orders over €160',
@@ -108,9 +110,10 @@ export function Header({
       </nav>
 
       <NavLink to="/" className="header-logo">
-        <span className={`header-logo-wrapper ${isScrolled ? 'scrolled' : ''}`}>
-          <Logo />
-          <LogoSmall />
+        <span className="header-logo-wrapper">
+          <Suspense fallback={<Logo />}>
+            <NavbarLogo3D isScrolled={isScrolled} />
+          </Suspense>
         </span>
       </NavLink>
 
