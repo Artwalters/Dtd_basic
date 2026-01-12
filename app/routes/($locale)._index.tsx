@@ -72,7 +72,7 @@ export default function Homepage() {
       <NewDrop
         products={products.nodes}
         title="Genesis drop"
-        featuredImage={heroSlides[0].backgroundImage}
+        featuredImage="/Img/new-drop-featured.jpg"
       />
       <NewArrivals
         products={products.nodes}
