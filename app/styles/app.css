@@ -52,6 +52,7 @@
   --color-light-black: #0C0C0C;
   --color-white: #FFFFFF;
   --color-grey: #DEDEDE;
+  --color-pure-white: #FFFFFF;
 }
 
 /* Dark mode color overrides */
@@ -464,13 +465,24 @@ button.reset:hover:not(:has(> *)) {
   justify-content: space-between;
   height: auto;
   min-height: var(--header-height);
-  padding: 0 2em;
+  padding: 1em 2em;
   position: fixed;
   top: 0;
   right: 0;
   left: 0;
   z-index: 50;
-  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.628) 19%, rgba(0, 0, 0, 0.46) 34%, rgba(0, 0, 0, 0.324) 47%, rgba(0, 0, 0, 0.236) 56.5%, rgba(0, 0, 0, 0.165) 65%, rgba(0, 0, 0, 0.107) 73%, rgba(0, 0, 0, 0.064) 80.2%, rgba(0, 0, 0, 0.036) 86.1%, rgba(0, 0, 0, 0.018) 91%, rgba(0, 0, 0, 0.007) 95.2%, rgba(0, 0, 0, 0.002) 98.2%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Header with dark text and white background */
@@ -525,23 +537,19 @@ button.reset:hover:not(:has(> *)) {
 }
 
 
-.header-logo {
+.header a.header-logo {
   display: flex;
   align-items: center;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  color: var(--color-white);
+  color: var(--color-pure-white);
 }
 
 .header-logo-image {
-  height: 3.5em;
+  height: 4em;
   width: auto;
   margin: 1em 0;
-}
-
-.header-dark .header-logo {
-  color: var(--color-black);
 }
 
 .header-logo-text {
@@ -1296,14 +1304,14 @@ button.reset:hover:not(:has(> *)) {
 }
 
 .hero-slide-subtitle {
-  color: var(--color-white);
+  color: #FFFFFF;
   font-size: var(--font-md);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
 }
 
 .hero-slide-title {
-  color: var(--color-white);
+  color: #FFFFFF;
   font-size: var(--font-4xl);
   text-transform: uppercase;
   letter-spacing: var(--tracking-tight);
@@ -1331,7 +1339,7 @@ button.reset:hover:not(:has(> *)) {
   top: 0;
   left: 0;
   height: 100%;
-  background: var(--color-white);
+  background: #FFFFFF;
   border-radius: 2px;
   transition: transform 0.3s ease;
   width: 33.33%; /* Default width for 3 slides */
@@ -1348,8 +1356,13 @@ button.reset:hover:not(:has(> *)) {
   margin-bottom: 5em;
   padding: 0 2em;
   width: 100%;
-  max-width: 600px;
+  max-width: 46em;
   box-sizing: border-box;
+  color: #FFFFFF;
+}
+
+.hero-slider .hero-bottom * {
+  color: #FFFFFF;
 }
 
 /* Mobile styles for Hero Slider */
