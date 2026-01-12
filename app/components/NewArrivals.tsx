@@ -59,8 +59,8 @@ export function NewArrivals({
       <div className="new-arrivals-header">
         <h2 className="new-arrivals-title">{title}</h2>
         <div className="new-arrivals-progress" data-gsap-slider-progress="">
-          <div className="new-arrivals-progress-track">
-            <div className="new-arrivals-progress-fill" data-gsap-slider-progress-fill=""></div>
+          <div className="progress-track">
+            <div className="progress-fill new-arrivals-progress-fill" data-gsap-slider-progress-fill=""></div>
           </div>
         </div>
         <Link to="/collections/all" className="btn new-arrivals-shop-all">
