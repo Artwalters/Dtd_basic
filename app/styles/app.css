@@ -546,10 +546,44 @@ button.reset:hover:not(:has(> *)) {
   color: var(--color-pure-white);
 }
 
+.header-logo-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .header-logo-image {
   height: 4em;
   width: auto;
   margin: 1em 0;
+  transition: opacity 0.3s ease;
+}
+
+.header-logo-image.header-logo-small {
+  height: 3.5em;
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.2s;
+}
+
+.header-logo-wrapper.scrolled .header-logo-image:not(.header-logo-small) {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.header-logo-wrapper.scrolled .header-logo-image.header-logo-small {
+  opacity: 1;
+  transition: opacity 0.3s ease 0.2s;
+}
+
+/* Reverse: when scrolling back up, big logo comes in after small fades */
+.header-logo-wrapper:not(.scrolled) .header-logo-image:not(.header-logo-small) {
+  transition: opacity 0.3s ease 0.2s;
+}
+
+.header-logo-wrapper:not(.scrolled) .header-logo-image.header-logo-small {
+  transition: opacity 0.3s ease;
 }
 
 .header-logo-text {
@@ -1454,16 +1488,6 @@ button.reset:hover:not(:has(> *)) {
   gap: 0.5em;
 }
 
-@media (min-width: 120em) {
-  .new-drop-grid {
-    grid-template-columns: 1fr 2fr;
-    gap: 0.5em;
-  }
-
-  .new-drop-products {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
 
 .new-drop-card {
   display: flex;
