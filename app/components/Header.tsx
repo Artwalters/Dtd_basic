@@ -21,10 +21,11 @@ const LANGUAGES = [
   { code: 'de', label: 'Deutsch' },
 ];
 
-function AnnouncementBar() {
+function AnnouncementBar({ onClose }: { onClose: () => void }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [activeLanguage, setActiveLanguage] = useState('en');
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -38,8 +39,15 @@ function AnnouncementBar() {
     return () => clearInterval(interval);
   }, []);
 
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
+
   return (
-    <div className="announcement-bar">
+    <div className={`announcement-bar ${isClosing ? 'closing' : ''}`}>
       <div className="announcement-spacer" />
       <div className="announcement-center">
         <p className={`announcement-text ${isVisible ? 'visible' : ''}`}>
@@ -56,7 +64,11 @@ function AnnouncementBar() {
             {lang.label}
           </button>
         ))}
-        <button className="announcement-close" aria-label="Close announcement">
+        <button
+          className="announcement-close"
+          aria-label="Close announcement"
+          onClick={handleClose}
+        >
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M1 1L11 11M1 11L11 1" />
           </svg>
@@ -80,10 +92,11 @@ export function Header({
   publicStoreDomain,
 }: HeaderProps) {
   const { headerRef, isScrolled } = useHeaderScroll();
+  const [announcementClosed, setAnnouncementClosed] = useState(false);
 
   return (
-    <>
-      <AnnouncementBar />
+    <div className="header-wrapper">
+      {!announcementClosed && <AnnouncementBar onClose={() => setAnnouncementClosed(true)} />}
       <header ref={headerRef} className="header">
       <nav className="header-nav-left">
         <NavLink to="/community" className="header-nav-item">
@@ -115,7 +128,7 @@ export function Header({
         <CartToggle cart={cart} />
       </nav>
     </header>
-    </>
+    </div>
   );
 }
 

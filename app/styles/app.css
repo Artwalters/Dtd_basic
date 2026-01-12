@@ -502,11 +502,8 @@ button.reset:hover:not(:has(> *)) {
 * --------------------------------------------------
 */
 .announcement-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 51;
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -516,6 +513,16 @@ button.reset:hover:not(:has(> *)) {
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   padding: 0 1em;
+  margin-bottom: 0.5em;
+  transition: transform 0.3s ease, opacity 0.3s ease, margin 0.3s ease, height 0.3s ease;
+}
+
+.announcement-bar.closing {
+  transform: translateY(-100%);
+  opacity: 0;
+  height: 0;
+  margin-bottom: 0;
+  overflow: hidden;
 }
 
 
@@ -599,6 +606,14 @@ button.reset:hover:not(:has(> *)) {
 * components/Header
 * --------------------------------------------------
 */
+.header-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+}
+
 .header {
   align-items: center;
   background: transparent;
@@ -607,21 +622,17 @@ button.reset:hover:not(:has(> *)) {
   height: auto;
   min-height: var(--header-height);
   padding: 1em;
-  position: fixed;
-  top: 2.25em;
-  right: 0;
-  left: 0;
-  z-index: 50;
+  position: relative;
 }
 
 /* Header gradient - covers both announcement bar and header area */
-.header::before {
+.header-wrapper::before {
   content: '';
   position: absolute;
-  top: -2.25em; /* Extend up to cover announcement bar */
+  top: 0;
   left: 0;
   right: 0;
-  height: calc(100% + 2.25em + 4em); /* Cover announcement + header + fade area */
+  height: calc(100% + 4em); /* Cover header wrapper + fade area */
   background: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0.8) 0%,
@@ -738,7 +749,7 @@ button.reset:hover:not(:has(> *)) {
   text-decoration: none;
   font-family: inherit;
   font-weight: var(--weight-normal);
-  padding: 1em 1.25em;
+  padding: 0.75em 1.25em;
   margin: 0;
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
@@ -746,13 +757,13 @@ button.reset:hover:not(:has(> *)) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 3.5em; /* Fixed height for consistency */
+  height: 3em;
   box-sizing: border-box;
 }
 
 /* Icon-only buttons need same height */
 .header-nav-item.btn-glass--icon {
-  width: 3.5em;
+  width: 3em;
   padding: 0;
 }
 
@@ -788,7 +799,7 @@ button.reset:hover:not(:has(> *)) {
 }
 
 .header-logo-image.header-logo-small {
-  height: 3.5em;
+  height: 4.55em;
   position: absolute;
   opacity: 0;
   transition: opacity 0.3s ease 0.2s;
@@ -1526,6 +1537,7 @@ button.reset:hover:not(:has(> *)) {
   text-transform: uppercase;
   letter-spacing: var(--tracking-tight);
   margin: 0;
+  line-height: 1;
 }
 
 
@@ -1715,6 +1727,7 @@ button.reset:hover:not(:has(> *)) {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1em;
+  padding: 0 0.5em;
 }
 
 .new-drop-header .new-drop-title {
@@ -1737,7 +1750,7 @@ button.reset:hover:not(:has(> *)) {
 .new-drop-products {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.5em;
+  gap: 1.5em 0.5em;
 }
 
 
@@ -1771,26 +1784,33 @@ button.reset:hover:not(:has(> *)) {
 
 .new-drop-info {
   display: flex;
-  flex-direction: column;
-  gap: 0.2em;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1em;
+  padding: 0 0.5em;
 }
 
-.new-drop-vendor {
-  font-size: var(--font-xs);
-  color: var(--color-grey);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
+.new-drop-info-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
 }
 
 .new-drop-product-title {
-  font-size: var(--font-base);
+  font-size: var(--font-sm);
   color: var(--color-black);
 }
 
+.new-drop-product-meta {
+  font-size: var(--font-sm);
+  color: #999;
+}
+
 .new-drop-price {
-  font-size: var(--font-base);
+  font-size: var(--font-sm);
   color: var(--color-black);
-  margin-top: 0.25em;
+  flex-shrink: 0;
 }
 
 /*
@@ -1941,7 +1961,7 @@ button.reset:hover:not(:has(> *)) {
   .new-drop-products {
     order: 3;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.5em;
+    gap: 1.5em 0.5em;
   }
 
   .new-drop-featured-btn {
@@ -1955,19 +1975,19 @@ button.reset:hover:not(:has(> *)) {
   }
 
   .new-drop-info {
-    gap: 0.1em;
-  }
-
-  .new-drop-vendor {
-    font-size: 0.5em;
+    gap: 0.5em;
   }
 
   .new-drop-product-title {
+    font-size: var(--font-sm);
+  }
+
+  .new-drop-product-meta {
     font-size: var(--font-xs);
   }
 
   .new-drop-price {
-    font-size: var(--font-xs);
+    font-size: var(--font-sm);
   }
 }
 
@@ -2027,32 +2047,6 @@ button.reset:hover:not(:has(> *)) {
   right: 0.5em;
   top: 50%;
   transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75em 1.5em;
-  font-size: var(--font-sm);
-  font-family: inherit;
-  font-weight: var(--weight-normal);
-  line-height: 1;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--color-black);
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-}
-
-.new-arrivals-shop-all:hover {
-  background: rgba(0, 0, 0, 0.1);
-  border-color: rgba(0, 0, 0, 0.25);
-  color: var(--color-black);
-  text-decoration: none;
 }
 
 .new-arrivals-title {
@@ -2132,10 +2126,6 @@ button.reset:hover:not(:has(> *)) {
 
   .new-arrivals-progress {
     width: 120px;
-  }
-
-  .new-arrivals-shop-all {
-    font-size: var(--font-sm);
   }
 }
 

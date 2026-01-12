@@ -35,6 +35,19 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
 
   const sizeOptions = Array.from(uniqueSizes.values());
 
+  // Get unique colors from variants
+  const uniqueColors = new Set<string>();
+  variants.forEach((variant) => {
+    const colorOption = variant.selectedOptions?.find(
+      (opt) => opt.name.toLowerCase() === 'color' || opt.name.toLowerCase() === 'colour'
+    );
+    if (colorOption?.value) {
+      uniqueColors.add(colorOption.value);
+    }
+  });
+  const colorCount = uniqueColors.size;
+  const firstColor = uniqueColors.values().next().value || '';
+
   const handlePlusClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -118,7 +131,14 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
         </div>
       )}
       <div className="new-drop-info">
-        <span className="new-drop-product-title">{product.title}</span>
+        <div className="new-drop-info-left">
+          <span className="new-drop-product-title">{product.title}</span>
+          {colorCount > 0 && (
+            <span className="new-drop-product-meta">
+              {firstColor}{colorCount > 1 ? `  ${colorCount} Colours` : ''}
+            </span>
+          )}
+        </div>
         <Money
           data={product.priceRange.minVariantPrice}
           className="new-drop-price"

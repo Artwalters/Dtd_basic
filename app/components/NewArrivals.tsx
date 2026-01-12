@@ -63,7 +63,7 @@ export function NewArrivals({
             <div className="progress-fill new-arrivals-progress-fill" data-gsap-slider-progress-fill=""></div>
           </div>
         </div>
-        <Link to="/collections/all" className="btn new-arrivals-shop-all">
+        <Link to="/collections/all" className="btn btn-glass new-arrivals-shop-all">
           SHOP ALL
         </Link>
       </div>
