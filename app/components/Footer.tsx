@@ -82,6 +82,7 @@ export function Footer() {
           </ul>
         </nav>
       </div>
+      <div className="section-divider"></div>
     </footer>
   );
 }

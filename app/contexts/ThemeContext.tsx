@@ -13,8 +13,8 @@ export function ThemeProvider({children}: {children: ReactNode}) {
   const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
-    // Always set dark mode
-    document.documentElement.classList.add('dark-mode');
+    // Remove dark-mode class if present (no longer used)
+    document.documentElement.classList.remove('dark-mode');
   }, []);
 
   const toggleTheme = () => {
