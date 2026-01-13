@@ -69,18 +69,28 @@ export function Footer() {
           </ul>
         </nav>
 
-        {/* Shop */}
-        <nav className="footer-links-col">
-          <h3 className="footer-links-title">Shop</h3>
-          <ul className="footer-links-list">
-            <li>
-              <Link to="/pages/boutique-pickup">Boutique pick-up</Link>
-            </li>
-            <li>
-              <Link to="/products/gift-card">Gift card</Link>
-            </li>
-          </ul>
-        </nav>
+        {/* Get Updates */}
+        <div className="footer-links-col footer-newsletter">
+          <h3 className="footer-links-title">Get Updates</h3>
+          <form className="footer-newsletter-form">
+            <input
+              type="email"
+              placeholder="Email address"
+              className="footer-newsletter-input"
+            />
+            <button type="submit" className="btn-glass btn-glass--icon footer-newsletter-btn" aria-label="Subscribe">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 10L20 15L15 20" stroke="currentColor" strokeMiterlimit="10"></path>
+                <path d="M4 4V12L7 15H20" stroke="currentColor" strokeMiterlimit="10"></path>
+              </svg>
+            </button>
+          </form>
+          <label className="footer-newsletter-checkbox">
+            <input type="checkbox" />
+            <span className="footer-newsletter-checkmark"></span>
+            <span className="footer-newsletter-label">Signup and get a look behind the scenes</span>
+          </label>
+        </div>
       </div>
       <div className="section-divider"></div>
     </footer>
