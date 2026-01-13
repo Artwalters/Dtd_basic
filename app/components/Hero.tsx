@@ -27,7 +27,7 @@ export function Hero({
             <span className="hero-subtitle">{subtitle}</span>
             <h1 className="hero-title">{title}</h1>
           </div>
-          <Link to={buttonLink} className="btn btn-white">
+          <Link to={buttonLink} className="btn btn-glass">
             {buttonText}
           </Link>
         </div>

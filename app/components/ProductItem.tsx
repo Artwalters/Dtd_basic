@@ -19,6 +19,17 @@ export function ProductItem({
 }) {
   const variantUrl = useVariantUrl(product.handle);
   const image = product.featuredImage;
+
+  // Get tags for display (cast to any to access fields not in generated types)
+  const productData = product as any;
+  const tags: string[] = productData.tags || [];
+
+  // Check if product has "new" tag
+  const isNew = tags.some((tag: string) => tag.toLowerCase() === 'new');
+
+  // Get product type from tags (first tag that's not "new")
+  const productTypeTag = tags.find((tag: string) => tag.toLowerCase() !== 'new') || null;
+
   return (
     <Link
       className="product-item"
@@ -26,15 +37,23 @@ export function ProductItem({
       prefetch="intent"
       to={variantUrl}
     >
-      {image && (
-        <Image
-          alt={image.altText || product.title}
-          aspectRatio="1/1"
-          data={image}
-          loading={loading}
-          sizes="(min-width: 45em) 400px, 100vw"
-        />
-      )}
+      <div className="product-item-image-wrapper">
+        {image && (
+          <Image
+            alt={image.altText || product.title}
+            aspectRatio="1/1"
+            data={image}
+            loading={loading}
+            sizes="(min-width: 45em) 400px, 100vw"
+          />
+        )}
+        {(isNew || productTypeTag) && (
+          <div className="product-item-tags">
+            {isNew && <span className="product-item-tag btn btn-glass">New</span>}
+            {productTypeTag && <span className="product-item-tag btn btn-glass">{productTypeTag}</span>}
+          </div>
+        )}
+      </div>
       <h4>{product.title}</h4>
       <small>
         <Money data={product.priceRange.minVariantPrice} />

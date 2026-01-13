@@ -25,10 +25,10 @@ export function NewDrop({
 
   return (
     <section className="new-drop">
-      <div className="new-drop-divider" />
+      <div className="section-divider" />
       <div className="new-drop-section-header">
         <h2 className="new-drop-section-title">{title}</h2>
-        <Link to="/collections/all" className="btn btn-white">
+        <Link to="/collections/all" className="btn btn-glass">
           SHOP ALL
         </Link>
       </div>
@@ -37,7 +37,7 @@ export function NewDrop({
         <div className="new-drop-featured">
           <div className="new-drop-featured-wrapper">
             <img src={featuredImage} alt="" className="new-drop-featured-image" />
-            <Link to="/collections/all" className="btn btn-white new-drop-featured-btn">
+            <Link to="/collections/all" className="btn btn-glass new-drop-featured-btn">
               VIEW PRODUCTS
             </Link>
           </div>
@@ -57,7 +57,7 @@ export function NewDrop({
         </div>
       </div>
       <div className="new-drop-footer">
-        <Link to="/collections/all" className="btn">
+        <Link to="/collections/all" className="btn btn-glass">
           SHOP NOW
         </Link>
       </div>

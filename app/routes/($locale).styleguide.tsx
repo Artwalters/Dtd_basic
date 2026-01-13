@@ -123,11 +123,9 @@ export default function StyleGuide() {
       {/* Buttons */}
       <section className="styleguide-section">
         <h2>Buttons</h2>
-        <div className="styleguide-buttons">
-          <button className="btn btn-primary">Primary Button</button>
-          <button className="btn btn-secondary">Secondary Button</button>
-          <button className="btn btn-outline">Outline Button</button>
-          <button className="btn" disabled>Disabled Button</button>
+        <div className="styleguide-buttons" style={{background: '#1a1a1a', padding: '2em', borderRadius: '8px'}}>
+          <button className="btn btn-glass">Glass Button</button>
+          <button className="btn btn-glass" disabled>Disabled Button</button>
         </div>
       </section>
 

@@ -153,7 +153,7 @@ img {
 * Buttons - Unified System
 * --------------------------------------------------
 */
-/* Base button styles - use with modifiers */
+/* Base button styles */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -165,11 +165,11 @@ img {
   line-height: 1;
   text-decoration: none;
   border: 1px solid transparent;
-  border-radius: 0.25em;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
   background: transparent;
-  color: var(--color-black);
+  color: inherit;
 }
 
 .btn:hover {
@@ -181,151 +181,6 @@ img {
   cursor: not-allowed;
 }
 
-/* Button Sizes */
-.btn--sm {
-  padding: 0.5em 1em;
-  font-size: var(--font-sm);
-}
-
-.btn--lg {
-  padding: 1em 2em;
-  font-size: var(--font-md);
-}
-
-.btn--full {
-  width: 100%;
-}
-
-/* Button Variants */
-.btn--primary {
-  background: var(--color-black);
-  color: var(--color-white);
-  border-color: var(--color-black);
-}
-
-.btn--primary:hover:not(:disabled) {
-  background: #333;
-  border-color: #333;
-}
-
-.btn--secondary {
-  background: var(--color-white);
-  color: var(--color-black);
-  border-color: var(--color-black);
-}
-
-.btn--secondary:hover:not(:disabled) {
-  background: var(--color-black);
-  color: var(--color-white);
-}
-
-.btn--outline {
-  background: transparent;
-  color: var(--color-black);
-  border-color: var(--color-black);
-}
-
-.btn--outline:hover:not(:disabled) {
-  background: var(--color-black);
-  color: var(--color-white);
-}
-
-.btn--ghost {
-  background: transparent;
-  color: inherit;
-  border-color: transparent;
-}
-
-.btn--ghost:hover:not(:disabled) {
-  opacity: 0.7;
-}
-
-/* Button with UI text style */
-.btn--ui {
-  font-size: var(--font-sm);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-}
-
-/* Icon buttons */
-.btn--icon {
-  padding: 0.5em;
-  width: 2.5em;
-  height: 2.5em;
-}
-
-/* Maintain compatibility with old classes */
-.btn-primary {
-  background: var(--color-black);
-  color: var(--color-white);
-  border-color: var(--color-black);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #333;
-  border-color: #333;
-}
-
-.btn-secondary {
-  background: var(--color-white);
-  color: var(--color-black);
-  border-color: var(--color-black);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: var(--color-black);
-  color: var(--color-white);
-}
-
-.btn-outline {
-  background: transparent;
-  color: var(--color-black);
-  border-color: var(--color-black);
-}
-
-.btn-outline:hover:not(:disabled) {
-  background: var(--color-black);
-  color: var(--color-white);
-}
-
-.btn.btn-white,
-a.btn.btn-white,
-.hero-slide-bottom .btn.btn-white {
-  background: rgba(255, 255, 255, 0.08);
-  color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  font-size: var(--font-sm);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-}
-
-.btn.btn-white:hover:not(:disabled),
-a.btn.btn-white:hover:not(:disabled),
-.hero-slide-bottom .btn.btn-white:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #FFFFFF;
-}
-
-.btn-outline-dark {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--color-black);
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  font-size: var(--font-sm);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-}
-
-.btn-outline-dark:hover:not(:disabled) {
-  background: rgba(0, 0, 0, 0.1);
-  border-color: rgba(0, 0, 0, 0.25);
-  color: var(--color-black);
-}
-
 /*
 * --------------------------------------------------
 * Non anchor links
@@ -334,6 +189,37 @@ a.btn.btn-white:hover:not(:disabled),
 .link:hover {
   text-decoration: underline;
   cursor: pointer;
+}
+
+/*
+* --------------------------------------------------
+* Section Divider (reusable)
+* --------------------------------------------------
+*/
+.section-divider {
+  position: relative;
+  height: 1px;
+  background: var(--color-black);
+  margin: 0 0 2em;
+  opacity: 0.2;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 0.75em;
+  background: var(--color-black);
+}
+
+.section-divider::before {
+  left: 0;
+}
+
+.section-divider::after {
+  right: 0;
 }
 
 /*
@@ -685,13 +571,14 @@ button.reset:hover:not(:has(> *)) {
   gap: 0.4em;
 }
 
-/* Glass button style - Figma design */
-.btn-glass {
+/* Glass button style - unified button system */
+.btn-glass,
+.header-nav-item {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.65em 0.75em;
-  font-size: var(--font-sm);
+  padding: 0.75em 1.25em;
+  font-size: var(--font-base);
   font-family: inherit;
   font-weight: var(--weight-normal);
   text-transform: uppercase;
@@ -706,10 +593,13 @@ button.reset:hover:not(:has(> *)) {
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   transition: all 0.2s ease;
-  overflow: hidden;
+  height: 3em;
+  box-sizing: border-box;
+  margin: 0;
 }
 
-.btn-glass:hover {
+.btn-glass:hover,
+.header-nav-item:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.15);
   text-decoration: none;
@@ -721,57 +611,21 @@ button.reset:hover:not(:has(> *)) {
   cursor: not-allowed;
 }
 
-/* Glass button with icon (cart/bag) */
-.btn-glass--icon {
-  padding: 0.65em;
+/* Icon-only buttons */
+.btn-glass--icon,
+.header-nav-item.btn-glass--icon {
+  width: 3em;
+  padding: 0;
   gap: 0.5em;
 }
 
-/* Glass button with text and count */
+/* Button with cart count */
 .btn-glass--cart {
-  padding: 0.65em 0.75em;
   gap: 0.35em;
 }
 
 .btn-glass--cart .divider {
   opacity: 0.6;
-}
-
-.header-nav-item {
-  font-size: var(--font-base);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: #FFFFFF;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
-  cursor: pointer;
-  text-decoration: none;
-  font-family: inherit;
-  font-weight: var(--weight-normal);
-  padding: 0.75em 1.25em;
-  margin: 0;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 3em;
-  box-sizing: border-box;
-}
-
-/* Icon-only buttons need same height */
-.header-nav-item.btn-glass--icon {
-  width: 3em;
-  padding: 0;
-}
-
-.header-nav-item:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
-  text-decoration: none;
 }
 
 
@@ -1029,7 +883,6 @@ button.reset:hover:not(:has(> *)) {
   padding: 0.25em 0.75em;
 }
 
-/* Use .btn .btn--ghost .btn--icon for quantity buttons */
 .quantity-button {
   background: none;
   border: none;
@@ -1061,7 +914,6 @@ button.reset:hover:not(:has(> *)) {
   color: var(--color-black);
 }
 
-/* Use .btn .btn--ghost .text-sm for remove buttons */
 .cart-remove-button {
   background: none;
   border: none;
@@ -1491,7 +1343,7 @@ button.reset:hover:not(:has(> *)) {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 30em;
+  height: 40em;
   background: linear-gradient(
     to top,
     #0C0C0C 0%,
@@ -1697,32 +1549,6 @@ button.reset:hover:not(:has(> *)) {
   color: var(--color-black);
   margin: 0;
   font-weight: 400;
-}
-
-.new-drop-divider {
-  position: relative;
-  height: 1px;
-  background: var(--color-black);
-  margin: 0 0 2em;
-  opacity: 0.2;
-}
-
-.new-drop-divider::before,
-.new-drop-divider::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  width: 1px;
-  height: 0.75em;
-  background: var(--color-black);
-}
-
-.new-drop-divider::before {
-  left: 0;
-}
-
-.new-drop-divider::after {
-  right: 0;
 }
 
 .new-drop-title {
@@ -1978,10 +1804,6 @@ button.reset:hover:not(:has(> *)) {
     margin-bottom: 1em;
   }
 
-  .new-drop-header .btn-outline-dark {
-    display: none;
-  }
-
   .new-drop-title {
     font-size: var(--font-3xl);
     margin-bottom: 0;
@@ -2160,15 +1982,6 @@ button.reset:hover:not(:has(> *)) {
 
 /*
 * --------------------------------------------------
-* Buttons
-* --------------------------------------------------
-*/
-/* Replaced btn-white and btn-outline-dark with unified button system
-   Use: .btn .btn--secondary .btn--ui for btn-white
-   Use: .btn .btn--outline .btn--ui for btn-outline-dark */
-
-/*
-* --------------------------------------------------
 * routes/__index - Shop Home
 * --------------------------------------------------
 */
@@ -2243,6 +2056,26 @@ button.reset:hover:not(:has(> *)) {
 .product-item img {
   height: auto;
   width: 100%;
+}
+
+.product-item-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.product-item-tags {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+.product-item-tag {
+  font-size: var(--font-base);
+  pointer-events: none;
 }
 
 /*
@@ -2881,8 +2714,6 @@ button.reset:hover:not(:has(> *)) {
   margin-bottom: 2em;
 }
 
-/* Replaced .add-to-cart-button with unified system
-   Use: .btn .btn--primary .btn--full .btn--ui */
 .add-to-cart-button {
   width: 100%;
   display: flex;
@@ -3202,6 +3033,29 @@ button.reset:hover:not(:has(> *)) {
   );
   z-index: 15;
   pointer-events: none;
+}
+
+.community-section .section-divider {
+  position: absolute;
+  left: 1em;
+  right: 1em;
+  width: auto;
+  z-index: 20;
+  margin: 0;
+}
+
+.community-section .section-divider-top {
+  top: 4em;
+}
+
+.community-section .section-divider-bottom {
+  bottom: 4em;
+}
+
+.community-section .section-divider-bottom::before,
+.community-section .section-divider-bottom::after {
+  top: auto;
+  bottom: 0;
 }
 
 .community-content {

@@ -84,7 +84,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
             <span className="hero-slide-subtitle">{slides[currentSlide]?.subtitle}</span>
             <h1 className="hero-slide-title">{slides[currentSlide]?.title}</h1>
           </div>
-          <Link to={slides[currentSlide]?.buttonLink || '/collections/all'} className="btn btn-white">
+          <Link to={slides[currentSlide]?.buttonLink || '/collections/all'} className="btn btn-glass">
             {slides[currentSlide]?.buttonText || 'SHOP NOW'}
           </Link>
         </div>

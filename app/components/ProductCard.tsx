@@ -13,6 +13,16 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   const fetcher = useFetcher();
   const {open: openAside} = useAside();
 
+  // Get tags for display (cast to any to access fields not in generated types)
+  const productData = product as any;
+  const tags: string[] = productData.tags || [];
+
+  // Check if product has "new" tag
+  const isNew = tags.some((tag: string) => tag.toLowerCase() === 'new');
+
+  // Get product type from tags (first tag that's not "new")
+  const productTypeTag = tags.find((tag: string) => tag.toLowerCase() !== 'new') || null;
+
   // Get unique sizes from variants
   const variants = product.variants?.nodes || [];
   const uniqueSizes = new Map<string, {id: string; name: string; available: boolean}>();
@@ -86,6 +96,14 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
             sizes="(min-width: 45em) 20vw, 40vw"
             className="new-drop-image"
           />
+
+          {/* Product Tags */}
+          {(isNew || productTypeTag) && (
+            <div className="product-item-tags">
+              {isNew && <span className="product-item-tag btn btn-glass">New</span>}
+              {productTypeTag && <span className="product-item-tag btn btn-glass">{productTypeTag}</span>}
+            </div>
+          )}
 
           {/* Size Selector Popup */}
           <div
