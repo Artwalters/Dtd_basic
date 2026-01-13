@@ -56,6 +56,7 @@ export function NewArrivals({
       aria-roledescription="carousel"
       className="new-arrivals"
     >
+      <div className="section-divider" />
       <div className="new-arrivals-header">
         <h2 className="new-arrivals-title">{title}</h2>
         <div className="new-arrivals-progress" data-gsap-slider-progress="">

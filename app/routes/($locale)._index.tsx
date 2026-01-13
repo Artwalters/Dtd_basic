@@ -5,6 +5,7 @@ import {HeroSlider} from '~/components/HeroSlider';
 import {NewDrop} from '~/components/NewDrop';
 import {NewArrivals} from '~/components/NewArrivals';
 import {CommunitySection} from '~/components/CommunitySection';
+import {Footer} from '~/components/Footer';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 
 // Hero slides data
@@ -79,6 +80,7 @@ export default function Homepage() {
         products={products.nodes}
         title="New Arrivals"
       />
+      <Footer />
     </>
   );
 }
