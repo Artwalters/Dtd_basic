@@ -8,8 +8,14 @@ interface NavbarLogo3DProps {
   isScrolled: boolean;
 }
 
-function FullLogoModel() {
+interface ModelProps {
+  isActive: boolean;
+}
+
+function FullLogoModel({isActive}: ModelProps) {
   const {scene} = useGLTF('/3D/Daretodream_full.glb', '/draco/');
+  const groupRef = useRef<THREE.Group>(null);
+  const animProgress = useRef(isActive ? 1 : 0);
 
   const clonedScene = useMemo(() => {
     const clone = scene.clone();
@@ -24,12 +30,31 @@ function FullLogoModel() {
     return clone;
   }, [scene]);
 
-  return <primitive object={clonedScene} scale={3.42} rotation={[0, Math.PI / 2, 0]} />;
+  // Animate in/out
+  useFrame(() => {
+    if (groupRef.current) {
+      const target = isActive ? 1 : 0;
+      animProgress.current += (target - animProgress.current) * 0.08;
+
+      const progress = animProgress.current;
+      const scale = 2.736 * progress;
+      groupRef.current.scale.setScalar(scale);
+      groupRef.current.visible = progress > 0.01;
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      <primitive object={clonedScene} rotation={[0, Math.PI / 2, 0]} />
+    </group>
+  );
 }
 
-function SmallLogoModel() {
+function SmallLogoModel({isActive}: ModelProps) {
   const {scene, animations} = useGLTF('/3D/dtd_logo7.glb', '/draco/');
-  const modelRef = useRef<THREE.Group>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const animProgress = useRef(isActive ? 1 : 0);
+  const rotationInitialized = useRef(false);
 
   // Clone scene and apply white material to avoid conflicts with other Canvas instances
   const clonedScene = useMemo(() => {
@@ -60,23 +85,39 @@ function SmallLogoModel() {
     };
   }, [actions, names]);
 
-  // Rotate based on scroll position
+  // Animate in/out + rotate based on scroll
   useFrame(() => {
-    if (modelRef.current && typeof window !== 'undefined') {
+    if (groupRef.current && typeof window !== 'undefined') {
+      // Scale animation
+      const target = isActive ? 1 : 0;
+      animProgress.current += (target - animProgress.current) * 0.08;
+
+      const progress = animProgress.current;
+      const scale = 1.65 * progress;
+      groupRef.current.scale.setScalar(scale);
+      groupRef.current.visible = progress > 0.01;
+
+      // Scroll-based rotation (base rotation is on primitive, scroll adds to group)
       const scrollY = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       const scrollProgress = maxScroll > 0 ? scrollY / maxScroll : 0;
+      const targetY = scrollProgress * Math.PI * 2;
 
-      // Start at -90 degrees (facing forward), full rotation over page, end at -90 degrees
-      const baseRotation = -Math.PI / 2;
-      const targetY = baseRotation + scrollProgress * Math.PI * 2;
-
-      // Smooth interpolation for fluid motion
-      modelRef.current.rotation.y += (targetY - modelRef.current.rotation.y) * 0.05;
+      // Initialize rotation immediately on first frame
+      if (!rotationInitialized.current) {
+        groupRef.current.rotation.y = targetY;
+        rotationInitialized.current = true;
+      } else {
+        groupRef.current.rotation.y += (targetY - groupRef.current.rotation.y) * 0.05;
+      }
     }
   });
 
-  return <primitive ref={modelRef} object={clonedScene} scale={1.52} />;
+  return (
+    <group ref={groupRef}>
+      <primitive object={clonedScene} rotation={[0, -Math.PI / 2, 0]} />
+    </group>
+  );
 }
 
 export default function NavbarLogo3D({isScrolled}: NavbarLogo3DProps) {
@@ -96,8 +137,8 @@ export default function NavbarLogo3D({isScrolled}: NavbarLogo3DProps) {
         gl={{antialias: true, alpha: true}}
       >
         <Suspense fallback={null}>
-          {!isScrolled && <FullLogoModel />}
-          {isScrolled && <SmallLogoModel />}
+          <FullLogoModel isActive={!isScrolled} />
+          <SmallLogoModel isActive={isScrolled} />
         </Suspense>
         <ambientLight intensity={1} />
         <directionalLight position={[5, 5, 5]} intensity={2} />
