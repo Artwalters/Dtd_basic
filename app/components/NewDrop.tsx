@@ -25,6 +25,14 @@ export function NewDrop({
 
   return (
     <section className="new-drop">
+      <div className="new-drop-divider" />
+      <div className="new-drop-section-header">
+        <h2 className="new-drop-section-title">{title}</h2>
+        <Link to="/collections/all" className="btn btn-white">
+          SHOP ALL
+        </Link>
+      </div>
+
       <div className="new-drop-grid">
         <div className="new-drop-featured">
           <div className="new-drop-featured-wrapper">
@@ -36,12 +44,6 @@ export function NewDrop({
         </div>
 
         <div className="new-drop-products-wrapper">
-          <div className="new-drop-header">
-            <h2 className="new-drop-title">{title}</h2>
-            <Link to="/collections/all" className="btn btn-outline-dark">
-              SHOP ALL
-            </Link>
-          </div>
           <div className="new-drop-products">
             {gridProducts.map((product) => (
               <ProductCard

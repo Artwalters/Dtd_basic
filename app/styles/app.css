@@ -1488,11 +1488,17 @@ button.reset:hover:not(:has(> *)) {
 
 .hero-slide-gradient {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
+  height: 30em;
+  background: linear-gradient(
+    to top,
+    #0C0C0C 0%,
+    rgba(12, 12, 12, 0.8) 30%,
+    rgba(12, 12, 12, 0.4) 60%,
+    transparent 100%
+  );
   pointer-events: none;
   z-index: 1;
 }
@@ -1671,8 +1677,52 @@ button.reset:hover:not(:has(> *)) {
 * --------------------------------------------------
 */
 .new-drop {
-  padding: 4em 0.5em;
+  padding: 4em 1em;
   background: var(--color-white);
+}
+
+/* Section header above the grid */
+.new-drop-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  margin-bottom: 2em;
+}
+
+.new-drop-section-title {
+  font-size: var(--font-3xl);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-black);
+  margin: 0;
+  font-weight: 400;
+}
+
+.new-drop-divider {
+  position: relative;
+  height: 1px;
+  background: var(--color-black);
+  margin: 0 0 2em;
+  opacity: 0.2;
+}
+
+.new-drop-divider::before,
+.new-drop-divider::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 0.75em;
+  background: var(--color-black);
+}
+
+.new-drop-divider::before {
+  left: 0;
+}
+
+.new-drop-divider::after {
+  right: 0;
 }
 
 .new-drop-title {
@@ -1705,8 +1755,6 @@ button.reset:hover:not(:has(> *)) {
   position: sticky;
   top: 0;
   height: 100vh;
-  max-height: 100vh;
-  padding: 0.5em 0;
   box-sizing: border-box;
 }
 
@@ -1726,31 +1774,6 @@ button.reset:hover:not(:has(> *)) {
   position: absolute;
   bottom: 1.5em;
   left: 1.5em;
-}
-
-.new-drop-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1em;
-  padding: 0 0.5em;
-}
-
-.new-drop-header .new-drop-title {
-  margin-bottom: 0;
-}
-
-/* Override btn-outline-dark on dark background */
-.new-drop-header .btn-outline-dark {
-  background: rgba(255, 255, 255, 0.08);
-  color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.new-drop-header .btn-outline-dark:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #FFFFFF;
 }
 
 .new-drop-products {
