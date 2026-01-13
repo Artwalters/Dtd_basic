@@ -5,6 +5,7 @@ import {HeroSlider} from '~/components/HeroSlider';
 import {NewDrop} from '~/components/NewDrop';
 import {NewArrivals} from '~/components/NewArrivals';
 import {CommunitySection} from '~/components/CommunitySection';
+import {FooterParallax} from '~/components/FooterReveal';
 import {Footer} from '~/components/Footer';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 
@@ -81,6 +82,7 @@ export default function Homepage() {
         title="New Arrivals"
       />
       <Footer />
+      <FooterParallax />
     </>
   );
 }

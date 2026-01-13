@@ -16,6 +16,7 @@ function FullLogoModel({isActive}: ModelProps) {
   const {scene} = useGLTF('/3D/Daretodream_full.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
+  const footerVisibleRef = useRef(false);
 
   const clonedScene = useMemo(() => {
     const clone = scene.clone();
@@ -32,8 +33,15 @@ function FullLogoModel({isActive}: ModelProps) {
 
   // Animate in/out
   useFrame(() => {
-    if (groupRef.current) {
-      const target = isActive ? 1 : 0;
+    if (groupRef.current && typeof window !== 'undefined') {
+      // Check if footer is visible using getBoundingClientRect (no React state)
+      const footer = document.querySelector('.footer-parallax-wrapper');
+      if (footer) {
+        const rect = footer.getBoundingClientRect();
+        footerVisibleRef.current = rect.top < window.innerHeight && rect.bottom > 0;
+      }
+
+      const target = isActive && !footerVisibleRef.current ? 1 : 0;
       animProgress.current += (target - animProgress.current) * 0.08;
 
       const progress = animProgress.current;
@@ -55,6 +63,7 @@ function SmallLogoModel({isActive}: ModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
   const rotationInitialized = useRef(false);
+  const footerVisibleRef = useRef(false);
 
   // Clone scene and apply white material to avoid conflicts with other Canvas instances
   const clonedScene = useMemo(() => {
@@ -88,8 +97,15 @@ function SmallLogoModel({isActive}: ModelProps) {
   // Animate in/out + rotate based on scroll
   useFrame(() => {
     if (groupRef.current && typeof window !== 'undefined') {
+      // Check if footer is visible using getBoundingClientRect (no React state)
+      const footer = document.querySelector('.footer-parallax-wrapper');
+      if (footer) {
+        const rect = footer.getBoundingClientRect();
+        footerVisibleRef.current = rect.top < window.innerHeight && rect.bottom > 0;
+      }
+
       // Scale animation
-      const target = isActive ? 1 : 0;
+      const target = isActive && !footerVisibleRef.current ? 1 : 0;
       animProgress.current += (target - animProgress.current) * 0.08;
 
       const progress = animProgress.current;

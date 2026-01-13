@@ -2,66 +2,53 @@ import {Link} from 'react-router';
 
 export function Footer() {
   return (
-    <footer className="footer">
-      <div className="footer-content">
-        {/* Client Services */}
-        <nav className="footer-column">
-          <h3 className="footer-column-title">Client Services</h3>
-          <ul className="footer-column-list">
+    <footer className="footer-links">
+      <div className="footer-links-grid">
+        {/* Help */}
+        <nav className="footer-links-col">
+          <h3 className="footer-links-title">Help</h3>
+          <ul className="footer-links-list">
             <li>
-              <Link to="/pages/support">Support Hub</Link>
+              <Link to="/pages/faq">FAQ</Link>
             </li>
             <li>
-              <Link to="/pages/track-order">Track order</Link>
+              <Link to="/pages/contact">Contact us</Link>
+            </li>
+            <li>
+              <Link to="/pages/shipping">Shipping & Delivery</Link>
             </li>
             <li>
               <Link to="/pages/returns">Make a return</Link>
             </li>
-            <li>
-              <Link to="/pages/stores">Stores</Link>
-            </li>
           </ul>
         </nav>
 
-        {/* Company */}
-        <nav className="footer-column">
-          <h3 className="footer-column-title">Company</h3>
-          <ul className="footer-column-list">
+        {/* About us */}
+        <nav className="footer-links-col">
+          <h3 className="footer-links-title">About us</h3>
+          <ul className="footer-links-list">
             <li>
-              <Link to="/pages/about">About</Link>
+              <Link to="/pages/about">About us</Link>
             </li>
             <li>
               <Link to="/pages/careers">Careers</Link>
             </li>
             <li>
-              <Link to="/pages/reviews">Reviews</Link>
+              <Link to="/pages/members">Members</Link>
             </li>
             <li>
-              <Link to="/pages/shipping">Shipping</Link>
-            </li>
-            <li>
-              <Link to="/pages/returns-policy">Returns</Link>
+              <Link to="/pages/boutique">Our Boutique</Link>
             </li>
           </ul>
         </nav>
 
-        {/* Social */}
-        <nav className="footer-column">
-          <h3 className="footer-column-title">Social</h3>
-          <ul className="footer-column-list">
+        {/* Socials */}
+        <nav className="footer-links-col">
+          <h3 className="footer-links-title">Socials</h3>
+          <ul className="footer-links-list">
             <li>
               <a href="https://www.instagram.com/daretodream/" target="_blank" rel="noopener noreferrer">
                 Instagram
-              </a>
-            </li>
-            <li>
-              <a href="https://www.facebook.com/daretodream" target="_blank" rel="noopener noreferrer">
-                Facebook
-              </a>
-            </li>
-            <li>
-              <a href="https://www.tiktok.com/@daretodream" target="_blank" rel="noopener noreferrer">
-                TikTok
               </a>
             </li>
             <li>
@@ -70,27 +57,31 @@ export function Footer() {
               </a>
             </li>
             <li>
-              <a href="https://x.com/daretodream" target="_blank" rel="noopener noreferrer">
-                X
+              <a href="https://www.tiktok.com/@daretodream" target="_blank" rel="noopener noreferrer">
+                TikTok
+              </a>
+            </li>
+            <li>
+              <a href="https://open.spotify.com/user/daretodream" target="_blank" rel="noopener noreferrer">
+                Spotify
               </a>
             </li>
           </ul>
         </nav>
 
-        {/* Country */}
-        <div className="footer-column">
-          <h3 className="footer-column-title">Country</h3>
-          <ul className="footer-column-list">
+        {/* Shop */}
+        <nav className="footer-links-col">
+          <h3 className="footer-links-title">Shop</h3>
+          <ul className="footer-links-list">
             <li>
-              <span className="footer-country">Netherlands</span>
+              <Link to="/pages/boutique-pickup">Boutique pick-up</Link>
             </li>
             <li>
-              <span className="footer-locale">NL / EUR € | English</span>
+              <Link to="/products/gift-card">Gift card</Link>
             </li>
           </ul>
-        </div>
+        </nav>
       </div>
-      <div className="footer-border" />
     </footer>
   );
 }
