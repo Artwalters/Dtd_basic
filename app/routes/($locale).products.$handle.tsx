@@ -85,6 +85,7 @@ function loadDeferredData({context, params}: Route.LoaderArgs) {
 export default function Product() {
   const {product, products} = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -112,17 +113,18 @@ export default function Product() {
   return (
     <>
       <div className="product-view-container">
-        <ProductGallery
-          product={product}
+        <ProductGallery 
+          product={product} 
           selectedVariant={selectedVariant}
+          onImageIndexChange={setCurrentImageIndex}
         />
         <ProductDetails
           product={product}
           selectedVariant={selectedVariant}
           productOptions={productOptions}
           onVariantChange={handleVariantChange}
-          currentImageIndex={0}
-          totalImages={1}
+          currentImageIndex={currentImageIndex}
+          totalImages={15}
         />
         <Analytics.ProductView
           data={{
