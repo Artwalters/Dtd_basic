@@ -56,6 +56,16 @@ function AnnouncementBar({ onClose }: { onClose: () => void }) {
           {ANNOUNCEMENT_MESSAGES[currentIndex]}
         </p>
       </div>
+      {/* Mobile marquee announcement */}
+      <div className="announcement-marquee">
+        <div className="announcement-marquee-track">
+          {[...Array(4)].map((_, i) => (
+            <span key={i} className="announcement-marquee-item">
+              {ANNOUNCEMENT_MESSAGES.join(' • ')} •&nbsp;
+            </span>
+          ))}
+        </div>
+      </div>
       <div className="language-switcher">
         {LANGUAGES.map((lang) => (
           <button
@@ -87,6 +97,28 @@ interface HeaderProps {
   publicStoreDomain: string;
 }
 
+function HamburgerIcon() {
+  return (
+    <svg width="20" height="10" viewBox="0 0 20 10" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <line x1="0" y1="1" x2="20" y2="1" />
+      <line x1="0" y1="9" x2="20" y2="9" />
+    </svg>
+  );
+}
+
+function MobileMenuToggle() {
+  const {open} = useAside();
+  return (
+    <button
+      className="mobile-menu-toggle header-nav-item btn-glass--icon"
+      onClick={() => open('mobile')}
+      aria-label="Open menu"
+    >
+      <HamburgerIcon />
+    </button>
+  );
+}
+
 export function Header({
   header,
   isLoggedIn,
@@ -100,6 +132,10 @@ export function Header({
     <div className="header-wrapper">
       {!announcementClosed && <AnnouncementBar onClose={() => setAnnouncementClosed(true)} />}
       <header ref={headerRef} className="header">
+      {/* Mobile: Hamburger menu toggle */}
+      <MobileMenuToggle />
+
+      {/* Desktop: Left navigation */}
       <nav className="header-nav-left">
         <NavLink to="/community" className="header-nav-item">
           Community
@@ -117,6 +153,7 @@ export function Header({
         </span>
       </NavLink>
 
+      {/* Desktop: Right navigation */}
       <nav className="header-nav-right">
         <SearchToggle />
         <Suspense fallback={<NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account"><UserIcon /></NavLink>}>
@@ -130,6 +167,11 @@ export function Header({
         </Suspense>
         <CartToggle cart={cart} />
       </nav>
+
+      {/* Mobile: Cart toggle */}
+      <div className="mobile-cart-toggle">
+        <CartToggleMobile cart={cart} />
+      </div>
     </header>
     </div>
   );
@@ -267,6 +309,47 @@ function CartBanner() {
   const originalCart = useAsyncValue() as CartApiQueryFragment | null;
   const cart = useOptimisticCart(originalCart);
   return <CartBadge count={cart?.totalQuantity ?? 0} />;
+}
+
+function CartBadgeMobile({count}: {count: number | null}) {
+  const {open} = useAside();
+  const {publish, shop, cart, prevCart} = useAnalytics();
+
+  return (
+    <a
+      href="/cart"
+      className="header-nav-item btn-glass--icon"
+      onClick={(e) => {
+        e.preventDefault();
+        open('cart');
+        publish('cart_viewed', {
+          cart,
+          prevCart,
+          shop,
+          url: window.location.href || '',
+        } as CartViewPayload);
+      }}
+      aria-label="Open shopping bag"
+    >
+      <BagIcon />
+    </a>
+  );
+}
+
+function CartToggleMobile({cart}: Pick<HeaderProps, 'cart'>) {
+  return (
+    <Suspense fallback={<CartBadgeMobile count={null} />}>
+      <Await resolve={cart}>
+        <CartBannerMobile />
+      </Await>
+    </Suspense>
+  );
+}
+
+function CartBannerMobile() {
+  const originalCart = useAsyncValue() as CartApiQueryFragment | null;
+  const cart = useOptimisticCart(originalCart);
+  return <CartBadgeMobile count={cart?.totalQuantity ?? 0} />;
 }
 
 function Logo() {

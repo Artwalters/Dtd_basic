@@ -187,9 +187,10 @@ function initHeroSlider(
     onRight: () => {
       if (!animating) navigate(-1);
     },
-    tolerance: 50,
-    dragMinimum: 5,
-    preventDefault: true
+    tolerance: 30,
+    dragMinimum: 3,
+    preventDefault: false,
+    allowClicks: true
   });
 
   // Initial progress update
