@@ -33,7 +33,7 @@ function FullLogoModel({mouse}: {mouse: {x: number; y: number}}) {
   });
 
   return (
-    <group scale={3.5}>
+    <group scale={3} position={[0, 2, 0]}>
       <primitive ref={groupRef} object={clonedScene} rotation={[0, Math.PI / 2, 0]} />
     </group>
   );
@@ -66,7 +66,7 @@ export default function FooterLogo3D() {
   return (
     <div className="footer-logo-3d">
       <Canvas
-        camera={{position: [0, 0, 25], fov: 25}}
+        camera={{position: [0, 0, 30], fov: 25}}
         dpr={[1, 2]}
         gl={{antialias: true, alpha: true}}
       >
