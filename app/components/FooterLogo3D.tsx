@@ -33,7 +33,7 @@ function FullLogoModel({mouse}: {mouse: {x: number; y: number}}) {
   });
 
   return (
-    <group scale={3} position={[0, 2, 0]}>
+    <group scale={3} position={[0, -0.5, 0]}>
       <primitive ref={groupRef} object={clonedScene} rotation={[0, Math.PI / 2, 0]} />
     </group>
   );

@@ -35,12 +35,7 @@ export function FooterParallax() {
         },
       });
 
-      if (inner) {
-        tl.from(inner, {
-          yPercent: -25,
-          ease: 'linear',
-        });
-      }
+      // Logo stays fixed, no yPercent animation
 
       if (dark) {
         tl.from(
