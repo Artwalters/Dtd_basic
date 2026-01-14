@@ -12,7 +12,8 @@ import {
 import {ProductGallery} from '~/components/ProductGallery';
 import {ProductDetails} from '~/components/ProductDetails';
 import {NewArrivals} from '~/components/NewArrivals';
-import {CommunitySection} from '~/components/CommunitySection';
+import {Footer} from '~/components/Footer';
+import {FooterParallax} from '~/components/FooterReveal';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
 export const meta: Route.MetaFunction = ({data}) => {
@@ -151,7 +152,8 @@ export default function Product() {
         products={products.nodes}
         title="New Arrivals"
       />
-      <CommunitySection />
+      <Footer />
+      <FooterParallax />
     </>
   );
 }

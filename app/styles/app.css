@@ -3863,6 +3863,25 @@ button.reset:hover:not(:has(> *)) {
 
 /*
 * --------------------------------------------------
+* Community Page
+* --------------------------------------------------
+*/
+.community-page {
+  background: var(--color-black);
+  position: relative;
+  z-index: 2;
+}
+
+.community-page .community-section {
+  margin-top: 6em;
+}
+
+.community-page .community-section .section-divider-top {
+  top: 8em;
+}
+
+/*
+* --------------------------------------------------
 * Shop Page
 * --------------------------------------------------
 */

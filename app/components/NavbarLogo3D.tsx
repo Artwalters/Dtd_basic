@@ -38,7 +38,7 @@ function FullLogoModel({isActive}: ModelProps) {
       const scrollY = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       // Footer becomes visible in the last 10% of scroll
-      footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.9;
+      footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.98;
 
       const target = isActive && !footerVisibleRef.current ? 1 : 0;
       animProgress.current += (target - animProgress.current) * 0.08;
@@ -100,7 +100,7 @@ function SmallLogoModel({isActive}: ModelProps) {
       const scrollY = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       // Footer becomes visible in the last 10% of scroll
-      footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.9;
+      footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.98;
 
       // Scale animation
       const target = isActive && !footerVisibleRef.current ? 1 : 0;
