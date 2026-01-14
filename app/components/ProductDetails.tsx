@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {type MappedProductOptions} from '@shopify/hydrogen';
 import type {ProductFragment} from 'storefrontapi.generated';
 import {AddToCartButton} from './AddToCartButton';
@@ -127,15 +127,19 @@ export function ProductDetails({
 
   return (
     <div className="product-details-wrapper">
-      {/* Scroll Indicator - Sticky within this wrapper */}
+      {/* Scroll Indicator - Desktop only */}
       {totalImages > 1 && (
-        <div className="product-gallery-indicator">
-          <div
-            className="product-gallery-indicator-track"
-            style={{
-              transform: `translateY(${totalImages > 1 ? (currentImageIndex / (totalImages - 1)) * (25 - 3) : 0}em)`
-            }}
-          />
+        <div className="product-gallery-progress desktop-only">
+          <div className="progress-track">
+            <div
+              className="progress-fill"
+              style={{
+                height: `${100 / totalImages}%`,
+                width: '100%',
+                transform: `translateY(${currentImageIndex * 100}%)`
+              }}
+            />
+          </div>
         </div>
       )}
 

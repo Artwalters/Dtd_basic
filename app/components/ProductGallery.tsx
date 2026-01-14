@@ -35,25 +35,47 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
 
   // Handle scroll to update current image index
   useEffect(() => {
-    const handleScroll = () => {
+    const isMobile = window.innerWidth <= 768;
+
+    const handleVerticalScroll = () => {
       const scrollTop = window.pageYOffset;
       const windowHeight = window.innerHeight;
       const headerHeight = 64; // Header height
       const contentStart = headerHeight;
-      
+
       // Calculate which image should be active based on scroll position
       const imageHeight = windowHeight; // 100vh per image
       const scrollProgress = (scrollTop - contentStart) / imageHeight;
       const activeIndex = Math.max(0, Math.min(Math.floor(scrollProgress), allImages.length - 1));
-      
+
       setCurrentImageIndex(activeIndex);
       onImageIndexChange?.(activeIndex);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Call once on mount
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [allImages.length]);
+    const handleHorizontalScroll = () => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+
+      const scrollLeft = container.scrollLeft;
+      const containerWidth = container.clientWidth;
+      const activeIndex = Math.round(scrollLeft / containerWidth);
+
+      setCurrentImageIndex(Math.max(0, Math.min(activeIndex, allImages.length - 1)));
+      onImageIndexChange?.(Math.max(0, Math.min(activeIndex, allImages.length - 1)));
+    };
+
+    if (isMobile) {
+      const container = scrollContainerRef.current;
+      if (container) {
+        container.addEventListener('scroll', handleHorizontalScroll);
+        return () => container.removeEventListener('scroll', handleHorizontalScroll);
+      }
+    } else {
+      window.addEventListener('scroll', handleVerticalScroll);
+      handleVerticalScroll(); // Call once on mount
+      return () => window.removeEventListener('scroll', handleVerticalScroll);
+    }
+  }, [allImages.length, onImageIndexChange]);
 
   if (allImages.length === 0) {
     return (
@@ -65,7 +87,7 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
 
   return (
     <div className="product-gallery">
-      <div className="product-gallery-scroll-container">
+      <div className="product-gallery-scroll-container" ref={scrollContainerRef}>
         {allImages.map((media, index) => (
           <div key={media.image.id || index} className="product-gallery-image">
             <Image
@@ -77,7 +99,21 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
           </div>
         ))}
       </div>
-      
+
+      {/* Mobile scroll indicator */}
+      {allImages.length > 1 && (
+        <div className="product-gallery-progress mobile-only">
+          <div className="progress-track">
+            <div
+              className="progress-fill"
+              style={{
+                width: `${100 / allImages.length}%`,
+                transform: `translateX(${currentImageIndex * 100}%)`
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
