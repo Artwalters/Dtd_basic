@@ -16,8 +16,8 @@ export function NewDrop({
 }: NewDropProps) {
   const [openProductId, setOpenProductId] = useState<string | null>(null);
 
-  // Take first 9 products for the grid
-  const gridProducts = products.slice(0, 9);
+  // Take first 6 products for the grid
+  const gridProducts = products.slice(0, 6);
 
   const handleToggle = (productId: string) => {
     setOpenProductId(openProductId === productId ? null : productId);
@@ -28,9 +28,10 @@ export function NewDrop({
       <div className="section-divider" />
       <div className="new-drop-section-header">
         <h2 className="new-drop-section-title">{title}</h2>
-        <Link to="/collections/all" className="btn btn-glass">
+        <Link to="/collections/all" className="btn btn-glass new-drop-shop-all">
           SHOP ALL
         </Link>
+        <span className="new-drop-item-count">{gridProducts.length} Items</span>
       </div>
 
       <div className="new-drop-grid">

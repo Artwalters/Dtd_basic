@@ -789,6 +789,18 @@ button.reset:hover:not(:has(> *)) {
     order: 3;
   }
 
+  /* Mobile button font size */
+  .btn,
+  .btn-glass {
+    font-size: var(--font-sm);
+  }
+
+  /* Mobile tag font size */
+  .product-item-tag.btn.btn-glass {
+    font-size: var(--font-xs);
+    padding: 0.4em 0.6em;
+  }
+
   /* Mobile 3D logo sizing */
   .navbar-logo-3d {
     width: 200px;
@@ -1676,6 +1688,14 @@ button.reset:hover:not(:has(> *)) {
   margin-bottom: 2em;
 }
 
+/* Item counter - hidden on desktop */
+.new-drop-item-count {
+  display: none;
+  font-size: var(--font-sm);
+  color: var(--color-white);
+  opacity: 0.6;
+}
+
 .new-drop-section-title {
   font-size: var(--font-3xl);
   text-transform: uppercase;
@@ -1811,23 +1831,30 @@ button.reset:hover:not(:has(> *)) {
   position: absolute;
   bottom: 0.75em;
   right: 0.75em;
-  background: none;
-  border: none;
+  width: 2.5em;
+  height: 2.5em;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
-  padding: 0.5em;
+  padding: 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
 }
 
 .product-plus-btn:hover {
-  opacity: 0.7;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .plus-icon {
   font-size: 1.75em;
-  font-weight: var(--weight-normal);
+  font-weight: 200;
   line-height: 1;
   color: var(--color-white);
   transition: transform 0.3s ease;
@@ -1900,13 +1927,16 @@ button.reset:hover:not(:has(> *)) {
   display: block;
   width: 100%;
   box-sizing: border-box;
-  background: var(--color-black);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-white);
-  border-color: var(--color-black);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1em;
   font-size: var(--font-sm);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-align: center;
 }
 
 /* Mobile styles for NewDrop */
@@ -1922,7 +1952,18 @@ button.reset:hover:not(:has(> *)) {
   }
 
   .new-drop-featured {
+    position: relative;
+    height: auto;
+    order: 2;
+    margin-bottom: 1em;
+  }
+
+  .new-drop-shop-all {
     display: none;
+  }
+
+  .new-drop-item-count {
+    display: block;
   }
 
   .new-drop-products-wrapper {
@@ -1944,8 +1985,8 @@ button.reset:hover:not(:has(> *)) {
 
   .new-drop-products {
     order: 3;
-    grid-template-columns: 1fr;
-    gap: 1em;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5em;
   }
 
   .new-drop-featured-btn {
@@ -3703,6 +3744,8 @@ button.reset:hover:not(:has(> *)) {
   height: 130vh;
   background: var(--color-black);
   overflow: clip;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Top fade gradient */
@@ -3952,13 +3995,74 @@ button.reset:hover:not(:has(> *)) {
 
 .community-canvas {
   position: absolute;
-  top: 10%;
-  left: 10%;
-  width: 80%;
-  height: 80%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 @media (max-width: 47.99em) {
+  .community-section {
+    height: 65svh;
+    position: relative;
+    padding: 0;
+  }
+
+  .community-section .section-divider-with-title {
+    position: absolute;
+    top: 2em;
+    left: 0;
+    right: 0;
+    justify-content: center;
+    gap: 1em;
+    z-index: 30;
+  }
+
+  .community-section .section-divider-line {
+    display: none;
+  }
+
+  .community-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 65svh;
+  }
+
+  .community-sticky-wrapper {
+    position: absolute !important;
+    bottom: 2em !important;
+    top: auto !important;
+    left: 0;
+    right: 0;
+    height: auto !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    z-index: 30;
+  }
+
+  .community-sticky-content {
+    position: relative;
+    top: auto;
+    transform: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+
+  .community-sticky-text {
+    display: none;
+  }
+
+  .community-section .section-divider-bottom {
+    display: none;
+  }
+
   .community-title {
     font-size: var(--font-3xl);
   }
@@ -3981,10 +4085,6 @@ button.reset:hover:not(:has(> *)) {
 
   .section-divider-title {
     font-size: var(--font-3xl);
-  }
-
-  .community-section .section-divider-with-title {
-    gap: 1em;
   }
 }
 

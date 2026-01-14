@@ -9,7 +9,10 @@ function Model() {
   const {scene, animations} = useGLTF('/3D/dtd_logo7.glb', '/draco/');
   const {actions, names} = useAnimations(animations, scene);
   const modelRef = useRef<THREE.Group>(null);
-  const {viewport, pointer} = useThree();
+  const {pointer} = useThree();
+
+  // Fixed scale - same size on all screens
+  const modelScale = 0.45;
 
   // Load PBR textures
   const textures = useTexture({
@@ -54,22 +57,33 @@ function Model() {
     };
   }, [actions, names]);
 
-  // Subtle mouse interaction
+  // Subtle mouse interaction (desktop only)
   useFrame(() => {
     if (modelRef.current) {
-      // Subtle movement following mouse (very small values)
-      const targetX = pointer.x * 0.1;
-      const targetY = pointer.y * 0.05;
-      
-      // Smooth interpolation for natural movement
-      modelRef.current.rotation.y += (targetX - modelRef.current.rotation.y + (-Math.PI / 2)) * 0.02;
-      modelRef.current.rotation.x += (targetY - modelRef.current.rotation.x) * 0.02;
-      modelRef.current.position.x += (targetX - modelRef.current.position.x) * 0.02;
-      modelRef.current.position.y += (targetY - modelRef.current.position.y) * 0.02;
+      // Check if desktop (wider than 768px)
+      const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
+
+      if (isDesktop) {
+        // Subtle movement following mouse (very small values)
+        const targetX = pointer.x * 0.1;
+        const targetY = pointer.y * 0.05;
+
+        // Smooth interpolation for natural movement
+        modelRef.current.rotation.y += (targetX - modelRef.current.rotation.y + (-Math.PI / 2)) * 0.02;
+        modelRef.current.rotation.x += (targetY - modelRef.current.rotation.x) * 0.02;
+        modelRef.current.position.x += (targetX - modelRef.current.position.x) * 0.02;
+        modelRef.current.position.y += (targetY - modelRef.current.position.y) * 0.02;
+      } else {
+        // On mobile, keep model centered with base rotation
+        modelRef.current.rotation.y += ((-Math.PI / 2) - modelRef.current.rotation.y) * 0.02;
+        modelRef.current.rotation.x += (0 - modelRef.current.rotation.x) * 0.02;
+        modelRef.current.position.x += (0 - modelRef.current.position.x) * 0.02;
+        modelRef.current.position.y += (0 - modelRef.current.position.y) * 0.02;
+      }
     }
   });
 
-  return <primitive ref={modelRef} object={scene} scale={0.45} rotation={[0, -Math.PI / 2, 0]} />;
+  return <primitive ref={modelRef} object={scene} scale={modelScale} rotation={[0, -Math.PI / 2, 0]} />;
 }
 
 // Godray post-processing shaders
@@ -201,7 +215,7 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
   const groupRef = useRef<THREE.Group>(null);
   const timeScaleRef = useRef(1);
   const targetTimeScaleRef = useRef(1);
-  const {size, viewport, pointer} = useThree();
+  const {pointer} = useThree();
 
   // Load all images from the Img directory
   const textures = useTexture([
@@ -229,7 +243,7 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
     });
   }, [textures]);
 
-  // Auto-rotate with smooth inertia + subtle mouse tilt
+  // Auto-rotate with smooth inertia + subtle mouse tilt (desktop only)
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
@@ -238,14 +252,23 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
 
     // Apply rotation
     groupRef.current.rotation.y += delta * baseSpeed * timeScaleRef.current;
-    
-    // Subtle tilt based on mouse position
-    const targetTiltX = pointer.y * 0.03; // Up/down mouse movement
-    const targetTiltZ = pointer.x * 0.05; // Left/right mouse movement
-    
-    // Smooth interpolation for natural tilting
-    groupRef.current.rotation.x += (targetTiltX - groupRef.current.rotation.x) * 0.02;
-    groupRef.current.rotation.z += (targetTiltZ - groupRef.current.rotation.z) * 0.02;
+
+    // Check if desktop (wider than 768px)
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
+
+    if (isDesktop) {
+      // Subtle tilt based on mouse position
+      const targetTiltX = pointer.y * 0.03; // Up/down mouse movement
+      const targetTiltZ = pointer.x * 0.05; // Left/right mouse movement
+
+      // Smooth interpolation for natural tilting
+      groupRef.current.rotation.x += (targetTiltX - groupRef.current.rotation.x) * 0.02;
+      groupRef.current.rotation.z += (targetTiltZ - groupRef.current.rotation.z) * 0.02;
+    } else {
+      // On mobile, reset tilt to neutral
+      groupRef.current.rotation.x += (0 - groupRef.current.rotation.x) * 0.02;
+      groupRef.current.rotation.z += (0 - groupRef.current.rotation.z) * 0.02;
+    }
   });
 
   // Drag handler - smooth direct control, direction persists on release
@@ -273,7 +296,7 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
 
   // Create curved geometry for panels
   const curvedGeometry = useMemo(() => {
-    const arcAngle = (Math.PI * 2) / panelCount * 0.85; // Arc per panel (with small gap)
+    const arcAngle = (Math.PI * 2) / panelCount * 0.92; // Arc per panel (smaller gap)
     const segments = 32; // Smoothness of curve
 
     // Calculate arc length and scale height
@@ -322,7 +345,7 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
         >
           <meshStandardMaterial
             emissiveMap={textureArray[textureIndex]}
-            emissive={new THREE.Color(1.3, 1.3, 1.3)}
+            emissive={new THREE.Color(1.0, 1.0, 1.0)}
             color={new THREE.Color(0, 0, 0)}
             side={THREE.DoubleSide}
             toneMapped={false}
@@ -338,40 +361,57 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
   return <group ref={groupRef}>{panels}</group>;
 }
 
+
 function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) {
   const {theme} = useTheme();
   const {scene} = useThree();
   const fogColor = theme === 'dark' ? '#1a1a1a' : '#ffffff';
-  const bgColor = theme === 'dark' ? '#1a1a1a' : '#ffffff';
-  
+
   // Set scene background to null for transparency
   useEffect(() => {
     scene.background = null;
   }, [scene]);
-  
-  // Responsive fog based on screen size
-  const getFogParams = () => {
-    if (typeof window !== 'undefined') {
-      if (window.innerWidth <= 479) {
-        return [6, 12]; // Mobile Portrait - fog further out
-      } else if (window.innerWidth <= 767) {
-        return [5, 10]; // Mobile Landscape - fog further out
-      } else if (window.innerWidth <= 991) {
-        return [4, 8]; // Tablet - fog further out
-      }
-    }
-    return [2.5, 4.5]; // Desktop - default
+
+  // Fixed carousel radius - same size on all screens
+  const getCarouselRadius = () => {
+    return 1.6;
   };
-  
+
+  // Fog - based on camera and carousel positions
+  // Model has fog=false so it's not affected
+  const getFogParams = () => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    const carouselRadius = 1.6;
+
+    if (isMobile) {
+      // Mobile camera at Z=3
+      // Front photos distance: 3 - 1.6 = 1.4
+      // Back photos distance: 3 + 1.6 = 4.6
+      // Fog starts after front, ends before back
+      return [1.8, 3.2];
+    }
+
+    // Desktop camera at Z=4
+    const cameraZ = 4;
+    const fogNear = cameraZ - carouselRadius * 0.8;
+    const fogFar = cameraZ - carouselRadius * 0.1;
+
+    return [fogNear, fogFar];
+  };
+
+  const fogParams = getFogParams();
+
+  // Check if mobile - only show carousel on mobile, no 3D model
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
   return (
     <>
-      {/* Dynamic fog color based on theme */}
-      <fog attach="fog" args={[fogColor, ...getFogParams()]} />
+      <fog attach="fog" args={[fogColor, fogParams[0], fogParams[1]]} />
       <Suspense fallback={null}>
-        <Model />
-        <ImageCarousel radius={1.6} baseSpeed={0.15} panelCount={14} />
-        <Environment 
-          files="/3D/studio_small_09_1k.hdr" 
+        {!isMobile && <Model />}
+        <ImageCarousel radius={getCarouselRadius()} baseSpeed={0.15} panelCount={14} />
+        <Environment
+          files="/3D/studio_small_09_1k.hdr"
           environmentRotation={hdriRotation}
         />
       </Suspense>
@@ -381,6 +421,13 @@ function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) 
 }
 
 function Scene({hdriRotation}: {hdriRotation: [number, number, number]}) {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
+  // No godray on mobile for better performance
+  if (isMobile) {
+    return <SceneContent hdriRotation={hdriRotation} />;
+  }
+
   return (
     <GodrayEffect>
       <SceneContent hdriRotation={hdriRotation} />
@@ -392,16 +439,13 @@ export default function CommunityCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   
-  // Responsive camera position
+  // Camera position - closer on mobile for zoomed in photos
   const getCameraPosition = () => {
     if (typeof window !== 'undefined') {
-      if (window.innerWidth <= 479) {
-        return [0, 0, 10]; // Mobile Portrait - zoom in closer
-      } else if (window.innerWidth <= 767) {
-        return [0, 0, 8]; // Mobile Landscape - zoom in closer
-      } else if (window.innerWidth <= 991) {
-        return [0, 0, 6]; // Tablet - zoom in closer
-      }
+      const isMobile = window.innerWidth <= 768;
+      // Mobile: Z=3 for balanced photo size, Desktop: Z=4
+      const z = isMobile ? 3 : 4;
+      return [0, 0, z];
     }
     return [0, 0, 4]; // Desktop - default
   };
@@ -419,37 +463,42 @@ export default function CommunityCanvas() {
     return () => observer.disconnect();
   }, []);
   
-  // Handle resize for responsive camera
-  useEffect(() => {
-    const handleResize = () => {
-      setCameraPosition(getCameraPosition());
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
-  // Drag gesture for carousel control
+  // Check if mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
+  // Drag gesture for carousel control - disabled on mobile for smooth scrolling
   const bind = useDrag(
     ({movement: [mx], direction: [dx], down}) => {
+      if (isMobile) return; // Disable on mobile
       const handler = (window as any).__carouselDrag;
       if (handler) {
         handler(mx, down, dx);
       }
     },
-    {pointer: {touch: true}}
+    {
+      enabled: !isMobile, // Completely disable gesture on mobile
+      pointer: {touch: true},
+    }
   );
 
   return (
     <div
       ref={containerRef}
-      {...bind()}
-      style={{width: '100%', height: '100%', cursor: 'grab', touchAction: 'none'}}
+      {...(isMobile ? {} : bind())}
+      style={{
+        width: '100%',
+        height: '100%',
+        cursor: isMobile ? 'default' : 'grab',
+        touchAction: isMobile ? 'auto' : undefined,
+        pointerEvents: isMobile ? 'none' : 'auto',
+      }}
     >
       <Canvas
         camera={{position: cameraPosition, fov: 50}}
-        dpr={[1, 2]}
+        dpr={Math.min(window.devicePixelRatio || 2, 3)}
         frameloop={isVisible ? 'always' : 'never'}
+        style={{pointerEvents: isMobile ? 'none' : 'auto'}}
         gl={{antialias: true, powerPreference: 'high-performance'}}
       >
         <Scene hdriRotation={[46 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180]} />
