@@ -32,6 +32,7 @@ function Model() {
       metalnessMap: textures.metalnessMap,
       metalness: 1,
       roughness: 1,
+      envMapIntensity: 0.5, // Reduce environment lighting
     });
   }, [textures]);
 
@@ -109,6 +110,11 @@ float rand(vec2 co) {
   return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+// Convert linear to sRGB
+vec3 linearToSRGB(vec3 color) {
+  return pow(color, vec3(1.0 / 2.2));
+}
+
 void main() {
   vec2 toCenter = vec2(0.5) - vUv;
   vec4 original = texture2D(uMap, vUv);
@@ -121,7 +127,6 @@ void main() {
     float lerp = (i + rand(vec2(gl_FragCoord.x, gl_FragCoord.y))) / 8.0;
     float weight = sin(lerp * PI);
     vec4 mysample = texture2D(uMap, vUv + toCenter * lerp * 0.7);
-    mysample.rgb *= mysample.a;
     color += mysample * weight;
     total += weight;
   }
@@ -136,7 +141,8 @@ void main() {
   finalColor.rgb *= brightness;
   finalColor.rgb = pow(finalColor.rgb, vec3(contrast));
 
-  gl_FragColor = finalColor;
+  // Apply gamma correction for correct colors
+  gl_FragColor = vec4(linearToSRGB(finalColor.rgb), finalColor.a);
 }
 `;
 
@@ -145,11 +151,12 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
   const {gl, scene, camera, size} = useThree();
   const {theme} = useTheme();
 
-  // Create render target
+  // Create render target with correct color space
   const renderTarget = useFBO(size.width, size.height, {
     minFilter: THREE.LinearFilter,
     magFilter: THREE.LinearFilter,
     format: THREE.RGBAFormat,
+    colorSpace: THREE.SRGBColorSpace,
     samples: 4,
   });
 
@@ -163,7 +170,7 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
       uniforms: {
         uMap: {value: null},
         time: {value: 0},
-        godrayIntensity: {value: theme === 'dark' ? 0.05 : 0.08},
+        godrayIntensity: {value: theme === 'dark' ? 0.003 : 0.005},
         brightness: {value: theme === 'dark' ? 0.95 : 1.0},
         contrast: {value: theme === 'dark' ? 0.99 : 0.98},
       },
@@ -207,15 +214,25 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
 }
 
 // 3D Marquee Carousel Component
-function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
+function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, useLayer1 = false}: {
   radius?: number;
   baseSpeed?: number;
   panelCount?: number;
+  useLayer1?: boolean;
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const timeScaleRef = useRef(1);
   const targetTimeScaleRef = useRef(1);
   const {pointer} = useThree();
+
+  // Assign to layer 1 if specified (to bypass godray effect)
+  useEffect(() => {
+    if (useLayer1 && groupRef.current) {
+      groupRef.current.traverse((child) => {
+        child.layers.set(1);
+      });
+    }
+  }, [useLayer1]);
 
   // Load all images from the Img directory
   const textures = useTexture([
@@ -343,14 +360,10 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
           geometry={curvedGeometry}
           rotation={[0, -angle + Math.PI, 0]} // Position around circle
         >
-          <meshStandardMaterial
-            emissiveMap={textureArray[textureIndex]}
-            emissive={new THREE.Color(1.0, 1.0, 1.0)}
-            color={new THREE.Color(0, 0, 0)}
+          <meshBasicMaterial
+            map={textureArray[textureIndex]}
             side={THREE.DoubleSide}
             toneMapped={false}
-            roughness={1}
-            metalness={0}
           />
         </mesh>
       );
@@ -362,36 +375,60 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
 }
 
 
-function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) {
-  const {theme} = useTheme();
+// Content that goes through GodrayEffect (just the 3D model)
+function GodrayContent({hdriRotation}: {hdriRotation: [number, number, number]}) {
   const {scene} = useThree();
-  const fogColor = theme === 'dark' ? '#1a1a1a' : '#ffffff';
+  const fogColor = '#000000';
 
-  // Set scene background to null for transparency
   useEffect(() => {
     scene.background = null;
   }, [scene]);
 
-  // Fixed carousel radius - same size on all screens
-  const getCarouselRadius = () => {
-    return 1.6;
-  };
+  // Fog params for desktop
+  const cameraZ = 4;
+  const carouselRadius = 1.6;
+  const fogNear = cameraZ - carouselRadius * 0.8;
+  const fogFar = cameraZ - carouselRadius * 0.1;
 
-  // Fog - based on camera and carousel positions
-  // Model has fog=false so it's not affected
+  return (
+    <>
+      <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
+      <Suspense fallback={null}>
+        <Model />
+        <Environment
+          files="/3D/studio_small_09_1k.hdr"
+          environmentRotation={hdriRotation}
+        />
+      </Suspense>
+    </>
+  );
+}
+
+// Carousel rendered separately without godray effect (uses layer 1)
+function CarouselContent() {
+  return (
+    <Suspense fallback={null}>
+      <ImageCarousel radius={1.6} baseSpeed={0.15} panelCount={14} useLayer1={true} />
+    </Suspense>
+  );
+}
+
+function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) {
+  const {scene} = useThree();
+  const fogColor = '#000000';
+
+  useEffect(() => {
+    scene.background = new THREE.Color('#000000');
+  }, [scene]);
+
   const getFogParams = () => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
     const carouselRadius = 1.6;
 
     if (isMobile) {
-      // Mobile camera at Z=3
-      // Front photos distance: 3 - 1.6 = 1.4
-      // Back photos distance: 3 + 1.6 = 4.6
-      // Fog starts after front, ends before back
       return [1.8, 3.2];
     }
 
-    // Desktop camera at Z=4
     const cameraZ = 4;
     const fogNear = cameraZ - carouselRadius * 0.8;
     const fogFar = cameraZ - carouselRadius * 0.1;
@@ -400,8 +437,6 @@ function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) 
   };
 
   const fogParams = getFogParams();
-
-  // Check if mobile - only show carousel on mobile, no 3D model
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   return (
@@ -409,7 +444,7 @@ function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) 
       <fog attach="fog" args={[fogColor, fogParams[0], fogParams[1]]} />
       <Suspense fallback={null}>
         {!isMobile && <Model />}
-        <ImageCarousel radius={getCarouselRadius()} baseSpeed={0.15} panelCount={14} />
+        <ImageCarousel radius={1.6} baseSpeed={0.15} panelCount={14} />
         <Environment
           files="/3D/studio_small_09_1k.hdr"
           environmentRotation={hdriRotation}
@@ -428,6 +463,7 @@ function Scene({hdriRotation}: {hdriRotation: [number, number, number]}) {
     return <SceneContent hdriRotation={hdriRotation} />;
   }
 
+  // Desktop: with godray effect
   return (
     <GodrayEffect>
       <SceneContent hdriRotation={hdriRotation} />
@@ -501,7 +537,7 @@ export default function CommunityCanvas() {
         style={{pointerEvents: isMobile ? 'none' : 'auto'}}
         gl={{antialias: true, powerPreference: 'high-performance'}}
       >
-        <Scene hdriRotation={[46 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180]} />
+        <Scene hdriRotation={[75 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180]} />
       </Canvas>
     </div>
   );
