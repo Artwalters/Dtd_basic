@@ -112,12 +112,12 @@ function Scene() {
   const {scene} = useThree();
 
   useEffect(() => {
-    scene.background = new THREE.Color('#1a1a1a');
+    scene.background = new THREE.Color('#000000');
   }, [scene]);
 
   return (
     <>
-      <fog attach="fog" args={['#1a1a1a', 1.5, 4]} />
+      <fog attach="fog" args={['#000000', 1.5, 4]} />
       <Suspense fallback={null}>
         <ImageCarousel radius={1.5} baseSpeed={0.12} panelCount={12} />
       </Suspense>
