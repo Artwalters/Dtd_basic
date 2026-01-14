@@ -13,7 +13,7 @@ interface ModelProps {
 }
 
 function FullLogoModel({isActive}: ModelProps) {
-  const {scene} = useGLTF('/3D/Daretodream_full.glb', '/draco/');
+  const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
   const footerVisibleRef = useRef(false);
@@ -34,12 +34,11 @@ function FullLogoModel({isActive}: ModelProps) {
   // Animate in/out
   useFrame(() => {
     if (groupRef.current && typeof window !== 'undefined') {
-      // Check if footer is visible using getBoundingClientRect (no React state)
-      const footer = document.querySelector('.footer-parallax-wrapper');
-      if (footer) {
-        const rect = footer.getBoundingClientRect();
-        footerVisibleRef.current = rect.top < window.innerHeight && rect.bottom > 0;
-      }
+      // Check if user has scrolled to the bottom (where sticky footer becomes visible)
+      const scrollY = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      // Footer becomes visible in the last 10% of scroll
+      footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.9;
 
       const target = isActive && !footerVisibleRef.current ? 1 : 0;
       animProgress.current += (target - animProgress.current) * 0.08;
@@ -59,7 +58,7 @@ function FullLogoModel({isActive}: ModelProps) {
 }
 
 function SmallLogoModel({isActive}: ModelProps) {
-  const {scene, animations} = useGLTF('/3D/dtd_logo7.glb', '/draco/');
+  const {scene, animations} = useGLTF('/3D/dtd_logo7_nav.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
   const rotationInitialized = useRef(false);
@@ -97,12 +96,11 @@ function SmallLogoModel({isActive}: ModelProps) {
   // Animate in/out + rotate based on scroll
   useFrame(() => {
     if (groupRef.current && typeof window !== 'undefined') {
-      // Check if footer is visible using getBoundingClientRect (no React state)
-      const footer = document.querySelector('.footer-parallax-wrapper');
-      if (footer) {
-        const rect = footer.getBoundingClientRect();
-        footerVisibleRef.current = rect.top < window.innerHeight && rect.bottom > 0;
-      }
+      // Check if user has scrolled to the bottom (where sticky footer becomes visible)
+      const scrollY = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      // Footer becomes visible in the last 10% of scroll
+      footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.9;
 
       // Scale animation
       const target = isActive && !footerVisibleRef.current ? 1 : 0;
@@ -114,8 +112,6 @@ function SmallLogoModel({isActive}: ModelProps) {
       groupRef.current.visible = progress > 0.01;
 
       // Scroll-based rotation (base rotation is on primitive, scroll adds to group)
-      const scrollY = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       const scrollProgress = maxScroll > 0 ? scrollY / maxScroll : 0;
       const targetY = scrollProgress * Math.PI * 2;
 
@@ -164,5 +160,5 @@ export default function NavbarLogo3D({isScrolled}: NavbarLogo3DProps) {
   );
 }
 
-useGLTF.preload('/3D/Daretodream_full.glb', '/draco/');
-useGLTF.preload('/3D/dtd_logo7.glb', '/draco/');
+useGLTF.preload('/3D/Daretodream_full_optimized.glb', '/draco/');
+useGLTF.preload('/3D/dtd_logo7_nav.glb', '/draco/');
