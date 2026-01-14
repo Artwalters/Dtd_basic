@@ -87,6 +87,11 @@ export default function Product() {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
+  // Reset image index when product changes
+  React.useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [product.id]);
+
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
     product.selectedOrFirstAvailableVariant,

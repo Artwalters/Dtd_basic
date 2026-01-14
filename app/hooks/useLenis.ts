@@ -1,9 +1,12 @@
 import {useEffect} from 'react';
+import {useLocation} from 'react-router';
 import Lenis from 'lenis';
 
 let lenisInstance: Lenis | null = null;
 
 export function useLenis() {
+  const location = useLocation();
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -25,6 +28,13 @@ export function useLenis() {
       lenisInstance = null;
     };
   }, []);
+
+  // Scroll to top when route changes
+  useEffect(() => {
+    if (lenisInstance) {
+      lenisInstance.scrollTo(0, {immediate: true});
+    }
+  }, [location.pathname]);
 
   return lenisInstance;
 }
