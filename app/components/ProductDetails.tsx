@@ -1,8 +1,9 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {type MappedProductOptions} from '@shopify/hydrogen';
 import type {ProductFragment} from 'storefrontapi.generated';
 import {AddToCartButton} from './AddToCartButton';
 import {useAside} from './Aside';
+import {SizeGuide} from './SizeGuide';
 
 interface ProductDetailsProps {
   product: ProductFragment;
@@ -28,6 +29,7 @@ export function ProductDetails({
   totalImages = 1,
 }: ProductDetailsProps) {
   const {open} = useAside();
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
 
   // Initialize accordion functionality when component mounts
   useEffect(() => {
@@ -180,7 +182,7 @@ export function ProductDetails({
           <div className="product-size-section">
             <div className="size-header">
               <span className="size-model-info">Model is 187cm and 75kg wearing size M</span>
-              <button className="size-guide-link">
+              <button className="size-guide-link" onClick={() => setIsSizeGuideOpen(true)}>
                 <span>Size & Fit Guide</span>
               </button>
             </div>
@@ -251,6 +253,8 @@ export function ProductDetails({
           </ul>
         </div>
       </div>
+
+      <SizeGuide isOpen={isSizeGuideOpen} onClose={() => setIsSizeGuideOpen(false)} />
     </div>
   );
 }

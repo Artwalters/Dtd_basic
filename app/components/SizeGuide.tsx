@@ -1,0 +1,320 @@
+import React, {useState, useEffect} from 'react';
+
+interface SizeGuideProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface Measurements {
+  height: string;
+  weight: string;
+  chest: string;
+  build: 'lean' | 'athletic' | 'muscular' | 'heavyweight';
+  fit: 'fitted' | 'regular' | 'oversized';
+}
+
+const sizeChart = {
+  S: {chest: [94, 100], weight: [65, 75], description: 'Fitted for lean athletic builds'},
+  M: {chest: [100, 106], weight: [75, 85], description: 'Ideal for athletic to muscular builds'},
+  L: {chest: [106, 112], weight: [85, 95], description: 'Room for developed upper body'},
+  XL: {chest: [112, 120], weight: [95, 110], description: 'Built for serious muscle mass'},
+  XXL: {chest: [120, 130], weight: [110, 130], description: 'Maximum room for heavyweight builds'},
+};
+
+const buildMultiplier = {
+  lean: 0.9,
+  athletic: 1.0,
+  muscular: 1.1,
+  heavyweight: 1.2,
+};
+
+const athleteExamples = [
+  {name: 'Chris Bumstead', height: '185cm', weight: '104kg', size: 'XL', note: 'Classic Physique Olympia'},
+  {name: 'David Laid', height: '188cm', weight: '93kg', size: 'L', note: 'Aesthetic/Athletic Build'},
+  {name: 'Jeff Nippard', height: '165cm', weight: '79kg', size: 'M', note: 'Natural Powerbuilder'},
+  {name: 'Sam Sulek', height: '180cm', weight: '109kg', size: 'XL', note: 'Mass Monster Era'},
+];
+
+export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
+  const [step, setStep] = useState<'intro' | 'form' | 'result'>('intro');
+
+  const [measurements, setMeasurements] = useState<Measurements>({
+    height: '',
+    weight: '',
+    chest: '',
+    build: 'athletic',
+    fit: 'regular',
+  });
+  const [recommendedSize, setRecommendedSize] = useState<string | null>(null);
+
+  const calculateSize = () => {
+    const weight = parseFloat(measurements.weight);
+    const chest = parseFloat(measurements.chest);
+    const multiplier = buildMultiplier[measurements.build];
+
+    // Adjust weight based on build type
+    const adjustedWeight = weight * multiplier;
+
+    // Size order for adjustments
+    const sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+
+    // Determine base size based on measurements
+    let sizeIndex = 1; // Default to M
+
+    if (chest) {
+      // Prioritize chest measurement for bodybuilders
+      if (chest >= 120) sizeIndex = 4;
+      else if (chest >= 112) sizeIndex = 3;
+      else if (chest >= 106) sizeIndex = 2;
+      else if (chest >= 100) sizeIndex = 1;
+      else sizeIndex = 0;
+    } else if (adjustedWeight) {
+      // Fallback to weight-based recommendation
+      if (adjustedWeight >= 110) sizeIndex = 4;
+      else if (adjustedWeight >= 95) sizeIndex = 3;
+      else if (adjustedWeight >= 85) sizeIndex = 2;
+      else if (adjustedWeight >= 75) sizeIndex = 1;
+      else sizeIndex = 0;
+    }
+
+    // Adjust for fit preference
+    if (measurements.fit === 'fitted') {
+      sizeIndex = Math.max(0, sizeIndex - 1);
+    } else if (measurements.fit === 'oversized') {
+      sizeIndex = Math.min(sizes.length - 1, sizeIndex + 1);
+    }
+
+    setRecommendedSize(sizes[sizeIndex]);
+    setStep('result');
+  };
+
+  const resetGuide = () => {
+    setStep('intro');
+    setMeasurements({height: '', weight: '', chest: '', build: 'athletic', fit: 'regular'});
+    setRecommendedSize(null);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="size-guide-overlay" onClick={onClose}>
+      <div className="size-guide-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="size-guide-close" onClick={onClose}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+
+        {step === 'intro' && (
+          <div className="size-guide-content">
+            <h2 className="size-guide-title">Find Your Perfect Fit</h2>
+            <p className="size-guide-subtitle">
+              Built for athletes who push limits. Our sizing is designed with serious lifters in mind.
+            </p>
+
+            <div className="size-guide-options">
+              <button className="size-guide-option-btn" onClick={() => setStep('form')}>
+                <span className="option-text">
+                  <strong>Find My Size</strong>
+                  <small>Answer a few questions</small>
+                </span>
+              </button>
+
+              <div className="size-guide-divider">
+                <span>or</span>
+              </div>
+
+              <div className="size-chart-preview">
+                <h3>Size Chart</h3>
+                <table className="size-table">
+                  <thead>
+                    <tr>
+                      <th>Size</th>
+                      <th>Chest (cm)</th>
+                      <th>Weight (kg)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(sizeChart).map(([size, data]) => (
+                      <tr key={size}>
+                        <td>{size}</td>
+                        <td>{data.chest[0]}-{data.chest[1]}</td>
+                        <td>{data.weight[0]}-{data.weight[1]}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="athlete-reference">
+                <h3>Athlete Reference</h3>
+                <p className="reference-note">See what athletes similar to your build wear:</p>
+                <div className="athlete-list">
+                  {athleteExamples.map((athlete) => (
+                    <div key={athlete.name} className="athlete-card">
+                      <div className="athlete-info">
+                        <strong>{athlete.name}</strong>
+                        <small>{athlete.note}</small>
+                      </div>
+                      <div className="athlete-stats">
+                        <span>{athlete.height} / {athlete.weight}</span>
+                        <span className="athlete-size">Size {athlete.size}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 'form' && (
+          <div className="size-guide-content">
+            <button className="size-guide-back" onClick={() => setStep('intro')}>
+              ← Back
+            </button>
+            <h2 className="size-guide-title">Your Measurements</h2>
+            <p className="size-guide-subtitle">
+              Enter your stats for a personalized recommendation
+            </p>
+
+            <div className="size-form">
+              <div className="form-group">
+                <label>Height (cm)</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 180"
+                  value={measurements.height}
+                  onChange={(e) => setMeasurements({...measurements, height: e.target.value})}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Weight (kg)</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 90"
+                  value={measurements.weight}
+                  onChange={(e) => setMeasurements({...measurements, weight: e.target.value})}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Chest circumference (cm) <span className="optional">optional</span></label>
+                <input
+                  type="number"
+                  placeholder="e.g. 110"
+                  value={measurements.chest}
+                  onChange={(e) => setMeasurements({...measurements, chest: e.target.value})}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Body Type</label>
+                <div className="build-options">
+                  {(['lean', 'athletic', 'muscular', 'heavyweight'] as const).map((build) => (
+                    <button
+                      key={build}
+                      className={`build-option ${measurements.build === build ? 'active' : ''}`}
+                      onClick={() => setMeasurements({...measurements, build})}
+                    >
+                      {build.charAt(0).toUpperCase() + build.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Preferred Fit</label>
+                <div className="fit-options">
+                  {(['fitted', 'regular', 'oversized'] as const).map((fit) => (
+                    <button
+                      key={fit}
+                      className={`fit-option ${measurements.fit === fit ? 'active' : ''}`}
+                      onClick={() => setMeasurements({...measurements, fit})}
+                    >
+                      <span className="fit-label">{fit.charAt(0).toUpperCase() + fit.slice(1)}</span>
+                      <span className="fit-desc">
+                        {fit === 'fitted' && 'Shows physique'}
+                        {fit === 'regular' && 'True to size'}
+                        {fit === 'oversized' && 'Relaxed fit'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                className="size-guide-submit"
+                onClick={calculateSize}
+                disabled={!measurements.weight && !measurements.chest}
+              >
+                Find My Size
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 'result' && recommendedSize && (
+          <div className="size-guide-content">
+            <button className="size-guide-back" onClick={resetGuide}>
+              ← Start Over
+            </button>
+
+            <div className="size-result">
+              <h2 className="size-guide-title">Your Recommended Size</h2>
+
+              <div className="recommended-size">
+                <span className="size-badge">{recommendedSize}</span>
+                <p className="size-description">
+                  {sizeChart[recommendedSize as keyof typeof sizeChart]?.description}
+                </p>
+                <p className="fit-preference-badge">
+                  {measurements.fit === 'fitted' && 'Fitted look'}
+                  {measurements.fit === 'regular' && 'Regular fit'}
+                  {measurements.fit === 'oversized' && 'Oversized style'}
+                </p>
+              </div>
+
+              <div className="size-tips">
+                <h3>Fit Tips</h3>
+                <ul>
+                  <li>Our tees are designed with dropped shoulders for unrestricted movement</li>
+                  {measurements.fit === 'fitted' && (
+                    <li>Fitted selection: This will hug your physique and show definition</li>
+                  )}
+                  {measurements.fit === 'regular' && (
+                    <li>Regular fit: Comfortable all-day wear with room to move</li>
+                  )}
+                  {measurements.fit === 'oversized' && (
+                    <li>Oversized selection: Extra room for that relaxed streetwear look</li>
+                  )}
+                  <li>Stretchy premium cotton adapts to your pump</li>
+                  {measurements.build === 'heavyweight' && (
+                    <li>For mass monsters: extra room in shoulders included</li>
+                  )}
+                </ul>
+              </div>
+
+              <div className="similar-athletes">
+                <h3>Athletes in Size {recommendedSize}</h3>
+                <div className="athlete-list compact">
+                  {athleteExamples
+                    .filter((a) => a.size === recommendedSize)
+                    .map((athlete) => (
+                      <div key={athlete.name} className="athlete-card">
+                        <div className="athlete-info">
+                          <strong>{athlete.name}</strong>
+                          <small>{athlete.height} / {athlete.weight}</small>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
