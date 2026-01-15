@@ -30,7 +30,9 @@ function FullLogoModel({isActive}: ModelProps) {
 
   const clonedScene = useMemo(() => {
     const clone = scene.clone();
-    const material = createMetallicMaterial();
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+    });
     clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;

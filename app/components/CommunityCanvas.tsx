@@ -17,7 +17,7 @@ function Model() {
   // Simple metallic material without textures (lighter weight)
   const material = useMemo(() => {
     return new THREE.MeshStandardMaterial({
-      color: new THREE.Color(0.3, 0.3, 0.3),
+      color: new THREE.Color(0.2, 0.2, 0.2),
       metalness: 1,
       roughness: 0.3,
       envMapIntensity: 0.8,
@@ -364,7 +364,7 @@ function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) 
       <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Suspense fallback={null}>
         <Model />
-        <ImageCarousel radius={1.6} baseSpeed={0.15} panelCount={13} />
+        <ImageCarousel radius={1.44} baseSpeed={0.15} panelCount={13} />
         <Environment
           files="/3D/studio_small_09_1k.hdr"
           environmentRotation={hdriRotation}

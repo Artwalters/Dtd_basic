@@ -4,13 +4,10 @@ import {Suspense, useMemo, useState, useEffect, useRef} from 'react';
 import * as THREE from 'three';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 
-// Metallic material matching community scene style
-const createMetallicMaterial = () => {
-  return new THREE.MeshStandardMaterial({
-    color: new THREE.Color(0.4, 0.4, 0.4),
-    metalness: 1,
-    roughness: 0.3,
-    envMapIntensity: 0.8,
+// White material for footer logo
+const createWhiteMaterial = () => {
+  return new THREE.MeshBasicMaterial({
+    color: 0xffffff,
   });
 };
 
@@ -20,7 +17,7 @@ function FullLogoModel({mouse}: {mouse: {x: number; y: number}}) {
 
   const clonedScene = useMemo(() => {
     const clone = SkeletonUtils.clone(scene);
-    const material = createMetallicMaterial();
+    const material = createWhiteMaterial();
     clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;
