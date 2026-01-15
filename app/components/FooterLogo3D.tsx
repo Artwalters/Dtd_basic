@@ -1,8 +1,18 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {useGLTF} from '@react-three/drei';
+import {useGLTF, Environment} from '@react-three/drei';
 import {Suspense, useMemo, useState, useEffect, useRef} from 'react';
 import * as THREE from 'three';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
+
+// Metallic material matching community scene style
+const createMetallicMaterial = () => {
+  return new THREE.MeshStandardMaterial({
+    color: new THREE.Color(0.4, 0.4, 0.4),
+    metalness: 1,
+    roughness: 0.3,
+    envMapIntensity: 0.8,
+  });
+};
 
 function FullLogoModel({mouse}: {mouse: {x: number; y: number}}) {
   const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
@@ -10,9 +20,7 @@ function FullLogoModel({mouse}: {mouse: {x: number; y: number}}) {
 
   const clonedScene = useMemo(() => {
     const clone = SkeletonUtils.clone(scene);
-    const material = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-    });
+    const material = createMetallicMaterial();
     clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;
@@ -72,10 +80,8 @@ export default function FooterLogo3D() {
       >
         <Suspense fallback={null}>
           <FullLogoModel mouse={mouse} />
+          <Environment files="/3D/studio_small_09_1k.hdr" />
         </Suspense>
-        <ambientLight intensity={1} />
-        <directionalLight position={[5, 5, 5]} intensity={2} />
-        <directionalLight position={[-5, 3, -5]} intensity={1.5} />
       </Canvas>
     </div>
   );

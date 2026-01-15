@@ -1,8 +1,18 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {useGLTF, useAnimations} from '@react-three/drei';
+import {useGLTF, useAnimations, Environment} from '@react-three/drei';
 import {Suspense, useMemo, useState, useEffect, useRef} from 'react';
 import * as THREE from 'three';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
+
+// Shared metallic material matching community scene style
+const createMetallicMaterial = () => {
+  return new THREE.MeshStandardMaterial({
+    color: new THREE.Color(0.4, 0.4, 0.4),
+    metalness: 1,
+    roughness: 0.3,
+    envMapIntensity: 0.8,
+  });
+};
 
 interface NavbarLogo3DProps {
   isScrolled: boolean;
@@ -20,9 +30,7 @@ function FullLogoModel({isActive}: ModelProps) {
 
   const clonedScene = useMemo(() => {
     const clone = scene.clone();
-    const material = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-    });
+    const material = createMetallicMaterial();
     clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;
@@ -64,12 +72,10 @@ function SmallLogoModel({isActive}: ModelProps) {
   const rotationInitialized = useRef(false);
   const footerVisibleRef = useRef(false);
 
-  // Clone scene and apply white material to avoid conflicts with other Canvas instances
+  // Clone scene and apply metallic material to avoid conflicts with other Canvas instances
   const clonedScene = useMemo(() => {
     const clone = SkeletonUtils.clone(scene);
-    const material = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-    });
+    const material = createMetallicMaterial();
     clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;
@@ -151,10 +157,8 @@ export default function NavbarLogo3D({isScrolled}: NavbarLogo3DProps) {
         <Suspense fallback={null}>
           <FullLogoModel isActive={!isScrolled} />
           <SmallLogoModel isActive={isScrolled} />
+          <Environment files="/3D/studio_small_09_1k.hdr" />
         </Suspense>
-        <ambientLight intensity={1} />
-        <directionalLight position={[5, 5, 5]} intensity={2} />
-        <directionalLight position={[-5, 3, -5]} intensity={1.5} />
       </Canvas>
     </div>
   );
