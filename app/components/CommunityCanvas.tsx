@@ -16,7 +16,7 @@ function Model() {
 
   // Load PBR textures
   const textures = useTexture({
-    map: '/3D/textures/Metal055A_1K-JPG_Color_dark.png',
+    map: '/3D/textures/Metal055A_1K-JPG_Color_dark.jpg',
     normalMap: '/3D/textures/Metal055A_1K-JPG_NormalGL.jpg',
     roughnessMap: '/3D/textures/Metal055A_1K-JPG_Roughness.jpg',
     metalnessMap: '/3D/textures/Metal055A_1K-JPG_Metalness.jpg',
