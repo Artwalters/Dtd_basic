@@ -14,34 +14,22 @@ function Model() {
   // Fixed scale - same size on all screens
   const modelScale = 0.45;
 
-  // Load PBR textures
-  const textures = useTexture({
-    map: '/3D/textures/Metal055A_1K-JPG_Color_dark.jpg',
-    normalMap: '/3D/textures/Metal055A_1K-JPG_NormalGL.jpg',
-    roughnessMap: '/3D/textures/Metal055A_1K-JPG_Roughness.jpg',
-    metalnessMap: '/3D/textures/Metal055A_1K-JPG_Metalness.jpg',
-  });
-
-  // Create material with textures
+  // Simple metallic material without textures (lighter weight)
   const material = useMemo(() => {
     return new THREE.MeshStandardMaterial({
-      map: textures.map,
-      normalMap: textures.normalMap,
-      roughnessMap: textures.roughnessMap,
-      metalnessMap: textures.metalnessMap,
+      color: new THREE.Color(0.3, 0.3, 0.3),
       metalness: 1,
-      roughness: 1,
-      envMapIntensity: 0.15,
-      color: new THREE.Color(0.4, 0.4, 0.4), // Darken the model
+      roughness: 0.3,
+      envMapIntensity: 0.8,
     });
-  }, [textures]);
+  }, []);
 
   // Apply material to all meshes in the scene
   useEffect(() => {
     scene.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;
-        child.material.fog = false; // Disable fog for 3D model
+        child.material.fog = false;
       }
     });
   }, [scene, material]);
@@ -72,13 +60,12 @@ function Model() {
     }
   });
 
-  // Cleanup textures and material on unmount
+  // Cleanup material on unmount
   useEffect(() => {
     return () => {
       material.dispose();
-      Object.values(textures).forEach(texture => texture.dispose());
     };
-  }, [material, textures]);
+  }, [material]);
 
   return <primitive ref={modelRef} object={scene} scale={modelScale} rotation={[0, -Math.PI / 2, 0]} />;
 }
@@ -398,6 +385,12 @@ function Scene({hdriRotation}: {hdriRotation: [number, number, number]}) {
 export default function CommunityCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [dpr, setDpr] = useState(2);
+
+  useEffect(() => {
+    // Set DPR on client side only
+    setDpr(Math.min(window.devicePixelRatio || 2, 3));
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -435,7 +428,7 @@ export default function CommunityCanvas() {
     >
       <Canvas
         camera={{position: [0, 0, 4], fov: 50}}
-        dpr={Math.min(window.devicePixelRatio || 2, 3)}
+        dpr={dpr}
         frameloop={isVisible ? 'always' : 'never'}
         gl={{antialias: true, powerPreference: 'high-performance'}}
       >
