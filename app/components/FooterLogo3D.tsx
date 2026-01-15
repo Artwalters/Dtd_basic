@@ -1,44 +1,33 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {useGLTF, Environment, useTexture} from '@react-three/drei';
+import {useGLTF, Environment} from '@react-three/drei';
 import {Suspense, useMemo, useState, useEffect, useRef} from 'react';
 import * as THREE from 'three';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 
-function FullLogoModel({mouse}: {mouse: {x: number; y: number}}) {
-  const {scene} = useGLTF('/3D/Daretodream_full.glb', '/draco/');
-  const groupRef = useRef<THREE.Group>(null);
-
-  // Load PBR textures (same as community scene)
-  const textures = useTexture({
-    map: '/3D/textures/Metal055A_1K-JPG_Color_dark.jpg',
-    normalMap: '/3D/textures/Metal055A_1K-JPG_NormalGL.jpg',
-    roughnessMap: '/3D/textures/Metal055A_1K-JPG_Roughness.jpg',
-    metalnessMap: '/3D/textures/Metal055A_1K-JPG_Metalness.jpg',
+// Metallic material matching community scene style
+const createMetallicMaterial = () => {
+  return new THREE.MeshStandardMaterial({
+    color: new THREE.Color(0.4, 0.4, 0.4),
+    metalness: 1,
+    roughness: 0.3,
+    envMapIntensity: 0.8,
   });
+};
 
-  // Create PBR material matching community scene
-  const material = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      map: textures.map,
-      normalMap: textures.normalMap,
-      roughnessMap: textures.roughnessMap,
-      metalnessMap: textures.metalnessMap,
-      metalness: 1,
-      roughness: 1,
-      envMapIntensity: 0.15,
-      color: new THREE.Color(0.4, 0.4, 0.4),
-    });
-  }, [textures]);
+function FullLogoModel({mouse}: {mouse: {x: number; y: number}}) {
+  const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
+  const groupRef = useRef<THREE.Group>(null);
 
   const clonedScene = useMemo(() => {
     const clone = SkeletonUtils.clone(scene);
+    const material = createMetallicMaterial();
     clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;
       }
     });
     return clone;
-  }, [scene, material]);
+  }, [scene]);
 
   useFrame(() => {
     if (groupRef.current) {
@@ -50,13 +39,6 @@ function FullLogoModel({mouse}: {mouse: {x: number; y: number}}) {
       groupRef.current.rotation.y += (targetRotationY - groupRef.current.rotation.y) * 0.05;
     }
   });
-
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      material.dispose();
-    };
-  }, [material]);
 
   return (
     <group scale={3} position={[0, -0.5, 0]}>
@@ -105,4 +87,4 @@ export default function FooterLogo3D() {
   );
 }
 
-useGLTF.preload('/3D/Daretodream_full.glb', '/draco/');
+useGLTF.preload('/3D/Daretodream_full_optimized.glb', '/draco/');
