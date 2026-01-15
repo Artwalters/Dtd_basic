@@ -1,5 +1,5 @@
 import {Canvas, useFrame, useThree} from '@react-three/fiber';
-import {OrbitControls, useGLTF, useAnimations, Environment, useTexture, useFBO} from '@react-three/drei';
+import {useGLTF, useAnimations, Environment, useTexture, useFBO} from '@react-three/drei';
 import {Suspense, useEffect, useRef, useState, useMemo, useCallback} from 'react';
 import {useDrag} from '@use-gesture/react';
 import * as THREE from 'three';
@@ -20,7 +20,6 @@ function Model() {
     normalMap: '/3D/textures/Metal055A_1K-JPG_NormalGL.jpg',
     roughnessMap: '/3D/textures/Metal055A_1K-JPG_Roughness.jpg',
     metalnessMap: '/3D/textures/Metal055A_1K-JPG_Metalness.jpg',
-    displacementMap: '/3D/textures/Metal055A_1K-JPG_Displacement.jpg',
   });
 
   // Create material with textures
@@ -32,7 +31,8 @@ function Model() {
       metalnessMap: textures.metalnessMap,
       metalness: 1,
       roughness: 1,
-      envMapIntensity: 0.5, // Reduce environment lighting
+      envMapIntensity: 0.15,
+      color: new THREE.Color(0.4, 0.4, 0.4), // Darken the model
     });
   }, [textures]);
 
@@ -72,6 +72,14 @@ function Model() {
     }
   });
 
+  // Cleanup textures and material on unmount
+  useEffect(() => {
+    return () => {
+      material.dispose();
+      Object.values(textures).forEach(texture => texture.dispose());
+    };
+  }, [material, textures]);
+
   return <primitive ref={modelRef} object={scene} scale={modelScale} rotation={[0, -Math.PI / 2, 0]} />;
 }
 
@@ -85,7 +93,6 @@ void main() {
 `;
 
 const godrayFragmentShader = `
-uniform float time;
 uniform sampler2D uMap;
 uniform float godrayIntensity;
 uniform float brightness;
@@ -157,7 +164,6 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
     return new THREE.ShaderMaterial({
       uniforms: {
         uMap: {value: null},
-        time: {value: 0},
         godrayIntensity: {value: theme === 'dark' ? 0.003 : 0.005},
         brightness: {value: theme === 'dark' ? 0.95 : 1.0},
         contrast: {value: theme === 'dark' ? 0.99 : 0.98},
@@ -176,14 +182,13 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
   }, [material, postScene]);
 
   // Render loop with post-processing
-  useFrame((state) => {
+  useFrame(() => {
     // First pass: render scene to render target
     gl.setRenderTarget(renderTarget);
     gl.render(scene, camera);
 
     // Update uniforms
     material.uniforms.uMap.value = renderTarget.texture;
-    material.uniforms.time.value = state.clock.elapsedTime;
 
     // Second pass: render post-processing to screen
     gl.setRenderTarget(null);
@@ -283,7 +288,7 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
   // Create curved geometry for panels
   const curvedGeometry = useMemo(() => {
     const arcAngle = (Math.PI * 2) / panelCount * 0.92; // Arc per panel (smaller gap)
-    const segments = 32; // Smoothness of curve
+    const segments = 16; // Smoothness of curve
 
     // Calculate arc length and scale height
     const arcLength = radius * arcAngle;
@@ -340,6 +345,14 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
     return items;
   }, [panelCount, curvedGeometry, textures]);
 
+  // Cleanup geometry and textures on unmount
+  useEffect(() => {
+    return () => {
+      curvedGeometry.dispose();
+      textures.forEach(texture => texture.dispose());
+    };
+  }, [curvedGeometry, textures]);
+
   return <group ref={groupRef}>{panels}</group>;
 }
 
@@ -363,13 +376,12 @@ function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) 
       <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Suspense fallback={null}>
         <Model />
-        <ImageCarousel radius={1.6} baseSpeed={0.15} panelCount={14} />
+        <ImageCarousel radius={1.6} baseSpeed={0.15} panelCount={13} />
         <Environment
           files="/3D/studio_small_09_1k.hdr"
           environmentRotation={hdriRotation}
         />
       </Suspense>
-      <OrbitControls enableZoom={false} enableRotate={false} enablePan={false} />
     </>
   );
 }
