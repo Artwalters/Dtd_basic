@@ -52,7 +52,7 @@ function FullLogoModel({isActive}: ModelProps) {
       animProgress.current += (target - animProgress.current) * 0.08;
 
       const progress = animProgress.current;
-      const scale = 2.736 * progress;
+      const scale = 3.557 * progress;
       groupRef.current.scale.setScalar(scale);
       groupRef.current.visible = progress > 0.01;
     }
