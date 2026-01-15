@@ -1,5 +1,5 @@
-import {Canvas, useFrame, useThree, createPortal} from '@react-three/fiber';
-import {OrbitControls, useGLTF, useAnimations, Environment, useTexture, useFBO} from '@react-three/drei';
+import {Canvas, useFrame, useThree} from '@react-three/fiber';
+import {useGLTF, useAnimations, Environment, useTexture, useFBO} from '@react-three/drei';
 import {Suspense, useEffect, useRef, useState, useMemo, useCallback} from 'react';
 import {useDrag} from '@use-gesture/react';
 import * as THREE from 'three';
@@ -13,11 +13,10 @@ function Model() {
 
   // Load PBR textures
   const textures = useTexture({
-    map: '/3D/textures/Metal055A_1K-JPG_Color_dark.png',
+    map: '/3D/textures/Metal055A_1K-JPG_Color_dark.jpg',
     normalMap: '/3D/textures/Metal055A_1K-JPG_NormalGL.jpg',
     roughnessMap: '/3D/textures/Metal055A_1K-JPG_Roughness.jpg',
     metalnessMap: '/3D/textures/Metal055A_1K-JPG_Metalness.jpg',
-    displacementMap: '/3D/textures/Metal055A_1K-JPG_Displacement.jpg',
   });
 
   // Create material with textures
@@ -375,7 +374,6 @@ function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) 
           environmentRotation={hdriRotation}
         />
       </Suspense>
-      <OrbitControls enableZoom={false} enableRotate={false} enablePan={false} />
     </>
   );
 }
