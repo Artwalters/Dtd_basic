@@ -121,7 +121,7 @@ void main() {
   for(float i = 0.0; i < 8.0; i++) {
     float lerp = (i + rand(vec2(gl_FragCoord.x, gl_FragCoord.y))) / 8.0;
     float weight = sin(lerp * PI);
-    vec4 mysample = texture2D(uMap, vUv + toCenter * lerp * 0.7);
+    vec4 mysample = texture2D(uMap, vUv + toCenter * lerp * 0.95);
     color += mysample * weight;
     total += weight;
   }
@@ -147,12 +147,13 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
   const {theme} = useTheme();
 
   // Create render target with correct color space
+  // samples: 2 is sufficient since godray blur masks jagged edges
   const renderTarget = useFBO(size.width, size.height, {
     minFilter: THREE.LinearFilter,
     magFilter: THREE.LinearFilter,
     format: THREE.RGBAFormat,
     colorSpace: THREE.SRGBColorSpace,
-    samples: 4,
+    samples: 2,
   });
 
   // Post-processing scene and camera
@@ -164,7 +165,7 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
     return new THREE.ShaderMaterial({
       uniforms: {
         uMap: {value: null},
-        godrayIntensity: {value: theme === 'dark' ? 0.003 : 0.005},
+        godrayIntensity: {value: theme === 'dark' ? 0.012 : 0.018},
         brightness: {value: theme === 'dark' ? 0.95 : 1.0},
         contrast: {value: theme === 'dark' ? 0.99 : 0.98},
       },
