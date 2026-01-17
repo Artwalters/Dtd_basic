@@ -2160,7 +2160,7 @@ button.reset:hover:not(:has(> *)) {
 /* Mobile styles for NewArrivals */
 @media (max-width: 47.99em) {
   .new-arrivals {
-    padding: 2em 0.5em;
+    padding: 2em 1em;
     padding-bottom: 4em;
   }
 
