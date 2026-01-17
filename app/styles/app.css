@@ -2263,7 +2263,7 @@ button.reset:hover:not(:has(> *)) {
 
 /* Product Item Info */
 .product-item-info {
-  padding: 0.75em 0 0 0;
+  padding: 0.35em 0 0 0;
 }
 
 .product-item-info h4 {
