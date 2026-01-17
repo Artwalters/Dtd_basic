@@ -134,13 +134,13 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
   const {theme} = useTheme();
 
   // Create render target with correct color space
-  // Higher samples for better anti-aliasing on all devices
+  // Maximum samples for smooth anti-aliased edges
   const renderTarget = useFBO(size.width, size.height, {
     minFilter: THREE.LinearFilter,
     magFilter: THREE.LinearFilter,
     format: THREE.RGBAFormat,
     colorSpace: THREE.SRGBColorSpace,
-    samples: 8,
+    samples: 16,
   });
 
   // Post-processing scene and camera
