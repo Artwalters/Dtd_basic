@@ -2,29 +2,12 @@ import {useState, useEffect, type ComponentType} from 'react';
 
 export function CommunitySection() {
   const [CanvasComponent, setCanvasComponent] = useState<ComponentType | null>(null);
-  const [MobileCarouselComponent, setMobileCarouselComponent] = useState<ComponentType | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Check if mobile
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-
-    // Dynamic import based on device
-    if (window.innerWidth <= 768) {
-      // Mobile: load lightweight R3F carousel (no 3D model)
-      import('./CommunityCarouselMobile').then((mod) => {
-        setMobileCarouselComponent(() => mod.CommunityCarouselMobile);
-      });
-    } else {
-      // Desktop: load full WebGL canvas with 3D model
-      import('./CommunityCanvas').then((mod) => {
-        setCanvasComponent(() => mod.default);
-      });
-    }
+    // Always load the full WebGL canvas (desktop version) on all devices
+    import('./CommunityCanvas').then((mod) => {
+      setCanvasComponent(() => mod.default);
+    });
   }, []);
 
   return (
@@ -43,11 +26,7 @@ export function CommunitySection() {
       </div>
 
       <div className="community-canvas">
-        {isMobile ? (
-          MobileCarouselComponent && <MobileCarouselComponent />
-        ) : (
-          CanvasComponent && <CanvasComponent />
-        )}
+        {CanvasComponent && <CanvasComponent />}
       </div>
       <div className="section-divider section-divider-bottom" />
     </section>
