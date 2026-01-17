@@ -1799,14 +1799,14 @@ button.reset:hover:not(:has(> *)) {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.15em;
+  gap: 0;
   padding: 0;
 }
 
 .new-drop-info-left {
   display: flex;
   flex-direction: column;
-  gap: 0.15em;
+  gap: 0;
 }
 
 .new-drop-product-title {
