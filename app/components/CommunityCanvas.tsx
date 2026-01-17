@@ -390,7 +390,7 @@ function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) 
       <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Suspense fallback={null}>
         <Model />
-        <ImageCarousel radius={1.44} baseSpeed={0.15} panelCount={isTouchDevice ? 10 : 13} />
+        <ImageCarousel radius={isTouchDevice ? 1.35 : 1.44} baseSpeed={0.15} panelCount={isTouchDevice ? 10 : 13} />
         <Environment
           files="/3D/studio_small_09_1k.hdr"
           environmentRotation={hdriRotation}
