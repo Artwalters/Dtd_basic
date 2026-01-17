@@ -15,8 +15,8 @@ function Model() {
   const modelRef = useRef<THREE.Group>(null);
   const {pointer} = useThree();
 
-  // Fixed scale - same size on all screens
-  const modelScale = 0.45;
+  // Slightly smaller scale on mobile for better framing
+  const modelScale = isTouchDevice ? 0.40 : 0.45;
 
   // Simple metallic material without textures (lighter weight)
   const material = useMemo(() => {
