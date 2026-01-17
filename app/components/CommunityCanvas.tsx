@@ -154,12 +154,13 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
 
   // Create render target with correct color space
   // Use actual pixel dimensions for sharp rendering on all devices
+  // Lower samples on mobile for better performance
   const renderTarget = useFBO(drawingBufferSize.x, drawingBufferSize.y, {
     minFilter: THREE.LinearFilter,
     magFilter: THREE.LinearFilter,
     format: THREE.RGBAFormat,
     colorSpace: THREE.SRGBColorSpace,
-    samples: 8, // 8 is usually max supported on mobile
+    samples: isTouchDevice ? 4 : 8,
   });
 
   // Post-processing scene and camera
@@ -389,7 +390,7 @@ function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) 
       <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Suspense fallback={null}>
         <Model />
-        <ImageCarousel radius={1.44} baseSpeed={0.15} panelCount={13} />
+        <ImageCarousel radius={1.44} baseSpeed={0.15} panelCount={isTouchDevice ? 10 : 13} />
         <Environment
           files="/3D/studio_small_09_1k.hdr"
           environmentRotation={hdriRotation}
@@ -413,8 +414,9 @@ export default function CommunityCanvas() {
   const [dpr, setDpr] = useState(2);
 
   useEffect(() => {
-    // Set DPR on client side only - use full device pixel ratio for sharp rendering
-    setDpr(window.devicePixelRatio || 2);
+    // Set DPR on client side - cap at 2 on mobile for better performance
+    const deviceDpr = window.devicePixelRatio || 2;
+    setDpr(isTouchDevice ? Math.min(deviceDpr, 2) : deviceDpr);
   }, []);
 
   useEffect(() => {
