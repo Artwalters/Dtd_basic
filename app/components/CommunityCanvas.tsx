@@ -104,9 +104,9 @@ void main() {
   vec4 color = vec4(0.0);
   float total = 0.0;
 
-  // Radial blur sampling voor godray effect (higher samples for better quality)
-  for(float i = 0.0; i < 16.0; i++) {
-    float lerp = (i + rand(vec2(gl_FragCoord.x, gl_FragCoord.y))) / 16.0;
+  // Radial blur sampling voor godray effect
+  for(float i = 0.0; i < 8.0; i++) {
+    float lerp = (i + rand(vec2(gl_FragCoord.x, gl_FragCoord.y))) / 8.0;
     float weight = sin(lerp * PI);
     vec4 mysample = texture2D(uMap, vUv + toCenter * lerp * 0.95);
     color += mysample * weight;
@@ -276,7 +276,7 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
   // Create curved geometry for panels
   const curvedGeometry = useMemo(() => {
     const arcAngle = (Math.PI * 2) / panelCount * 0.92; // Arc per panel (smaller gap)
-    const segments = 32; // Higher smoothness of curve for better quality
+    const segments = 16; // Smoothness of curve
 
     // Calculate arc length and scale height
     const arcLength = radius * arcAngle;
