@@ -1,8 +1,7 @@
-import {useState, useEffect, useRef, useCallback} from 'react';
+import {useState, useEffect, useRef, useCallback, type ComponentType} from 'react';
 import {Link} from 'react-router';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {ProductCard} from './ProductCard';
-import {MetallicProgressBar} from './MetallicProgressBar';
 import gsap from 'gsap';
 import {Draggable} from 'gsap/Draggable';
 import {InertiaPlugin} from 'gsap/InertiaPlugin';
@@ -25,6 +24,14 @@ export function NewArrivals({
   const [openProductId, setOpenProductId] = useState<string | null>(null);
   const [sliderProgress, setSliderProgress] = useState(0);
   const progressSetterRef = useRef<(progress: number) => void>();
+  const [ProgressBarComponent, setProgressBarComponent] = useState<ComponentType<{progress: number}> | null>(null);
+
+  // Load MetallicProgressBar only on client side
+  useEffect(() => {
+    import('./MetallicProgressBar').then((mod) => {
+      setProgressBarComponent(() => mod.MetallicProgressBar);
+    });
+  }, []);
 
   // Store the setter in a ref so GSAP can access it
   progressSetterRef.current = setSliderProgress;
@@ -54,7 +61,7 @@ export function NewArrivals({
       <div className="new-arrivals-header">
         <h2 className="new-arrivals-title">{title}</h2>
         <div className="new-arrivals-progress" data-gsap-slider-progress="">
-          <MetallicProgressBar progress={sliderProgress} />
+          {ProgressBarComponent && <ProgressBarComponent progress={sliderProgress} />}
         </div>
         <Link to="/collections/all" className="btn btn-glass new-arrivals-shop-all">
           SHOP ALL
