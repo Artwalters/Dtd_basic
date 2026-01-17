@@ -4113,7 +4113,7 @@ button.reset:hover:not(:has(> *)) {
 
 @media (max-width: 47.99em) {
   .community-section {
-    height: 65svh;
+    height: 85svh;
     position: relative;
     padding: 0;
   }
@@ -4137,7 +4137,7 @@ button.reset:hover:not(:has(> *)) {
     top: 0;
     left: 0;
     width: 100%;
-    height: 65svh;
+    height: 85svh;
   }
 
   .community-sticky-wrapper {
