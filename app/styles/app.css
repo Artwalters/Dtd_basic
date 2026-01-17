@@ -2261,6 +2261,32 @@ button.reset:hover:not(:has(> *)) {
   pointer-events: none;
 }
 
+/* Product Item Info */
+.product-item-info {
+  padding: 0.75em 0 0 0;
+}
+
+.product-item-info h4 {
+  font-size: var(--font-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-white);
+  margin: 0 0 0.15em 0;
+  line-height: 1.3;
+}
+
+.product-item-info .product-item-variant {
+  font-size: var(--font-sm);
+  color: #6B9AC4;
+  margin: 0 0 0.15em 0;
+  line-height: 1.3;
+}
+
+.product-item-info small {
+  font-size: var(--font-sm);
+  color: var(--color-white);
+  display: block;
+}
+
 /*
 * --------------------------------------------------
 * routes/products.$handle.tsx

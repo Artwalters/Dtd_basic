@@ -54,10 +54,15 @@ export function ProductItem({
           </div>
         )}
       </div>
-      <h4>{product.title}</h4>
-      <small>
-        <Money data={product.priceRange.minVariantPrice} />
-      </small>
+      <div className="product-item-info">
+        <h4>{product.title}</h4>
+        {productData.variants?.nodes?.[0]?.title && productData.variants.nodes[0].title !== 'Default Title' && (
+          <p className="product-item-variant">{productData.variants.nodes[0].title}</p>
+        )}
+        <small>
+          <Money data={product.priceRange.minVariantPrice} />
+        </small>
+      </div>
     </Link>
   );
 }
