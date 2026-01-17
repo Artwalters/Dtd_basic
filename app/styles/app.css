@@ -1797,10 +1797,9 @@ button.reset:hover:not(:has(> *)) {
 
 .new-drop-info {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 1em;
+  gap: 0.15em;
   padding: 0;
 }
 
