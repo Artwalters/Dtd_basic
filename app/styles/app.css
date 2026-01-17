@@ -1724,14 +1724,14 @@ button.reset:hover:not(:has(> *)) {
 .new-drop-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1em;
+  gap: 2em;
   align-items: start;
 }
 
 @media (min-width: 48em) {
   .new-drop-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 1em;
+    gap: 2em;
   }
 }
 
@@ -1801,7 +1801,7 @@ button.reset:hover:not(:has(> *)) {
   justify-content: space-between;
   align-items: flex-start;
   gap: 1em;
-  padding: 0 0.5em;
+  padding: 0;
 }
 
 .new-drop-info-left {
