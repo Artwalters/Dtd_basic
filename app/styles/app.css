@@ -244,7 +244,7 @@ aside {
   position: fixed;
   right: calc(-1 * var(--aside-width));
   top: 0;
-  padding-top: var(--header-height); /* Push content below header */
+  padding-top: calc(var(--header-height) + 4em); /* Push content below header with extra spacing */
   transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 50; /* Below header (100) but above overlay background (40) */
   overscroll-behavior: contain;
@@ -298,7 +298,7 @@ aside header h2 {
 
 aside main {
   padding: 0;
-  height: calc(100vh - var(--header-height) - 3.5em); /* Full height minus site header padding and aside header */
+  height: calc(100vh - var(--header-height) - 4em - 3.5em); /* Full height minus site header padding, extra spacing, and aside header */
   overflow-y: auto; /* Make content scrollable */
   display: flex;
   flex-direction: column;
