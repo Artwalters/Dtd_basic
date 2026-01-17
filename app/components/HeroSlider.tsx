@@ -101,7 +101,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
   );
 }
 
-// GSAP Hero Slider Initialization Function with Wipe/Parallax effect
+// GSAP Hero Slider Initialization Function with Magnetic Swipe effect
 function initHeroSlider(
   root: HTMLElement,
   onSlideChange?: (index: number) => void
@@ -114,7 +114,12 @@ function initHeroSlider(
   const length = slides.length;
   let animating = false;
   let observer: any = null;
-  const animationDuration = 0.9;
+
+  // Drag state
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragDelta = 0;
+  const snapThreshold = 0.35; // 35% of width to trigger slide change
 
   // Set initial state
   slides[current].classList.add('is--current');
@@ -127,70 +132,137 @@ function initHeroSlider(
     }
   }
 
-  function navigate(direction: number, targetIndex: number | null = null) {
-    if (animating) return;
+  function getNextIndex(direction: number): number {
+    if (direction === 1) {
+      return current < length - 1 ? current + 1 : 0;
+    } else {
+      return current > 0 ? current - 1 : length - 1;
+    }
+  }
+
+  function updateDragPosition(delta: number) {
+    const width = root.offsetWidth;
+    const percent = (delta / width) * 100;
+    const direction = delta < 0 ? 1 : -1;
+    const nextIndex = getNextIndex(direction);
+
+    const currentSlide = slides[current];
+    const currentInner = inner[current];
+    const nextSlide = slides[nextIndex];
+    const nextInner = inner[nextIndex];
+
+    // Move current slide with drag
+    gsap.set(currentSlide, { xPercent: percent });
+    gsap.set(currentInner, { xPercent: -percent * 0.5 });
+
+    // Position next slide
+    nextSlide.classList.add('is--current');
+    gsap.set(nextSlide, { xPercent: direction * 100 + percent });
+    gsap.set(nextInner, { xPercent: -direction * 50 - percent * 0.5 });
+
+    // Update progress indicator during drag
+    if (progressFill && length > 1) {
+      const dragProgress = Math.abs(delta) / width;
+      const currentProgress = current / (length - 1);
+      const nextProgress = nextIndex / (length - 1);
+      const interpolatedProgress = currentProgress + (nextProgress - currentProgress) * dragProgress;
+      progressFill.style.transform = `translateX(${interpolatedProgress * 100 * 2}%)`;
+    }
+  }
+
+  function snapToSlide(shouldNavigate: boolean, direction: number) {
     animating = true;
     if (observer) observer.disable();
 
-    const previous = current;
-    current =
-      targetIndex !== null && targetIndex !== undefined
-        ? targetIndex
-        : direction === 1
-          ? current < length - 1
-            ? current + 1
-            : 0
-          : current > 0
-            ? current - 1
-            : length - 1;
+    const animationDuration = 0.5;
+    const ease = 'power3.out';
 
-    const currentSlide = slides[previous];
-    const currentInner = inner[previous];
-    const upcomingSlide = slides[current];
-    const upcomingInner = inner[current];
+    if (shouldNavigate) {
+      const previous = current;
+      current = getNextIndex(direction);
 
-    gsap.timeline({
-      defaults: {
-        duration: animationDuration,
-        ease: 'power3.out'
-      },
-      onStart: function () {
-        upcomingSlide.classList.add('is--current');
-        if (onSlideChange) {
-          onSlideChange(current);
-        }
-        updateProgress();
-      },
-      onComplete: function () {
-        currentSlide.classList.remove('is--current');
-        gsap.set(currentSlide, { xPercent: 0 });
-        gsap.set(currentInner, { xPercent: 0 });
-        animating = false;
-        setTimeout(() => {
+      const prevSlide = slides[previous];
+      const prevInner = inner[previous];
+      const currentSlide = slides[current];
+      const currentInner = inner[current];
+
+      gsap.timeline({
+        defaults: { duration: animationDuration, ease },
+        onStart: () => {
+          if (onSlideChange) onSlideChange(current);
+          updateProgress();
+        },
+        onComplete: () => {
+          prevSlide.classList.remove('is--current');
+          gsap.set(prevSlide, { xPercent: 0 });
+          gsap.set(prevInner, { xPercent: 0 });
+          animating = false;
           if (observer) observer.enable();
-        }, animationDuration * 100);
-      }
-    })
-      .to(currentSlide, { xPercent: -direction * 100 }, 0)
-      .to(currentInner, { xPercent: direction * 50 }, 0)
-      .fromTo(upcomingSlide, { xPercent: direction * 100 }, { xPercent: 0 }, 0)
-      .fromTo(upcomingInner, { xPercent: -direction * 50 }, { xPercent: 0 }, 0);
+        }
+      })
+        .to(prevSlide, { xPercent: -direction * 100 }, 0)
+        .to(prevInner, { xPercent: direction * 50 }, 0)
+        .to(currentSlide, { xPercent: 0 }, 0)
+        .to(currentInner, { xPercent: 0 }, 0);
+    } else {
+      // Snap back to current slide
+      const nextIndex = getNextIndex(direction);
+      const currentSlide = slides[current];
+      const currentInner = inner[current];
+      const nextSlide = slides[nextIndex];
+      const nextInner = inner[nextIndex];
+
+      gsap.timeline({
+        defaults: { duration: animationDuration, ease },
+        onComplete: () => {
+          nextSlide.classList.remove('is--current');
+          gsap.set(nextSlide, { xPercent: direction * 100 });
+          gsap.set(nextInner, { xPercent: -direction * 50 });
+          animating = false;
+          if (observer) observer.enable();
+        }
+      })
+        .to(currentSlide, { xPercent: 0 }, 0)
+        .to(currentInner, { xPercent: 0 }, 0)
+        .to(nextSlide, { xPercent: direction * 100 }, 0)
+        .to(nextInner, { xPercent: -direction * 50 }, 0);
+    }
   }
 
-  // Create Observer for swipe/drag
+  // Create Observer for magnetic swipe/drag
   observer = Observer.create({
     target: root,
     type: 'touch,pointer',
-    onLeft: () => {
-      if (!animating) navigate(1);
+    onPress: (self) => {
+      if (animating) return;
+      isDragging = true;
+      dragStartX = self.x;
+      dragDelta = 0;
     },
-    onRight: () => {
-      if (!animating) navigate(-1);
+    onDrag: (self) => {
+      if (!isDragging || animating) return;
+      dragDelta = self.x - dragStartX;
+      updateDragPosition(dragDelta);
     },
-    tolerance: 30,
-    dragMinimum: 3,
-    preventDefault: false,
-    allowClicks: true
+    onRelease: () => {
+      if (!isDragging || animating) return;
+      isDragging = false;
+
+      const width = root.offsetWidth;
+      const percent = Math.abs(dragDelta) / width;
+      const direction = dragDelta < 0 ? 1 : -1;
+
+      // Only navigate if we've passed the threshold
+      const shouldNavigate = percent > snapThreshold;
+
+      snapToSlide(shouldNavigate, direction);
+      dragDelta = 0;
+    },
+    tolerance: 0,
+    dragMinimum: 1,
+    preventDefault: true,
+    allowClicks: true,
+    clickThreshold: 3
   });
 
   // Initial progress update
