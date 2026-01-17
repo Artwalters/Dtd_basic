@@ -1,4 +1,6 @@
 import React, {useState, useEffect} from 'react';
+import {createPortal} from 'react-dom';
+import {getLenis} from '~/hooks/useLenis';
 
 interface SizeGuideProps {
   isOpen: boolean;
@@ -37,6 +39,8 @@ const athleteExamples = [
 
 export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
   const [step, setStep] = useState<'intro' | 'form' | 'result'>('intro');
+  const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const [measurements, setMeasurements] = useState<Measurements>({
     height: '',
@@ -46,6 +50,32 @@ export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
     fit: 'regular',
   });
   const [recommendedSize, setRecommendedSize] = useState<string | null>(null);
+
+  // Wait for client-side mount for portal
+  useEffect(() => {
+    setMounted(true);
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Lock body scroll when open on mobile
+  useEffect(() => {
+    if (!isOpen || !isMobile) return;
+
+    const lenis = getLenis();
+    lenis?.stop();
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    return () => {
+      lenis?.start();
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isOpen, isMobile]);
 
   const calculateSize = () => {
     const weight = parseFloat(measurements.weight);
@@ -94,18 +124,18 @@ export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
     setRecommendedSize(null);
   };
 
-  if (!isOpen) return null;
+  // Don't render on server for mobile portal
+  if (!mounted) return null;
 
-  return (
-    <div className="size-guide-overlay" onClick={onClose}>
-      <div className="size-guide-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="size-guide-close" onClick={onClose}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
-        {step === 'intro' && (
+  const renderContent = () => (
+    <>
+      {step === 'intro' && (
           <div className="size-guide-content">
             <h2 className="size-guide-title">Find Your Perfect Fit</h2>
             <p className="size-guide-subtitle">
@@ -314,6 +344,48 @@ export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
             </div>
           </div>
         )}
+    </>
+  );
+
+  // Mobile: render as bottom sheet via portal
+  if (isMobile) {
+    return createPortal(
+      <div
+        className={`size-guide-mobile-backdrop ${isOpen ? 'size-guide-mobile-backdrop--open' : ''}`}
+        onClick={handleBackdropClick}
+      >
+        <div className={`size-guide-mobile ${isOpen ? 'size-guide-mobile--open' : ''}`}>
+          <div className="size-guide-mobile__header">
+            <h2 className="size-guide-mobile__title">Size Guide</h2>
+            <button
+              className="size-guide-mobile__close"
+              onClick={onClose}
+              aria-label="Close"
+            >
+              CLOSE
+            </button>
+          </div>
+          <div className="size-guide-mobile__content">
+            {renderContent()}
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
+  // Desktop: render as modal
+  if (!isOpen) return null;
+
+  return (
+    <div className="size-guide-overlay" onClick={onClose}>
+      <div className="size-guide-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="size-guide-close" onClick={onClose}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+        {renderContent()}
       </div>
     </div>
   );
