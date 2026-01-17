@@ -5,6 +5,10 @@ import {useDrag} from '@use-gesture/react';
 import * as THREE from 'three';
 import {useTheme} from '~/contexts/ThemeContext';
 
+// Check if device is touch-only (no mouse hover)
+const isTouchDevice = typeof window !== 'undefined' &&
+  ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
 function Model() {
   const {scene, animations} = useGLTF('/3D/dtd_logo7.glb', '/draco/');
   const {actions, names} = useAnimations(animations, scene);
@@ -46,17 +50,25 @@ function Model() {
     };
   }, [actions, names]);
 
-  // Subtle mouse interaction
+  // Subtle mouse interaction (desktop only - no hover on touch devices)
   useFrame(() => {
     if (modelRef.current) {
-      const targetX = pointer.x * 0.1;
-      const targetY = pointer.y * 0.05;
+      if (isTouchDevice) {
+        // On touch devices, just maintain base rotation without hover effects
+        modelRef.current.rotation.y += ((-Math.PI / 2) - modelRef.current.rotation.y) * 0.02;
+        modelRef.current.rotation.x += (0 - modelRef.current.rotation.x) * 0.02;
+        modelRef.current.position.x += (0 - modelRef.current.position.x) * 0.02;
+        modelRef.current.position.y += (0 - modelRef.current.position.y) * 0.02;
+      } else {
+        const targetX = pointer.x * 0.1;
+        const targetY = pointer.y * 0.05;
 
-      // Smooth interpolation for natural movement
-      modelRef.current.rotation.y += (targetX - modelRef.current.rotation.y + (-Math.PI / 2)) * 0.02;
-      modelRef.current.rotation.x += (targetY - modelRef.current.rotation.x) * 0.02;
-      modelRef.current.position.x += (targetX - modelRef.current.position.x) * 0.02;
-      modelRef.current.position.y += (targetY - modelRef.current.position.y) * 0.02;
+        // Smooth interpolation for natural movement
+        modelRef.current.rotation.y += (targetX - modelRef.current.rotation.y + (-Math.PI / 2)) * 0.02;
+        modelRef.current.rotation.x += (targetY - modelRef.current.rotation.x) * 0.02;
+        modelRef.current.position.x += (targetX - modelRef.current.position.x) * 0.02;
+        modelRef.current.position.y += (targetY - modelRef.current.position.y) * 0.02;
+      }
     }
   });
 
@@ -238,7 +250,7 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
     });
   }, [textures]);
 
-  // Auto-rotate with smooth inertia + subtle mouse tilt
+  // Auto-rotate with smooth inertia + subtle mouse tilt (desktop only)
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
@@ -248,13 +260,19 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
     // Apply rotation
     groupRef.current.rotation.y += delta * baseSpeed * timeScaleRef.current;
 
-    // Subtle tilt based on mouse position
-    const targetTiltX = pointer.y * 0.03;
-    const targetTiltZ = pointer.x * 0.05;
+    // Subtle tilt based on mouse position (desktop only - no hover on touch devices)
+    if (isTouchDevice) {
+      // On touch devices, smoothly return to neutral tilt
+      groupRef.current.rotation.x += (0 - groupRef.current.rotation.x) * 0.02;
+      groupRef.current.rotation.z += (0 - groupRef.current.rotation.z) * 0.02;
+    } else {
+      const targetTiltX = pointer.y * 0.03;
+      const targetTiltZ = pointer.x * 0.05;
 
-    // Smooth interpolation for natural tilting
-    groupRef.current.rotation.x += (targetTiltX - groupRef.current.rotation.x) * 0.02;
-    groupRef.current.rotation.z += (targetTiltZ - groupRef.current.rotation.z) * 0.02;
+      // Smooth interpolation for natural tilting
+      groupRef.current.rotation.x += (targetTiltX - groupRef.current.rotation.x) * 0.02;
+      groupRef.current.rotation.z += (targetTiltZ - groupRef.current.rotation.z) * 0.02;
+    }
   });
 
   // Drag handler - smooth direct control, direction persists on release
