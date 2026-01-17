@@ -2012,7 +2012,7 @@ button.reset:hover:not(:has(> *)) {
   }
 
   .new-drop-info {
-    gap: 0.5em;
+    gap: 0;
   }
 
   .new-drop-product-title {
@@ -2021,6 +2021,7 @@ button.reset:hover:not(:has(> *)) {
 
   .new-drop-product-meta {
     font-size: var(--font-xs);
+    line-height: 1.2;
   }
 
   .new-drop-price {
