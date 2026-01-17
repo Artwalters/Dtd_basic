@@ -326,7 +326,7 @@ aside li {
   top: 0;
   transition: opacity 200ms ease-in-out;
   visibility: hidden;
-  z-index: 9999;
+  z-index: 40; /* Below header (z-index: 100) so header stays on top */
   overscroll-behavior: contain;
 }
 
@@ -500,7 +500,7 @@ button.reset:hover:not(:has(> *)) {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 50;
+  z-index: 100; /* Higher than overlay (z-index: 40) so header stays on top */
   isolation: isolate;
 }
 
