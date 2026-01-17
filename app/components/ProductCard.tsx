@@ -119,17 +119,18 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
               </div>
             )}
 
-            {/* Desktop Size Selector Popup */}
-            {!isMobile && (
+            {/* Desktop Size Selector Popup - only render when open */}
+            {!isMobile && isOpen && (
               <div
-                className={`size-selector ${isOpen ? 'size-selector-open' : ''}`}
+                className="size-selector size-selector-open"
                 onClick={(e) => {
+                  // Only stop propagation when selector is open
                   e.preventDefault();
                   e.stopPropagation();
                 }}
               >
                 <div
-                  className={`size-selector-content ${isOpen ? 'size-selector-content-open' : ''}`}
+                  className="size-selector-content size-selector-content-open"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();

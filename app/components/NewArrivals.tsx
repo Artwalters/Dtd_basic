@@ -30,21 +30,9 @@ export function NewArrivals({
   useEffect(() => {
     if (typeof window === 'undefined' || !sliderRef.current) return;
 
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      initBasicGSAPSlider(sliderRef.current);
-    }, 100);
+    const cleanup = initBasicGSAPSlider(sliderRef.current);
 
-    return () => {
-      clearTimeout(timer);
-      // Cleanup draggable on unmount
-      if (sliderRef.current) {
-        const root = sliderRef.current as HTMLElement & {_sliderDraggable?: any};
-        if (root._sliderDraggable) {
-          root._sliderDraggable.kill();
-        }
-      }
-    };
+    return cleanup;
   }, [products]);
 
   return (
@@ -86,11 +74,11 @@ export function NewArrivals({
 }
 
 // GSAP Slider Initialization Function (Osmo)
-function initBasicGSAPSlider(specificRoot?: HTMLElement | null) {
+function initBasicGSAPSlider(specificRoot?: HTMLElement | null): (() => void) | undefined {
   if (!specificRoot) return;
 
   const root = specificRoot;
-  const el = root as HTMLElement & {_sliderDraggable?: any};
+  const el = root as HTMLElement & {_sliderDraggable?: Draggable};
   if (el._sliderDraggable) el._sliderDraggable.kill();
 
   const collection = root.querySelector('[data-gsap-slider-collection]') as HTMLElement;
@@ -98,7 +86,12 @@ function initBasicGSAPSlider(specificRoot?: HTMLElement | null) {
   const items = Array.from(root.querySelectorAll('[data-gsap-slider-item]')) as HTMLElement[];
   const controls = Array.from(root.querySelectorAll('[data-gsap-slider-control]')) as HTMLButtonElement[];
 
-  if (!collection || !track || items.length === 0) return;
+  // Store cleanup functions
+  const cleanupFns: (() => void)[] = [];
+
+  if (!collection || !track || items.length === 0) {
+    return () => {};
+  }
 
   // Inject aria attributes
   root.setAttribute('role', 'region');
@@ -165,16 +158,22 @@ function initBasicGSAPSlider(specificRoot?: HTMLElement | null) {
       btn.removeAttribute('aria-disabled');
       btn.removeAttribute('data-gsap-slider-control-status');
     });
-    return;
+    return () => {};
   }
 
   // Track hover state
-  track.onmouseenter = () => {
+  const handleMouseEnter = () => {
     track.setAttribute('data-gsap-slider-list-status', 'grab');
   };
-  track.onmouseleave = () => {
+  const handleMouseLeave = () => {
     track.removeAttribute('data-gsap-slider-list-status');
   };
+  track.addEventListener('mouseenter', handleMouseEnter);
+  track.addEventListener('mouseleave', handleMouseLeave);
+  cleanupFns.push(() => {
+    track.removeEventListener('mouseenter', handleMouseEnter);
+    track.removeEventListener('mouseleave', handleMouseLeave);
+  });
 
   // Calculate bounds and snap points
   const vw = collection.clientWidth;
@@ -246,9 +245,7 @@ function initBasicGSAPSlider(specificRoot?: HTMLElement | null) {
     }
   }
 
-  // Store click handlers to remove them on cleanup
-  const clickHandlers: Array<{btn: HTMLButtonElement; handler: () => void}> = [];
-
+  // Add click handlers to controls
   controls.forEach(btn => {
     const dir = btn.getAttribute('data-gsap-slider-control');
     const handler = () => {
@@ -262,7 +259,7 @@ function initBasicGSAPSlider(specificRoot?: HTMLElement | null) {
       });
     };
     btn.addEventListener('click', handler);
-    clickHandlers.push({btn, handler});
+    cleanupFns.push(() => btn.removeEventListener('click', handler));
   });
 
   // Initialize Draggable
@@ -300,7 +297,19 @@ function initBasicGSAPSlider(specificRoot?: HTMLElement | null) {
     }
   })[0];
 
+  cleanupFns.push(() => {
+    if (el._sliderDraggable) {
+      el._sliderDraggable.kill();
+      el._sliderDraggable = undefined;
+    }
+  });
+
   // Initial state
   setX(0);
   updateStatus(0);
+
+  // Return cleanup function
+  return () => {
+    cleanupFns.forEach(fn => fn());
+  };
 }

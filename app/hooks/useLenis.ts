@@ -1,11 +1,12 @@
-import {useEffect} from 'react';
+import {useEffect, useRef} from 'react';
 import {useLocation} from 'react-router';
 import Lenis from 'lenis';
 
 let lenisInstance: Lenis | null = null;
-let isInitialMount = true;
 
 export function useLenis() {
+  const rafId = useRef<number | null>(null);
+  const isFirstRender = useRef(true);
   const {pathname} = useLocation();
 
   // Initialize Lenis
@@ -20,25 +21,28 @@ export function useLenis() {
 
     function raf(time: number) {
       lenisInstance?.raf(time);
-      requestAnimationFrame(raf);
+      rafId.current = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    rafId.current = requestAnimationFrame(raf);
 
     return () => {
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+      }
       lenisInstance?.destroy();
       lenisInstance = null;
     };
   }, []);
 
-  // Scroll to top on route change
+  // Scroll to top on route change (Lenis overrides ScrollRestoration)
   useEffect(() => {
-    if (isInitialMount) {
-      isInitialMount = false;
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
       return;
     }
 
-    // Reset scroll on navigation
+    // Scroll to top immediately on navigation
     lenisInstance?.scrollTo(0, {immediate: true});
     window.scrollTo(0, 0);
   }, [pathname]);
