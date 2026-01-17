@@ -2164,6 +2164,10 @@ button.reset:hover:not(:has(> *)) {
     padding-bottom: 4em;
   }
 
+  .new-arrivals-header {
+    position: static;
+  }
+
   .new-arrivals-title {
     font-size: var(--font-3xl);
   }
