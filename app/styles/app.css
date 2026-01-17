@@ -2161,6 +2161,7 @@ button.reset:hover:not(:has(> *)) {
 @media (max-width: 47.99em) {
   .new-arrivals {
     padding: 2em 0.5em;
+    padding-bottom: 4em;
   }
 
   .new-arrivals-title {
@@ -2168,7 +2169,15 @@ button.reset:hover:not(:has(> *)) {
   }
 
   .new-arrivals-progress {
-    width: 120px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 2em;
+    top: auto;
+    transform: none;
+    width: 100%;
+    padding: 0 2em;
+    box-sizing: border-box;
   }
 }
 
