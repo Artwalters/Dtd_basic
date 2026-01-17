@@ -130,17 +130,24 @@ void main() {
 
 // Godray Post-Processing Effect
 function GodrayEffect({children}: {children: React.ReactNode}) {
-  const {gl, scene, camera, size} = useThree();
+  const {gl, scene, camera, size, viewport} = useThree();
   const {theme} = useTheme();
 
+  // Get actual drawing buffer size (includes DPR for sharp rendering on mobile)
+  const drawingBufferSize = useMemo(() => {
+    const target = new THREE.Vector2();
+    gl.getDrawingBufferSize(target);
+    return target;
+  }, [gl, size]); // Recalculate when size changes
+
   // Create render target with correct color space
-  // Maximum samples for smooth anti-aliased edges
-  const renderTarget = useFBO(size.width, size.height, {
+  // Use actual pixel dimensions for sharp rendering on all devices
+  const renderTarget = useFBO(drawingBufferSize.x, drawingBufferSize.y, {
     minFilter: THREE.LinearFilter,
     magFilter: THREE.LinearFilter,
     format: THREE.RGBAFormat,
     colorSpace: THREE.SRGBColorSpace,
-    samples: 16,
+    samples: 8, // 8 is usually max supported on mobile
   });
 
   // Post-processing scene and camera
