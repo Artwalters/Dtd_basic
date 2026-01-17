@@ -1803,10 +1803,13 @@ button.reset:hover:not(:has(> *)) {
   padding: 0;
 }
 
-.new-drop-info-left {
+.new-drop-info-row {
   display: flex;
-  flex-direction: column;
-  gap: 0;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+  gap: 0.5em;
 }
 
 .new-drop-product-title {

@@ -166,18 +166,18 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
           </div>
         )}
         <div className="new-drop-info">
-          <div className="new-drop-info-left">
+          <div className="new-drop-info-row">
             <span className="new-drop-product-title">{product.title}</span>
-            {colorCount > 0 && (
-              <span className="new-drop-product-meta">
-                {firstColor}{colorCount > 1 ? `  ${colorCount} Colours` : ''}
-              </span>
-            )}
+            <Money
+              data={product.priceRange.minVariantPrice}
+              className="new-drop-price"
+            />
           </div>
-          <Money
-            data={product.priceRange.minVariantPrice}
-            className="new-drop-price"
-          />
+          {colorCount > 0 && (
+            <span className="new-drop-product-meta">
+              {firstColor}{colorCount > 1 ? `  ${colorCount} Colours` : ''}
+            </span>
+          )}
         </div>
       </Link>
 
