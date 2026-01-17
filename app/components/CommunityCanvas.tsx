@@ -134,13 +134,13 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
   const {theme} = useTheme();
 
   // Create render target with correct color space
-  // Higher samples for better quality on all devices
+  // Higher samples for better anti-aliasing on all devices
   const renderTarget = useFBO(size.width, size.height, {
     minFilter: THREE.LinearFilter,
     magFilter: THREE.LinearFilter,
     format: THREE.RGBAFormat,
     colorSpace: THREE.SRGBColorSpace,
-    samples: 4,
+    samples: 8,
   });
 
   // Post-processing scene and camera
@@ -388,8 +388,8 @@ export default function CommunityCanvas() {
   const [dpr, setDpr] = useState(2);
 
   useEffect(() => {
-    // Set DPR on client side only
-    setDpr(Math.min(window.devicePixelRatio || 2, 3));
+    // Set DPR on client side only - use full device pixel ratio for sharp rendering
+    setDpr(window.devicePixelRatio || 2);
   }, []);
 
   useEffect(() => {
