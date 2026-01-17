@@ -1,7 +1,9 @@
+import {useState, useEffect} from 'react';
 import {Link, useFetcher} from 'react-router';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {Image, Money, CartForm} from '@shopify/hydrogen';
 import {useAside} from './Aside';
+import {MobileQuickAdd} from './MobileQuickAdd';
 
 interface ProductCardProps {
   product: CollectionItemFragment;
@@ -12,6 +14,17 @@ interface ProductCardProps {
 export function ProductCard({product, isOpen = false, onToggle}: ProductCardProps) {
   const fetcher = useFetcher();
   const {open: openAside} = useAside();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Get tags for display (cast to any to access fields not in generated types)
   const productData = product as any;
@@ -85,83 +98,96 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   };
 
   return (
-    <Link
-      to={`/products/${product.handle}`}
-      className="new-drop-card"
-    >
-      {product.featuredImage && (
-        <div className="new-drop-image-wrapper">
-          <Image
-            data={product.featuredImage}
-            sizes="(min-width: 45em) 20vw, 40vw"
-            className="new-drop-image"
-          />
+    <>
+      <Link
+        to={`/products/${product.handle}`}
+        className="new-drop-card"
+      >
+        {product.featuredImage && (
+          <div className="new-drop-image-wrapper">
+            <Image
+              data={product.featuredImage}
+              sizes="(min-width: 45em) 20vw, 40vw"
+              className="new-drop-image"
+            />
 
-          {/* Product Tags */}
-          {(isNew || productTypeTag) && (
-            <div className="product-item-tags">
-              {isNew && <span className="product-item-tag btn btn-glass">New</span>}
-              {productTypeTag && <span className="product-item-tag btn btn-glass">{productTypeTag}</span>}
-            </div>
-          )}
+            {/* Product Tags */}
+            {(isNew || productTypeTag) && (
+              <div className="product-item-tags">
+                {isNew && <span className="product-item-tag btn btn-glass">New</span>}
+                {productTypeTag && <span className="product-item-tag btn btn-glass">{productTypeTag}</span>}
+              </div>
+            )}
 
-          {/* Size Selector Popup */}
-          <div
-            className={`size-selector ${isOpen ? 'size-selector-open' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            <div
-              className={`size-selector-content ${isOpen ? 'size-selector-content-open' : ''}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-            >
-              {sizeOptions.map((size) => (
-                <button
-                  key={size.id}
-                  className="size-option"
-                  disabled={!size.available}
+            {/* Desktop Size Selector Popup */}
+            {!isMobile && (
+              <div
+                className={`size-selector ${isOpen ? 'size-selector-open' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                <div
+                  className={`size-selector-content ${isOpen ? 'size-selector-content-open' : ''}`}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    handleAddToCart(size.id);
                   }}
                 >
-                  {size.name}
-                  {!size.available && ' (Sold out)'}
-                </button>
-              ))}
-            </div>
-          </div>
+                  {sizeOptions.map((size) => (
+                    <button
+                      key={size.id}
+                      className="size-option"
+                      disabled={!size.available}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddToCart(size.id);
+                      }}
+                    >
+                      {size.name}
+                      {!size.available && ' (Sold out)'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-          {/* Plus Button */}
-          <button
-            className="product-plus-btn"
-            onClick={handlePlusClick}
-            aria-label="Quick add"
-          >
-            <span className={`plus-icon ${isOpen ? 'plus-icon-rotated' : ''}`}>+</span>
-          </button>
+            {/* Plus Button */}
+            <button
+              className="product-plus-btn"
+              onClick={handlePlusClick}
+              aria-label="Quick add"
+            >
+              <span className={`plus-icon ${!isMobile && isOpen ? 'plus-icon-rotated' : ''}`}>+</span>
+            </button>
+          </div>
+        )}
+        <div className="new-drop-info">
+          <div className="new-drop-info-left">
+            <span className="new-drop-product-title">{product.title}</span>
+            {colorCount > 0 && (
+              <span className="new-drop-product-meta">
+                {firstColor}{colorCount > 1 ? `  ${colorCount} Colours` : ''}
+              </span>
+            )}
+          </div>
+          <Money
+            data={product.priceRange.minVariantPrice}
+            className="new-drop-price"
+          />
         </div>
-      )}
-      <div className="new-drop-info">
-        <div className="new-drop-info-left">
-          <span className="new-drop-product-title">{product.title}</span>
-          {colorCount > 0 && (
-            <span className="new-drop-product-meta">
-              {firstColor}{colorCount > 1 ? `  ${colorCount} Colours` : ''}
-            </span>
-          )}
-        </div>
-        <Money
-          data={product.priceRange.minVariantPrice}
-          className="new-drop-price"
+      </Link>
+
+      {/* Mobile Quick Add Bottom Sheet */}
+      {isMobile && (
+        <MobileQuickAdd
+          product={product}
+          isOpen={isOpen}
+          onClose={() => onToggle?.()}
         />
-      </div>
-    </Link>
+      )}
+    </>
   );
 }

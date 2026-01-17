@@ -1,0 +1,181 @@
+import {useEffect, useState} from 'react';
+import {createPortal} from 'react-dom';
+import {useFetcher} from 'react-router';
+import type {CollectionItemFragment} from 'storefrontapi.generated';
+import {Image, Money, CartForm} from '@shopify/hydrogen';
+import {useAside} from './Aside';
+import {getLenis} from '~/hooks/useLenis';
+
+interface MobileQuickAddProps {
+  product: CollectionItemFragment;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) {
+  const fetcher = useFetcher();
+  const {open: openAside} = useAside();
+  const [mounted, setMounted] = useState(false);
+
+  // Wait for client-side mount for portal
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Get variants and sizes
+  const variants = product.variants?.nodes || [];
+  const uniqueSizes = new Map<string, {id: string; name: string; available: boolean}>();
+
+  variants.forEach((variant) => {
+    const sizeOption = variant.selectedOptions?.find(
+      (opt) => opt.name.toLowerCase() === 'size'
+    );
+    const sizeName = sizeOption?.value || variant.title;
+
+    if (!uniqueSizes.has(sizeName) || (variant.availableForSale && !uniqueSizes.get(sizeName)?.available)) {
+      uniqueSizes.set(sizeName, {
+        id: variant.id,
+        name: sizeName,
+        available: variant.availableForSale,
+      });
+    }
+  });
+
+  const sizeOptions = Array.from(uniqueSizes.values());
+  const hasAvailableSizes = sizeOptions.some(size => size.available);
+
+  // Get color info
+  const uniqueColors = new Set<string>();
+  variants.forEach((variant) => {
+    const colorOption = variant.selectedOptions?.find(
+      (opt) => opt.name.toLowerCase() === 'color' || opt.name.toLowerCase() === 'colour'
+    );
+    if (colorOption?.value) {
+      uniqueColors.add(colorOption.value);
+    }
+  });
+  const firstColor = uniqueColors.values().next().value || '';
+
+  // Lock body scroll when open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const lenis = getLenis();
+    lenis?.stop();
+
+    // Lock scroll on body
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    return () => {
+      lenis?.start();
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isOpen]);
+
+  const handleAddToCart = (variantId: string) => {
+    onClose();
+    openAside('cart');
+
+    const formData = new FormData();
+    formData.append(
+      'cartFormInput',
+      JSON.stringify({
+        action: CartForm.ACTIONS.LinesAdd,
+        inputs: {
+          lines: [{merchandiseId: variantId, quantity: 1}],
+        },
+      }),
+    );
+    formData.append('cartAction', 'LinesAdd');
+
+    fetcher.submit(formData, {method: 'POST', action: '/cart'});
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  // Don't render on server
+  if (!mounted) return null;
+
+  const content = (
+    <div
+      className={`mobile-quick-add-backdrop ${isOpen ? 'mobile-quick-add-backdrop--open' : ''}`}
+      onClick={handleBackdropClick}
+    >
+      <div className={`mobile-quick-add ${isOpen ? 'mobile-quick-add--open' : ''}`}>
+        {/* Header */}
+        <div className="mobile-quick-add__header">
+          <h2 className="mobile-quick-add__title">Quick Add</h2>
+          <button
+            className="mobile-quick-add__close"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            CLOSE
+          </button>
+        </div>
+
+        {/* Product Info */}
+        <div className="mobile-quick-add__product">
+          {product.featuredImage && (
+            <div className="mobile-quick-add__image">
+              <Image
+                data={product.featuredImage}
+                sizes="80px"
+                className="mobile-quick-add__image-img"
+              />
+            </div>
+          )}
+          <div className="mobile-quick-add__info">
+            <h3 className="mobile-quick-add__product-title">{product.title}</h3>
+            {firstColor && (
+              <span className="mobile-quick-add__color">{firstColor}</span>
+            )}
+            <Money
+              data={product.priceRange.minVariantPrice}
+              className="mobile-quick-add__price"
+            />
+          </div>
+        </div>
+
+        {/* Size Selector */}
+        <div className="mobile-quick-add__sizes">
+          <span className="mobile-quick-add__sizes-label">
+            Size: {hasAvailableSizes ? 'Select' : 'Sold Out'}
+          </span>
+          <div className="mobile-quick-add__sizes-grid">
+            {sizeOptions.map((size) => (
+              <button
+                key={size.id}
+                className={`mobile-quick-add__size-btn ${!size.available ? 'mobile-quick-add__size-btn--disabled' : ''}`}
+                disabled={!size.available}
+                onClick={() => handleAddToCart(size.id)}
+              >
+                {size.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mobile-quick-add__footer">
+          {hasAvailableSizes ? (
+            <p className="mobile-quick-add__hint">Select a size to add to cart</p>
+          ) : (
+            <button className="btn mobile-quick-add__notify-btn">
+              NOTIFY ME
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Use portal to render at body level, outside any Swiper containers
+  return createPortal(content, document.body);
+}
