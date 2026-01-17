@@ -1559,6 +1559,18 @@ button.reset:hover:not(:has(> *)) {
   transform: translateX(0);
 }
 
+/* Metallic 3D Progress Bar */
+.metallic-progress-bar {
+  width: 100%;
+  height: 24px;
+  background: transparent;
+}
+
+.metallic-progress-bar canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /* Hero Slider Thumbnail Navigation */
 .hero-slider-nav {
   z-index: 2;
@@ -2135,17 +2147,14 @@ button.reset:hover:not(:has(> *)) {
   margin-right: 0;
 }
 
-/* New Arrivals Progress Bar (uses shared .progress-track and .progress-fill) */
+/* New Arrivals Progress Bar (Metallic 3D) */
 .new-arrivals-progress {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   width: 400px;
-}
-
-.new-arrivals-progress-fill {
-  width: 33.33%; /* Default width, will be updated by JS */
+  height: 24px;
 }
 
 [data-gsap-slider-status="not-active"] .new-arrivals-progress {

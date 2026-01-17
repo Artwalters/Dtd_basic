@@ -1,7 +1,8 @@
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, useCallback} from 'react';
 import {Link} from 'react-router';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {ProductCard} from './ProductCard';
+import {MetallicProgressBar} from './MetallicProgressBar';
 import gsap from 'gsap';
 import {Draggable} from 'gsap/Draggable';
 import {InertiaPlugin} from 'gsap/InertiaPlugin';
@@ -22,6 +23,11 @@ export function NewArrivals({
 }: NewArrivalsProps) {
   const sliderRef = useRef<HTMLElement>(null);
   const [openProductId, setOpenProductId] = useState<string | null>(null);
+  const [sliderProgress, setSliderProgress] = useState(0);
+  const progressSetterRef = useRef<(progress: number) => void>();
+
+  // Store the setter in a ref so GSAP can access it
+  progressSetterRef.current = setSliderProgress;
 
   const handleToggle = (productId: string) => {
     setOpenProductId(openProductId === productId ? null : productId);
@@ -30,7 +36,7 @@ export function NewArrivals({
   useEffect(() => {
     if (typeof window === 'undefined' || !sliderRef.current) return;
 
-    const cleanup = initBasicGSAPSlider(sliderRef.current);
+    const cleanup = initBasicGSAPSlider(sliderRef.current, progressSetterRef);
 
     return cleanup;
   }, [products]);
@@ -48,9 +54,7 @@ export function NewArrivals({
       <div className="new-arrivals-header">
         <h2 className="new-arrivals-title">{title}</h2>
         <div className="new-arrivals-progress" data-gsap-slider-progress="">
-          <div className="progress-track">
-            <div className="progress-fill new-arrivals-progress-fill" data-gsap-slider-progress-fill=""></div>
-          </div>
+          <MetallicProgressBar progress={sliderProgress} />
         </div>
         <Link to="/collections/all" className="btn btn-glass new-arrivals-shop-all">
           SHOP ALL
@@ -74,7 +78,10 @@ export function NewArrivals({
 }
 
 // GSAP Slider Initialization Function (Osmo)
-function initBasicGSAPSlider(specificRoot?: HTMLElement | null): (() => void) | undefined {
+function initBasicGSAPSlider(
+  specificRoot?: HTMLElement | null,
+  progressSetterRef?: React.MutableRefObject<((progress: number) => void) | undefined>
+): (() => void) | undefined {
   if (!specificRoot) return;
 
   const root = specificRoot;
@@ -236,12 +243,10 @@ function initBasicGSAPSlider(specificRoot?: HTMLElement | null): (() => void) | 
       btn.setAttribute('data-gsap-slider-control-status', can ? 'active' : 'not-active');
     });
 
-    // Update Progress Bar
-    const progressFill = root.querySelector('[data-gsap-slider-progress-fill]') as HTMLElement;
-    if (progressFill && snapPoints.length > 0) {
+    // Update Progress Bar via React state
+    if (snapPoints.length > 1 && progressSetterRef?.current) {
       const progress = activeIndex / (snapPoints.length - 1);
-      const percentage = progress * 100;
-      progressFill.style.transform = `translateX(${percentage * 2}%)`;
+      progressSetterRef.current(progress);
     }
   }
 
