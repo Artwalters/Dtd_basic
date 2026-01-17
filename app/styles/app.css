@@ -85,6 +85,9 @@
 /* Apply scaling to body */
 body {
   font-size: var(--size-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Main content wrapper - overflow: clip is critical for footer parallax effect */
