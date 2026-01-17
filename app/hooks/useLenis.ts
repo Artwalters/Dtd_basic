@@ -3,10 +3,12 @@ import {useLocation} from 'react-router';
 import Lenis from 'lenis';
 
 let lenisInstance: Lenis | null = null;
+let isInitialMount = true;
 
 export function useLenis() {
-  const location = useLocation();
+  const {pathname} = useLocation();
 
+  // Initialize Lenis
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -29,12 +31,17 @@ export function useLenis() {
     };
   }, []);
 
-  // Scroll to top when route changes
+  // Scroll to top on route change
   useEffect(() => {
-    if (lenisInstance) {
-      lenisInstance.scrollTo(0, {immediate: true});
+    if (isInitialMount) {
+      isInitialMount = false;
+      return;
     }
-  }, [location.pathname]);
+
+    // Reset scroll on navigation
+    lenisInstance?.scrollTo(0, {immediate: true});
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return lenisInstance;
 }
