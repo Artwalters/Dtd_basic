@@ -18,12 +18,18 @@ html.lenis, html.lenis body {
   pointer-events: none;
 }
 
+html {
+  background-color: #000000;
+}
+
 body {
   font-family: 'Neue Haas Grotesk', sans-serif;
   font-weight: var(--weight-normal);
   margin: 0;
   padding: 0;
   line-height: var(--leading-normal);
+  background-color: #000000;
+  color: #FFFFFF;
 }
 
 h1,
