@@ -1731,7 +1731,7 @@ button.reset:hover:not(:has(> *)) {
 @media (min-width: 48em) {
   .new-drop-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 2em;
+    gap: 1em;
   }
 }
 
