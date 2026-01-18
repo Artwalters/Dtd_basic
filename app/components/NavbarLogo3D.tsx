@@ -16,13 +16,15 @@ const createMetallicMaterial = () => {
 
 interface NavbarLogo3DProps {
   isScrolled: boolean;
+  isMenuOpen?: boolean;
 }
 
 interface ModelProps {
   isActive: boolean;
+  isMenuOpen?: boolean;
 }
 
-function FullLogoModel({isActive}: ModelProps) {
+function FullLogoModel({isActive, isMenuOpen}: ModelProps) {
   const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
@@ -54,7 +56,8 @@ function FullLogoModel({isActive}: ModelProps) {
       // Footer becomes visible in the last 10% of scroll
       footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.98;
 
-      const target = isActive && !footerVisibleRef.current ? 1 : 0;
+      // When menu is open, always show full logo
+      const target = (isMenuOpen || isActive) && !footerVisibleRef.current ? 1 : 0;
       animProgress.current += (target - animProgress.current) * 0.08;
 
       const progress = animProgress.current;
@@ -64,8 +67,10 @@ function FullLogoModel({isActive}: ModelProps) {
 
       // Fade opacity faster as it zooms out
       if (materialRef.current) {
-        // Use power function for faster fade (progress^6 fades very quickly)
         materialRef.current.opacity = Math.pow(progress, 2);
+        // Change color to black when menu is open, white otherwise
+        const targetColor = isMenuOpen ? 0x000000 : 0xffffff;
+        materialRef.current.color.setHex(targetColor);
       }
     }
   });
@@ -77,7 +82,7 @@ function FullLogoModel({isActive}: ModelProps) {
   );
 }
 
-function SmallLogoModel({isActive}: ModelProps) {
+function SmallLogoModel({isActive, isMenuOpen}: ModelProps) {
   const {scene, animations} = useGLTF('/3D/dtd_logo7_nav.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
@@ -129,8 +134,8 @@ function SmallLogoModel({isActive}: ModelProps) {
       // Footer becomes visible in the last 10% of scroll
       footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.98;
 
-      // Scale animation
-      const target = isActive && !footerVisibleRef.current ? 1 : 0;
+      // Scale animation - hide when menu is open
+      const target = isActive && !isMenuOpen && !footerVisibleRef.current ? 1 : 0;
       animProgress.current += (target - animProgress.current) * 0.08;
 
       const progress = animProgress.current;
@@ -164,7 +169,7 @@ function SmallLogoModel({isActive}: ModelProps) {
   );
 }
 
-export default function NavbarLogo3D({isScrolled}: NavbarLogo3DProps) {
+export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps) {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -181,8 +186,8 @@ export default function NavbarLogo3D({isScrolled}: NavbarLogo3DProps) {
         gl={{antialias: true, alpha: true}}
       >
         <Suspense fallback={null}>
-          <FullLogoModel isActive={!isScrolled} />
-          <SmallLogoModel isActive={isScrolled} />
+          <FullLogoModel isActive={!isScrolled} isMenuOpen={isMenuOpen} />
+          <SmallLogoModel isActive={isScrolled} isMenuOpen={isMenuOpen} />
           <Environment files="/3D/studio_small_09_1k.hdr" />
         </Suspense>
       </Canvas>

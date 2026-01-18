@@ -106,15 +106,26 @@ function HamburgerIcon() {
   );
 }
 
+function CloseIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <line x1="1" y1="1" x2="15" y2="15" />
+      <line x1="15" y1="1" x2="1" y2="15" />
+    </svg>
+  );
+}
+
 function MobileMenuToggle() {
-  const {open} = useAside();
+  const {type, open, close} = useAside();
+  const isMenuOpen = type === 'mobile';
+
   return (
     <button
-      className="mobile-menu-toggle header-nav-item btn-glass--icon"
-      onClick={() => open('mobile')}
-      aria-label="Open menu"
+      className={`mobile-menu-toggle header-nav-item btn-glass--icon ${isMenuOpen ? 'menu-open' : ''}`}
+      onClick={() => isMenuOpen ? close() : open('mobile')}
+      aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
     >
-      <HamburgerIcon />
+      {isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
     </button>
   );
 }
@@ -127,9 +138,11 @@ export function Header({
 }: HeaderProps) {
   const { headerRef, isScrolled } = useHeaderScroll();
   const [announcementClosed, setAnnouncementClosed] = useState(false);
+  const {type} = useAside();
+  const isMobileMenuOpen = type === 'mobile';
 
   return (
-    <div className="header-wrapper">
+    <div className={`header-wrapper ${isMobileMenuOpen ? 'menu-open' : ''}`}>
       {!announcementClosed && <AnnouncementBar onClose={() => setAnnouncementClosed(true)} />}
       <header ref={headerRef} className="header">
       {/* Mobile: Hamburger menu toggle */}
@@ -146,11 +159,9 @@ export function Header({
       </nav>
 
       <NavLink to="/" className="header-logo">
-        <span className="header-logo-wrapper">
-          <Suspense fallback={<Logo />}>
-            <NavbarLogo3D isScrolled={isScrolled} />
-          </Suspense>
-        </span>
+        <Suspense fallback={<Logo />}>
+          <NavbarLogo3D isScrolled={isScrolled} isMenuOpen={isMobileMenuOpen} />
+        </Suspense>
       </NavLink>
 
       {/* Desktop: Right navigation */}
@@ -404,6 +415,14 @@ function LogoSmall() {
   );
 }
 
+function ChevronIcon() {
+  return (
+    <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M1 1L7 7L1 13" />
+    </svg>
+  );
+}
+
 // Keep HeaderMenu for mobile aside menu
 export function HeaderMenu({
   menu,
@@ -421,13 +440,15 @@ export function HeaderMenu({
 
   return (
     <nav className={className} role="navigation">
+      <div className="mobile-menu-divider" />
       <NavLink
         className="header-menu-item"
         onClick={close}
         prefetch="intent"
         to="/collections/all"
       >
-        Shop
+        <span>Shop</span>
+        <ChevronIcon />
       </NavLink>
       <NavLink
         className="header-menu-item"
@@ -435,8 +456,15 @@ export function HeaderMenu({
         prefetch="intent"
         to="/community"
       >
-        Community
+        <span>Community</span>
+        <ChevronIcon />
       </NavLink>
+      <div className="mobile-menu-spacer" />
+      <div className="mobile-menu-languages">
+        <button className="lang-btn">English</button>
+        <button className="lang-btn active">Nederlands</button>
+      </div>
+      <div className="mobile-menu-divider" />
     </nav>
   );
 }

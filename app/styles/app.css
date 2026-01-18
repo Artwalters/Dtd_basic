@@ -57,6 +57,7 @@
   --color-black: #070707;           /* Primary dark background */
   --color-white: #FFFFFF;           /* Primary light color */
   --color-grey: #999999;            /* Muted text, placeholders */
+  --color-cream: #F5F0E8;           /* Warm cream background */
 
   /* --- Accent Colors --- */
   --color-success: #22c55e;         /* Success states, in-stock */
@@ -387,6 +388,91 @@ aside li {
   transform: translateX(calc(var(--aside-width) * -1));
 }
 
+/* ===========================================
+   Sliding Wrapper (for mobile menu slide effect)
+   =========================================== */
+.sliding-wrapper {
+  position: relative;
+  z-index: 50;
+  background: var(--color-black);
+  min-height: 100vh;
+  /* No padding needed - header is positioned over the content, pages handle their own top spacing */
+}
+
+/* Mobile menu: slide page to right */
+@media (max-width: 47.99em) {
+  /* Cream background behind everything when menu open, prevent all scrolling */
+  html:has(.sliding-wrapper.mobile-menu-open),
+  body:has(.sliding-wrapper.mobile-menu-open) {
+    background: var(--color-cream);
+    overflow: hidden;
+  }
+
+  /* Only apply transform when menu is open - no default transform */
+  /* Power2.out easing from GSAP */
+  .sliding-wrapper {
+    transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .sliding-wrapper.mobile-menu-open {
+    transform: translateX(100%);
+  }
+
+  /* Mobile menu overlay - transparent, only for positioning menu */
+  .overlay[data-aside-type="mobile"] {
+    background: transparent;
+    top: 0;
+    z-index: 40;
+    pointer-events: none;
+  }
+
+  .overlay[data-aside-type="mobile"].expanded {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Close button covers entire screen to close on tap anywhere */
+  .overlay[data-aside-type="mobile"] .close-outside {
+    position: fixed;
+    right: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 60;
+    pointer-events: auto;
+  }
+
+  /* Mobile menu aside - full width, below the fixed nav */
+  .overlay[data-aside-type="mobile"] aside {
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    transform: none;
+    box-shadow: none;
+    padding-top: calc(var(--header-height) + 4em); /* Below fixed nav */
+    background: transparent;
+    color: var(--color-black);
+    pointer-events: auto;
+    height: calc(100vh - var(--header-height) - 4em);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Hide the aside header (MENU title and close button) - we use our own */
+  .overlay[data-aside-type="mobile"] aside header {
+    display: none;
+  }
+
+  .overlay[data-aside-type="mobile"] aside main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
+  }
+}
+
 button.reset {
   border: 0;
   background: inherit;
@@ -529,6 +615,20 @@ button.reset:hover:not(:has(> *)) {
   isolation: isolate;
 }
 
+/* Nav stays fixed on mobile - doesn't slide with content */
+
+/* Dark icons when mobile menu is open */
+@media (max-width: 47.99em) {
+  body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper {
+    color: var(--color-black);
+  }
+
+  body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper svg {
+    stroke: var(--color-black);
+  }
+
+}
+
 .header {
   align-items: center;
   background: transparent;
@@ -540,38 +640,6 @@ button.reset:hover:not(:has(> *)) {
   position: relative;
 }
 
-/* Header gradient - covers both announcement bar and header area */
-.header-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: calc(100% + 4em); /* Cover header wrapper + fade area */
-  background: linear-gradient(
-    to bottom,
-    var(--black-light) 0%,
-    rgba(0, 0, 0, 0.39) 3%,
-    rgba(0, 0, 0, 0.375) 6%,
-    rgba(0, 0, 0, 0.355) 10%,
-    rgba(0, 0, 0, 0.33) 14%,
-    rgba(0, 0, 0, 0.295) 19%,
-    rgba(0, 0, 0, 0.255) 25%,
-    rgba(0, 0, 0, 0.215) 34%,
-    rgba(0, 0, 0, 0.155) 47%,
-    rgba(0, 0, 0, 0.11) 56.5%,
-    rgba(0, 0, 0, 0.08) 65%,
-    rgba(0, 0, 0, 0.05) 73%,
-    rgba(0, 0, 0, 0.03) 80.2%,
-    rgba(0, 0, 0, 0.017) 86.1%,
-    rgba(0, 0, 0, 0.0085) 91%,
-    rgba(0, 0, 0, 0.003) 95.2%,
-    rgba(0, 0, 0, 0.001) 98.2%,
-    transparent 100%
-  );
-  pointer-events: none;
-  z-index: -1; /* Behind header content */
-}
 
 /* Header with dark text and white background */
 .header-dark {
@@ -745,7 +813,10 @@ button.reset:hover:not(:has(> *)) {
 .header-menu-mobile {
   display: flex;
   flex-direction: column;
-  grid-gap: 1em;
+  grid-gap: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0 1em;
 }
 
 .header-menu-desktop {
@@ -760,6 +831,64 @@ button.reset:hover:not(:has(> *)) {
 
 .header-menu-item {
   cursor: pointer;
+}
+
+/* Mobile menu items with chevron */
+.header-menu-mobile .header-menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25em 0;
+  font-size: 1rem;
+  font-weight: 400;
+  text-decoration: none;
+  color: var(--color-black);
+  border-bottom: 1px solid var(--color-grey);
+  opacity: 1;
+}
+
+.header-menu-mobile .header-menu-item:last-of-type {
+  border-bottom: none;
+}
+
+.header-menu-mobile .header-menu-item svg {
+  stroke: var(--color-black);
+  opacity: 0.5;
+}
+
+/* Mobile menu divider - matches site style */
+.mobile-menu-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--color-grey);
+  opacity: 0.3;
+}
+
+/* Spacer to push language switcher to bottom */
+.mobile-menu-spacer {
+  flex: 1;
+}
+
+/* Language switcher */
+.mobile-menu-languages {
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+  padding: 1.5em 0;
+}
+
+.mobile-menu-languages .lang-btn {
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  color: var(--color-black);
+  opacity: 0.4;
+  cursor: pointer;
+  padding: 0;
+}
+
+.mobile-menu-languages .lang-btn.active {
+  opacity: 1;
 }
 
 .header-ctas {
@@ -805,6 +934,17 @@ button.reset:hover:not(:has(> *)) {
   .mobile-menu-toggle {
     display: flex;
     order: 1;
+  }
+
+  /* X button in black square when menu open */
+  .mobile-menu-toggle.menu-open {
+    background: var(--color-black);
+    border-radius: 4px;
+    padding: 0.75em;
+  }
+
+  .mobile-menu-toggle.menu-open svg {
+    stroke: var(--color-white) !important;
   }
 
   .header-logo {

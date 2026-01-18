@@ -4,7 +4,7 @@ import type {
   CartApiQueryFragment,
   HeaderQuery,
 } from 'storefrontapi.generated';
-import {Aside} from '~/components/Aside';
+import {Aside, useAside} from '~/components/Aside';
 import {Header, HeaderMenu} from '~/components/Header';
 import {CartMain} from '~/components/CartMain';
 import {
@@ -33,6 +33,7 @@ export function PageLayout({
       <CartAside cart={cart} />
       <SearchAside />
       <MobileMenuAside header={header} publicStoreDomain={publicStoreDomain} />
+      {/* Header stays fixed, outside of sliding content */}
       {header && (
         <Header
           header={header}
@@ -41,8 +42,30 @@ export function PageLayout({
           publicStoreDomain={publicStoreDomain}
         />
       )}
-      <main>{children}</main>
+      {/* Only page content slides */}
+      <SlidingWrapper>
+        <PageContent>{children}</PageContent>
+      </SlidingWrapper>
     </Aside.Provider>
+  );
+}
+
+function SlidingWrapper({children}: {children: React.ReactNode}) {
+  const {type} = useAside();
+  const isMobileMenuOpen = type === 'mobile';
+
+  return (
+    <div className={`sliding-wrapper ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
+      {children}
+    </div>
+  );
+}
+
+function PageContent({children}: {children: React.ReactNode}) {
+  return (
+    <div className="page-content">
+      <main>{children}</main>
+    </div>
   );
 }
 
