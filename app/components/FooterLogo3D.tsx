@@ -1,10 +1,16 @@
-import {Canvas} from '@react-three/fiber';
+import {Canvas, useFrame, useThree} from '@react-three/fiber';
 import {useGLTF} from '@react-three/drei';
-import {Suspense, useMemo, useState, useEffect} from 'react';
+import {Suspense, useMemo, useState, useEffect, useRef} from 'react';
 import * as THREE from 'three';
+
+// Check if device is touch-only (no mouse hover)
+const isTouchDevice = typeof window !== 'undefined' &&
+  ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
 function FullLogoModel() {
   const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
+  const groupRef = useRef<THREE.Group>(null);
+  const {pointer} = useThree();
 
   const clonedScene = useMemo(() => {
     const clone = scene.clone();
@@ -19,9 +25,27 @@ function FullLogoModel() {
     return clone;
   }, [scene]);
 
+  // Subtle mouse interaction
+  useFrame(() => {
+    if (groupRef.current) {
+      if (isTouchDevice) {
+        // On touch devices, maintain base rotation
+        groupRef.current.rotation.y += ((Math.PI / 2) - groupRef.current.rotation.y) * 0.02;
+        groupRef.current.rotation.x += (0 - groupRef.current.rotation.x) * 0.02;
+      } else {
+        // Desktop: subtle tilt based on mouse position
+        const targetRotY = (Math.PI / 2) + pointer.x * 0.15;
+        const targetRotX = pointer.y * 0.08;
+
+        groupRef.current.rotation.y += (targetRotY - groupRef.current.rotation.y) * 0.03;
+        groupRef.current.rotation.x += (targetRotX - groupRef.current.rotation.x) * 0.03;
+      }
+    }
+  });
+
   return (
-    <group scale={2.8}>
-      <primitive object={clonedScene} rotation={[0, Math.PI / 2, 0]} />
+    <group ref={groupRef} scale={2.8}>
+      <primitive object={clonedScene} rotation={[0, 0, 0]} />
     </group>
   );
 }

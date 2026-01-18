@@ -27,12 +27,16 @@ function FullLogoModel({isActive}: ModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
   const footerVisibleRef = useRef(false);
+  const materialRef = useRef<THREE.MeshBasicMaterial | null>(null);
 
   const clonedScene = useMemo(() => {
     const clone = scene.clone();
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
+      transparent: true,
+      opacity: 1,
     });
+    materialRef.current = material;
     clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;
@@ -41,7 +45,7 @@ function FullLogoModel({isActive}: ModelProps) {
     return clone;
   }, [scene]);
 
-  // Animate in/out
+  // Animate in/out with opacity fade
   useFrame(() => {
     if (groupRef.current && typeof window !== 'undefined') {
       // Check if user has scrolled to the bottom (where sticky footer becomes visible)
@@ -57,6 +61,12 @@ function FullLogoModel({isActive}: ModelProps) {
       const scale = 3.557 * progress;
       groupRef.current.scale.setScalar(scale);
       groupRef.current.visible = progress > 0.01;
+
+      // Fade opacity faster as it zooms out
+      if (materialRef.current) {
+        // Use power function for faster fade (progress^6 fades very quickly)
+        materialRef.current.opacity = Math.pow(progress, 2);
+      }
     }
   });
 
@@ -73,11 +83,20 @@ function SmallLogoModel({isActive}: ModelProps) {
   const animProgress = useRef(isActive ? 1 : 0);
   const rotationInitialized = useRef(false);
   const footerVisibleRef = useRef(false);
+  const materialRef = useRef<THREE.MeshStandardMaterial | null>(null);
 
   // Clone scene and apply metallic material to avoid conflicts with other Canvas instances
   const clonedScene = useMemo(() => {
     const clone = SkeletonUtils.clone(scene);
-    const material = createMetallicMaterial();
+    const material = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(0.4, 0.4, 0.4),
+      metalness: 1,
+      roughness: 0.3,
+      envMapIntensity: 0.8,
+      transparent: true,
+      opacity: 1,
+    });
+    materialRef.current = material;
     clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;
@@ -118,6 +137,11 @@ function SmallLogoModel({isActive}: ModelProps) {
       const scale = 1.65 * progress;
       groupRef.current.scale.setScalar(scale);
       groupRef.current.visible = progress > 0.01;
+
+      // Fade opacity faster as it zooms out
+      if (materialRef.current) {
+        materialRef.current.opacity = Math.pow(progress, 2);
+      }
 
       // Scroll-based rotation (base rotation is on primitive, scroll adds to group)
       const scrollProgress = maxScroll > 0 ? scrollY / maxScroll : 0;
