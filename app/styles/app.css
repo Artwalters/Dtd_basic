@@ -3066,8 +3066,8 @@ button.reset:hover:not(:has(> *)) {
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* Mobile Responsive */
-@media (max-width: 47.99em) {
+/* Product page mobile layout - kicks in at 1000px */
+@media (max-width: 62.5em) {
   .product-view-container {
     flex-direction: column;
   }
