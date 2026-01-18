@@ -35,7 +35,7 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
 
   // Handle scroll to update current image index
   useEffect(() => {
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = window.innerWidth <= 1000;
 
     const handleVerticalScroll = () => {
       const scrollTop = window.pageYOffset;
