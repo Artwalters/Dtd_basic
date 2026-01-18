@@ -4699,7 +4699,6 @@ button.reset:hover:not(:has(> *)) {
   align-items: center;
   justify-content: center;
   height: 60svh;
-  padding: 2.5em;
   background: #070707;
   position: relative;
 }
@@ -4717,6 +4716,77 @@ button.reset:hover:not(:has(> *)) {
   height: 100%;
 }
 
+.footer-parallax-bar {
+  position: absolute;
+  top: 50%;
+  left: 1em;
+  right: 1em;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.footer-parallax-bar > * {
+  pointer-events: auto;
+}
+
+.footer-parallax-text {
+  font-size: var(--font-lg);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-white);
+  font-weight: var(--weight-medium);
+}
+
+.footer-parallax-text-mobile {
+  display: none;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-white);
+  font-weight: var(--weight-medium);
+}
+
+.footer-parallax-btn {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.footer-parallax-btn-icon {
+  display: none;
+  width: 1.25em;
+  height: 1.25em;
+}
+
+.footer-parallax-copyright {
+  position: absolute;
+  bottom: 1em;
+  left: 1em;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  z-index: 10;
+}
+
+/* Tablet breakpoint */
+@media (max-width: 62em) {
+  .footer-parallax-wrapper {
+    height: 50svh;
+  }
+
+  .footer-parallax {
+    height: 50svh;
+  }
+
+  .footer-parallax-logo-center {
+    width: 80%;
+    height: 80%;
+  }
+}
+
+/* Mobile breakpoint */
 @media (max-width: 47.99em) {
   .footer-parallax-wrapper {
     height: 30svh;
@@ -4724,12 +4794,46 @@ button.reset:hover:not(:has(> *)) {
 
   .footer-parallax {
     height: 30svh;
-    padding: 0;
   }
 
   .footer-parallax-logo-center {
     width: 100%;
     height: 60%;
+  }
+
+  .footer-parallax-bar {
+    left: 0.75em;
+    right: 0.75em;
+  }
+
+  .footer-parallax-text {
+    display: none;
+  }
+
+  .footer-parallax-text-mobile {
+    display: block;
+  }
+
+  .footer-parallax-btn {
+    width: 2.5em;
+    height: 2.5em;
+    min-width: unset;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .footer-parallax-btn-text {
+    display: none;
+  }
+
+  .footer-parallax-btn-icon {
+    display: block;
+  }
+
+  .footer-parallax-copyright {
+    display: none;
   }
 }
 

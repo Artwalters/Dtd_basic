@@ -74,14 +74,29 @@ export function FooterParallax() {
     };
   }, []);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div ref={triggerRef} className="footer-parallax-wrapper">
       <footer ref={targetRef} className="footer-parallax">
+        <div className="footer-parallax-bar">
+          <span className="footer-parallax-text">Genesis Collection</span>
+          <span className="footer-parallax-text-mobile">Genesis</span>
+          <button className="btn-glass footer-parallax-btn" onClick={scrollToTop}>
+            <span className="footer-parallax-btn-text">Scroll to top</span>
+            <svg className="footer-parallax-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 19V5M5 12l7-7 7 7"/>
+            </svg>
+          </button>
+        </div>
         <div className="footer-parallax-logo-center">
           <Suspense fallback={null}>
             <FooterLogo3D />
           </Suspense>
         </div>
+        <span className="footer-parallax-copyright">©Dare to Dream 2026. All rights reserved.</span>
       </footer>
       <div ref={darkRef} className="footer-parallax-dark" />
     </div>
