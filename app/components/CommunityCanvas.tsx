@@ -15,9 +15,6 @@ function Model() {
   const modelRef = useRef<THREE.Group>(null);
   const {pointer} = useThree();
 
-  // Slightly smaller scale on mobile for better framing
-  const modelScale = isTouchDevice ? 0.40 : 0.45;
-
   // Simple metallic material without textures (lighter weight)
   const material = useMemo(() => {
     return new THREE.MeshStandardMaterial({
@@ -79,7 +76,7 @@ function Model() {
     };
   }, [material]);
 
-  return <primitive ref={modelRef} object={scene} scale={modelScale} rotation={[0, -Math.PI / 2, 0]} />;
+  return <primitive ref={modelRef} object={scene} scale={isTouchDevice ? 0.40 : 0.45} rotation={[0, -Math.PI / 2, 0]} />;
 }
 
 // Godray post-processing shaders

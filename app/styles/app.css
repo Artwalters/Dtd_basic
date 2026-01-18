@@ -661,6 +661,14 @@ button.reset:hover:not(:has(> *)) {
   z-index: 1;
 }
 
+/* Smaller logo between 769px and 1300px */
+@media (min-width: 769px) and (max-width: 81.25em) {
+  .navbar-logo-3d {
+    width: 350px;
+    height: 105px;
+  }
+}
+
 .navbar-logo-3d canvas {
   position: relative;
   z-index: 1;
@@ -1728,7 +1736,7 @@ button.reset:hover:not(:has(> *)) {
   align-items: start;
 }
 
-@media (min-width: 48em) {
+@media (min-width: 62.5em) {
   .new-drop-grid {
     grid-template-columns: 1fr 1fr;
     gap: 1em;
@@ -1951,8 +1959,8 @@ button.reset:hover:not(:has(> *)) {
   text-align: center;
 }
 
-/* Mobile styles for NewDrop */
-@media (max-width: 47.99em) {
+/* Mobile styles for NewDrop - kicks in at 1000px */
+@media (max-width: 62.49em) {
   .new-drop {
     padding: 2em 0.5em;
     display: flex;
@@ -1966,8 +1974,15 @@ button.reset:hover:not(:has(> *)) {
   .new-drop-featured {
     position: relative;
     height: auto;
+    max-height: 55vh;
     order: 2;
     margin-bottom: 1em;
+  }
+
+  .new-drop-featured-image {
+    max-height: 55vh;
+    object-fit: cover;
+    object-position: center 30%;
   }
 
   .new-drop-shop-all {
@@ -1997,7 +2012,7 @@ button.reset:hover:not(:has(> *)) {
 
   .new-drop-products {
     order: 3;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1em;
   }
 
@@ -2033,6 +2048,13 @@ button.reset:hover:not(:has(> *)) {
   .collections-grid,
   .recommended-products-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Small mobile - 2 columns like new-arrivals */
+@media (max-width: 767px) {
+  .new-drop-products {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -2180,7 +2202,7 @@ button.reset:hover:not(:has(> *)) {
     top: auto;
     transform: none;
     width: 100%;
-    padding: 0 2em;
+    padding: 0 1em;
     box-sizing: border-box;
   }
 }
@@ -3070,14 +3092,16 @@ button.reset:hover:not(:has(> *)) {
 @media (max-width: 62.5em) {
   .product-view-container {
     flex-direction: column;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   .product-gallery {
     flex: none;
     width: 100%;
     min-height: auto;
-    height: 70vh;
-    overflow: hidden;
+    height: auto;
+    overflow: visible;
     margin-top: calc(var(--header-height) + 4em);
   }
 
@@ -3088,7 +3112,7 @@ button.reset:hover:not(:has(> *)) {
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    height: 100%;
+    height: 70vh;
   }
 
   .product-gallery-image {
@@ -3103,15 +3127,14 @@ button.reset:hover:not(:has(> *)) {
     display: none;
   }
 
-  /* Show mobile progress in gallery */
+  /* Show mobile progress below gallery - full width like hero */
   .product-gallery-progress.mobile-only {
     display: block;
-    position: absolute;
-    bottom: 1em;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    max-width: 20em;
+    position: relative;
+    width: 100%;
+    margin-top: 1em;
+    padding: 0 1em;
+    box-sizing: border-box;
   }
 
   .product-details-wrapper {
@@ -3119,6 +3142,8 @@ button.reset:hover:not(:has(> *)) {
     flex: none;
     height: auto;
     min-height: auto;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .product-details {
@@ -3126,10 +3151,22 @@ button.reset:hover:not(:has(> *)) {
     width: 100%;
     height: auto;
     padding: 2em 1.5em;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .product-title {
     font-size: var(--font-2xl);
+  }
+
+  .product-header {
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+
+  .product-actions {
+    flex-direction: column;
+    gap: 0.75em;
   }
 }
 
@@ -4162,7 +4199,8 @@ button.reset:hover:not(:has(> *)) {
   height: 100%;
 }
 
-@media (max-width: 47.99em) {
+/* Community mobile layout - kicks in at 1300px */
+@media (max-width: 81.25em) {
   .community-section {
     height: 85svh;
     position: relative;
@@ -4714,6 +4752,14 @@ button.reset:hover:not(:has(> *)) {
 .footer-logo-3d {
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-logo-3d canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .footer-parallax-bar {
@@ -4770,19 +4816,19 @@ button.reset:hover:not(:has(> *)) {
   z-index: 10;
 }
 
-/* Tablet breakpoint */
-@media (max-width: 62em) {
+/* Medium screens - 1200px to 768px */
+@media (max-width: 75em) {
   .footer-parallax-wrapper {
-    height: 50svh;
+    height: 45svh;
   }
 
   .footer-parallax {
-    height: 50svh;
+    height: 45svh;
   }
 
   .footer-parallax-logo-center {
-    width: 80%;
-    height: 80%;
+    width: 100%;
+    height: 60%;
   }
 }
 
