@@ -765,7 +765,7 @@ button.reset:hover:not(:has(> *)) {
 }
 
 /* Mobile breakpoint */
-@media (max-width: 48em) {
+@media (max-width: 47.99em) {
   /* Hide desktop nav */
   .header-nav-left,
   .header-nav-right {
@@ -1960,7 +1960,7 @@ button.reset:hover:not(:has(> *)) {
 }
 
 /* Mobile styles for NewDrop - kicks in at 1000px */
-@media (max-width: 62.49em) {
+@media (max-width: 62.5em) {
   .new-drop {
     padding: 2em 0.5em;
     display: flex;
@@ -4348,7 +4348,7 @@ button.reset:hover:not(:has(> *)) {
   gap: 1em;
 }
 
-@media (max-width: 63.99em) {
+@media (max-width: 62.5em) {
   .shop-page-grid {
     grid-template-columns: repeat(3, 1fr);
   }
