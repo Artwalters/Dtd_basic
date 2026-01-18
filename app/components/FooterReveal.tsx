@@ -1,78 +1,89 @@
+"use client";
 import {useEffect, useRef, lazy, Suspense} from 'react';
+import {gsap} from 'gsap';
+import {ScrollTrigger} from 'gsap/ScrollTrigger';
 
 const FooterLogo3D = lazy(() => import('~/components/FooterLogo3D'));
 
+// Register plugin immediately
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 export function FooterParallax() {
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const targetRef = useRef<HTMLElement>(null);
+  const darkRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !wrapperRef.current) return;
+    if (typeof window === 'undefined') return;
+    if (!triggerRef.current || !targetRef.current) return;
 
-    let tl: gsap.core.Timeline | null = null;
+    // Check if mobile/touch device - skip parallax entirely
+    const isMobile = window.innerWidth < 768 || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-    const initParallax = async () => {
-      const gsapModule = await import('gsap');
-      const {ScrollTrigger} = await import('gsap/ScrollTrigger');
-
-      const gsap = gsapModule.default;
-      gsap.registerPlugin(ScrollTrigger);
-
-      const el = wrapperRef.current;
-      if (!el) return;
-
-      const inner = el.querySelector('[data-footer-parallax-inner]');
-      const dark = el.querySelector('[data-footer-parallax-dark]');
-
-      // Refresh ScrollTrigger to recalculate positions
-      ScrollTrigger.refresh();
-
-      tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: el,
-          start: 'clamp(top bottom)',
-          end: 'clamp(top top)',
-          scrub: 0.5,
-        },
-      });
-
-      // Logo stays fixed, no yPercent animation
-
-      if (dark) {
-        tl.from(
-          dark,
-          {
-            opacity: 0.5,
-            ease: 'linear',
-          },
-          '<',
-        );
+    // No parallax on mobile - just show footer normally
+    if (isMobile) {
+      gsap.set(targetRef.current, { y: 0 });
+      if (darkRef.current) {
+        gsap.set(darkRef.current, { opacity: 0 });
       }
-    };
+      return;
+    }
 
-    initParallax();
+    // Desktop only: parallax effect
+    const windowHeight = window.innerHeight;
+    const parallaxDistance = windowHeight * 0.4;
+
+    const setY = gsap.quickSetter(targetRef.current, 'y', 'px');
+    const setOpacity = darkRef.current
+      ? gsap.quickSetter(darkRef.current, 'opacity')
+      : null;
+
+    timelineRef.current = gsap.timeline({
+      scrollTrigger: {
+        id: 'footer-parallax',
+        trigger: triggerRef.current,
+        start: 'top bottom',
+        end: 'bottom bottom',
+        scrub: true,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          const progress = self.progress;
+          setY((1 - progress) * -parallaxDistance);
+          if (setOpacity) {
+            setOpacity((1 - progress) * 0.5);
+          }
+        },
+      },
+    });
+
+    const handleResize = () => {
+      ScrollTrigger.refresh();
+    };
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      if (tl) {
-        tl.kill();
+      window.removeEventListener('resize', handleResize);
+      if (timelineRef.current) {
+        timelineRef.current.kill();
       }
-      import('gsap/ScrollTrigger').then(({ScrollTrigger}) => {
-        ScrollTrigger.getAll().forEach((st) => {
-          if (st.trigger === wrapperRef.current) st.kill();
-        });
-      });
+      const st = ScrollTrigger.getById('footer-parallax');
+      if (st) st.kill();
     };
   }, []);
 
   return (
-    <div ref={wrapperRef} data-footer-parallax="" className="footer-parallax-wrapper">
-      <footer data-footer-parallax-inner="" className="footer-parallax">
+    <div ref={triggerRef} className="footer-parallax-wrapper">
+      <footer ref={targetRef} className="footer-parallax">
         <div className="footer-parallax-logo-center">
           <Suspense fallback={null}>
             <FooterLogo3D />
           </Suspense>
         </div>
       </footer>
-      <div data-footer-parallax-dark="" className="footer-parallax-dark"></div>
+      <div ref={darkRef} className="footer-parallax-dark" />
     </div>
   );
 }
