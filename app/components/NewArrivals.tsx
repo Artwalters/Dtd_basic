@@ -1,4 +1,4 @@
-import {useState, useEffect, useRef, useCallback, type ComponentType} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import {Link} from 'react-router';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {ProductCard} from './ProductCard';
@@ -22,19 +22,6 @@ export function NewArrivals({
 }: NewArrivalsProps) {
   const sliderRef = useRef<HTMLElement>(null);
   const [openProductId, setOpenProductId] = useState<string | null>(null);
-  const [sliderProgress, setSliderProgress] = useState(0);
-  const progressSetterRef = useRef<(progress: number) => void>();
-  const [ProgressBarComponent, setProgressBarComponent] = useState<ComponentType<{progress: number}> | null>(null);
-
-  // Load MetallicProgressBar only on client side
-  useEffect(() => {
-    import('./MetallicProgressBar').then((mod) => {
-      setProgressBarComponent(() => mod.MetallicProgressBar);
-    });
-  }, []);
-
-  // Store the setter in a ref so GSAP can access it
-  progressSetterRef.current = setSliderProgress;
 
   const handleToggle = (productId: string) => {
     setOpenProductId(openProductId === productId ? null : productId);
@@ -43,7 +30,7 @@ export function NewArrivals({
   useEffect(() => {
     if (typeof window === 'undefined' || !sliderRef.current) return;
 
-    const cleanup = initBasicGSAPSlider(sliderRef.current, progressSetterRef);
+    const cleanup = initBasicGSAPSlider(sliderRef.current);
 
     return cleanup;
   }, [products]);
@@ -61,7 +48,9 @@ export function NewArrivals({
       <div className="new-arrivals-header">
         <h2 className="new-arrivals-title">{title}</h2>
         <div className="new-arrivals-progress" data-gsap-slider-progress="">
-          {ProgressBarComponent && <ProgressBarComponent progress={sliderProgress} />}
+          <div className="progress-track">
+            <div className="progress-fill new-arrivals-progress-fill" data-gsap-slider-progress-fill=""></div>
+          </div>
         </div>
         <Link to="/collections/all" className="btn btn-glass new-arrivals-shop-all">
           SHOP ALL
@@ -85,10 +74,7 @@ export function NewArrivals({
 }
 
 // GSAP Slider Initialization Function (Osmo)
-function initBasicGSAPSlider(
-  specificRoot?: HTMLElement | null,
-  progressSetterRef?: React.MutableRefObject<((progress: number) => void) | undefined>
-): (() => void) | undefined {
+function initBasicGSAPSlider(specificRoot?: HTMLElement | null): (() => void) | undefined {
   if (!specificRoot) return;
 
   const root = specificRoot;
@@ -250,10 +236,14 @@ function initBasicGSAPSlider(
       btn.setAttribute('data-gsap-slider-control-status', can ? 'active' : 'not-active');
     });
 
-    // Update Progress Bar via React state
-    if (snapPoints.length > 1 && progressSetterRef?.current) {
+    // Update Progress Bar (same system as hero slider)
+    const progressFill = root.querySelector('[data-gsap-slider-progress-fill]') as HTMLElement;
+    if (progressFill && snapPoints.length > 1) {
+      // Set width based on number of positions (like hero slider)
+      progressFill.style.width = `${100 / snapPoints.length}%`;
+      // Move with translateX
       const progress = activeIndex / (snapPoints.length - 1);
-      progressSetterRef.current(progress);
+      progressFill.style.transform = `translateX(${progress * 100 * (snapPoints.length - 1)}%)`;
     }
   }
 
