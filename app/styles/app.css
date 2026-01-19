@@ -418,6 +418,17 @@ aside li {
     transform: translateX(100%);
   }
 
+  /* Cart: slide page to left (opposite direction of menu) */
+  html:has(.sliding-wrapper.cart-open),
+  body:has(.sliding-wrapper.cart-open) {
+    background: var(--color-cream);
+    overflow: hidden;
+  }
+
+  .sliding-wrapper.cart-open {
+    transform: translateX(-100%);
+  }
+
   /* Mobile menu overlay - transparent, only for positioning menu */
   .overlay[data-aside-type="mobile"] {
     background: transparent;
@@ -475,6 +486,75 @@ aside li {
     flex-direction: column;
     height: 100%;
     padding: 0;
+  }
+
+  /* ===========================================
+     Mobile Cart Aside - Same style as mobile menu
+     =========================================== */
+
+  /* Cream background behind everything when cart open */
+  html:has(.overlay[data-aside-type="cart"].expanded),
+  body:has(.overlay[data-aside-type="cart"].expanded) {
+    background: var(--color-cream);
+    overflow: hidden;
+  }
+
+  .overlay[data-aside-type="cart"] {
+    background: transparent;
+    top: 0;
+    z-index: 40;
+  }
+
+  .overlay[data-aside-type="cart"].expanded {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Close button covers left side of screen */
+  .overlay[data-aside-type="cart"] .close-outside {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 60;
+    pointer-events: auto;
+  }
+
+  /* Mobile cart aside - full width, light background */
+  .overlay[data-aside-type="cart"] aside {
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100vw;
+    transform: none !important;
+    box-shadow: none;
+    padding-top: calc(var(--header-height) + 3em);
+    padding-bottom: 0;
+    background: var(--color-cream);
+    color: var(--color-black);
+    pointer-events: auto;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    z-index: 70;
+  }
+
+  /* Hide the aside header - we use dividers instead */
+  .overlay[data-aside-type="cart"] aside header {
+    display: none;
+  }
+
+  .overlay[data-aside-type="cart"] aside main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0 1em;
+    overflow-y: auto;
   }
 }
 

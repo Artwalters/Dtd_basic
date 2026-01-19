@@ -2,9 +2,8 @@ import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import type {CartLayout} from '~/components/CartMain';
 import {CartForm, Money, type OptimisticCart} from '@shopify/hydrogen';
 import {useEffect, useRef, useState} from 'react';
-import {useFetcher, Link} from 'react-router';
+import {useFetcher} from 'react-router';
 import type {FetcherWithComponents} from 'react-router';
-import {useAside} from './Aside';
 
 type CartSummaryProps = {
   cart: OptimisticCart<CartApiQueryFragment | null>;
@@ -37,18 +36,11 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
 
 export function CartCheckoutActions({checkoutUrl}: {checkoutUrl?: string}) {
   if (!checkoutUrl) return null;
-  const {close} = useAside();
 
   return (
     <div className="cart-checkout-actions">
-      <button className="apple-pay-button" aria-label="Buy with Apple Pay">
-        <svg width="50" height="20" viewBox="0 0 50 20" fill="currentColor">
-          <path d="M8.5 3.5c.4-.5.7-1.2.6-1.9-.6 0-1.3.4-1.7.9-.4.4-.7 1.1-.6 1.8.7 0 1.3-.3 1.7-.8zM10.2 5.4c-1 0-1.8.6-2.3.6-.5 0-1.2-.5-2-.5-1 0-1.9.6-2.4 1.5-1 1.8-.3 4.4.7 5.9.5.7 1.1 1.5 1.9 1.5.7 0 1-.5 1.9-.5.9 0 1.2.5 1.9.5.8 0 1.3-.7 1.8-1.4.6-.8.8-1.6.8-1.7 0 0-1.6-.6-1.6-2.4 0-1.5 1.2-2.2 1.3-2.3-.7-1-1.8-1.1-2.2-1.1z"/>
-          <text x="18" y="14" fill="currentColor" fontFamily="system-ui, -apple-system" fontSize="9" fontWeight="400">Pay</text>
-        </svg>
-      </button>
       <a href={checkoutUrl} target="_self" className="checkout-button">
-        Secure Checkout
+        Checkout
       </a>
     </div>
   );

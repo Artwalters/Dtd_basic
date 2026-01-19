@@ -25,12 +25,19 @@ export function CartLineItem({
   const lineItemUrl = useVariantUrl(product.handle, selectedOptions);
   const {close} = useAside();
 
+  // Get size from selectedOptions if available
+  const sizeOption = selectedOptions.find(
+    (opt) => opt.name.toLowerCase() === 'size' || opt.name.toLowerCase() === 'maat'
+  );
+  const displayTitle = sizeOption
+    ? `${product.title} - ${sizeOption.value}`
+    : product.title;
+
   return (
     <li key={id} className="cart-line">
       {image && (
         <Image
           alt={title}
-          aspectRatio="1/1"
           data={image}
           height={100}
           loading="lazy"
@@ -48,21 +55,15 @@ export function CartLineItem({
             }
           }}
         >
-          <h3 className="cart-line-title">{product.title}</h3>
+          <h3 className="cart-line-title">{displayTitle}</h3>
         </Link>
-        
-        <div>
-          {selectedOptions.map((option) => (
-            <div key={option.name} style={{fontSize: 'var(--font-sm)', color: '#666'}}>
-              {option.name}: {option.value}
-            </div>
-          ))}
-        </div>
-        
+
         <ProductPrice price={line?.cost?.totalAmount} className="cart-line-price" />
-        
+
         <CartLineQuantity line={line} />
       </div>
+
+      <CartLineRemoveButton lineIds={[id]} disabled={!!line.isOptimistic} />
     </li>
   );
 }
@@ -92,9 +93,9 @@ function CartLineQuantity({line}: {line: CartLine}) {
             <span>&#8722;</span>
           </button>
         </CartLineUpdateButton>
-        
+
         <span className="quantity-number">{quantity}</span>
-        
+
         <CartLineUpdateButton lines={[{id: lineId, quantity: nextQuantity}]}>
           <button
             aria-label="Increase quantity"
@@ -107,8 +108,6 @@ function CartLineQuantity({line}: {line: CartLine}) {
           </button>
         </CartLineUpdateButton>
       </div>
-      
-      <CartLineRemoveButton lineIds={[lineId]} disabled={!!isOptimistic} />
     </div>
   );
 }
@@ -133,8 +132,8 @@ function CartLineRemoveButton({
       inputs={{lineIds}}
     >
       <button disabled={disabled} type="submit" className="cart-remove-button" aria-label="Remove item">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14zM10 11v6M14 11v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
     </CartForm>

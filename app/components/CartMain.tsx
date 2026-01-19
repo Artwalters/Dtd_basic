@@ -42,6 +42,7 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
   return (
     <div className={className}>
       <div className="cart-content-scrollable">
+        <div className="cart-divider" />
         {isAddingToCart && (
           <div className="cart-loading">
             <div className="cart-loading-spinner" />
@@ -66,8 +67,9 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
       </div>
       {cartHasItems && (
         <div className="cart-footer-sticky">
+          <div className="cart-divider divider-bottom" />
           <dl className="cart-subtotal">
-            <dt>Total</dt>
+            <dt>Total*:</dt>
             <dd>
               {cart?.cost?.subtotalAmount?.amount ? (
                 <Money data={cart?.cost?.subtotalAmount} />
@@ -77,6 +79,9 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
             </dd>
           </dl>
           <CartCheckoutActions checkoutUrl={cart?.checkoutUrl} />
+          <p className="cart-disclaimer">
+            * Shipping and discounts calculated at checkout.
+          </p>
         </div>
       )}
     </div>

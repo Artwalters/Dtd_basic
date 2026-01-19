@@ -53,9 +53,10 @@ export function PageLayout({
 function SlidingWrapper({children}: {children: React.ReactNode}) {
   const {type} = useAside();
   const isMobileMenuOpen = type === 'mobile';
+  const isCartOpen = type === 'cart';
 
   return (
-    <div className={`sliding-wrapper ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
+    <div className={`sliding-wrapper ${isMobileMenuOpen ? 'mobile-menu-open' : ''} ${isCartOpen ? 'cart-open' : ''}`}>
       {children}
     </div>
   );
