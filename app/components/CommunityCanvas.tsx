@@ -5,11 +5,20 @@ import {useDrag} from '@use-gesture/react';
 import * as THREE from 'three';
 import {useTheme} from '~/contexts/ThemeContext';
 
-// Check if device is touch-only (no mouse hover)
-const isTouchDevice = typeof window !== 'undefined' &&
-  ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+// Hook to check if device is touch-only (client-side only, safe for SSR)
+function useIsTouchDevice() {
+  const [isTouch, setIsTouch] = useState(false);
 
-function Model() {
+  useEffect(() => {
+    setIsTouch(
+      'ontouchstart' in window || navigator.maxTouchPoints > 0
+    );
+  }, []);
+
+  return isTouch;
+}
+
+function Model({isTouchDevice}: {isTouchDevice: boolean}) {
   const {scene, animations} = useGLTF('/3D/dtd_logo7.glb', '/draco/');
   const {actions, names} = useAnimations(animations, scene);
   const modelRef = useRef<THREE.Group>(null);
@@ -138,7 +147,7 @@ void main() {
 `;
 
 // Godray Post-Processing Effect
-function GodrayEffect({children}: {children: React.ReactNode}) {
+function GodrayEffect({children, isTouchDevice}: {children: React.ReactNode; isTouchDevice: boolean}) {
   const {gl, scene, camera, size, viewport} = useThree();
   const {theme} = useTheme();
 
@@ -212,10 +221,11 @@ function GodrayEffect({children}: {children: React.ReactNode}) {
 }
 
 // 3D Marquee Carousel Component
-function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
+function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchDevice}: {
   radius?: number;
   baseSpeed?: number;
   panelCount?: number;
+  isTouchDevice: boolean;
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const timeScaleRef = useRef(1);
@@ -368,7 +378,7 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10}: {
 }
 
 
-function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) {
+function SceneContent({hdriRotation, isTouchDevice}: {hdriRotation: [number, number, number]; isTouchDevice: boolean}) {
   const {scene} = useThree();
   const fogColor = '#000000';
 
@@ -386,8 +396,8 @@ function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) 
     <>
       <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Suspense fallback={null}>
-        <Model />
-        <ImageCarousel radius={isTouchDevice ? 1.35 : 1.44} baseSpeed={0.15} panelCount={isTouchDevice ? 10 : 13} />
+        <Model isTouchDevice={isTouchDevice} />
+        <ImageCarousel radius={isTouchDevice ? 1.35 : 1.44} baseSpeed={0.15} panelCount={isTouchDevice ? 10 : 13} isTouchDevice={isTouchDevice} />
         <Environment
           files="/3D/studio_small_09_1k.hdr"
           environmentRotation={hdriRotation}
@@ -397,10 +407,10 @@ function SceneContent({hdriRotation}: {hdriRotation: [number, number, number]}) 
   );
 }
 
-function Scene({hdriRotation}: {hdriRotation: [number, number, number]}) {
+function Scene({hdriRotation, isTouchDevice}: {hdriRotation: [number, number, number]; isTouchDevice: boolean}) {
   return (
-    <GodrayEffect>
-      <SceneContent hdriRotation={hdriRotation} />
+    <GodrayEffect isTouchDevice={isTouchDevice}>
+      <SceneContent hdriRotation={hdriRotation} isTouchDevice={isTouchDevice} />
     </GodrayEffect>
   );
 }
@@ -409,12 +419,13 @@ export default function CommunityCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [dpr, setDpr] = useState(2);
+  const isTouchDevice = useIsTouchDevice();
 
   useEffect(() => {
     // Set DPR on client side - cap at 2 on mobile for better performance
     const deviceDpr = window.devicePixelRatio || 2;
     setDpr(isTouchDevice ? Math.min(deviceDpr, 2) : deviceDpr);
-  }, []);
+  }, [isTouchDevice]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -448,6 +459,7 @@ export default function CommunityCanvas() {
         width: '100%',
         height: '100%',
         cursor: 'grab',
+        touchAction: 'none',
       }}
     >
       <Canvas
@@ -456,7 +468,7 @@ export default function CommunityCanvas() {
         frameloop={isVisible ? 'always' : 'never'}
         gl={{antialias: true, powerPreference: 'high-performance'}}
       >
-        <Scene hdriRotation={[75 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180]} />
+        <Scene hdriRotation={[75 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180]} isTouchDevice={isTouchDevice} />
       </Canvas>
     </div>
   );

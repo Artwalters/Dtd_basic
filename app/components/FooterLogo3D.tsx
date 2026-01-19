@@ -3,11 +3,20 @@ import {useGLTF} from '@react-three/drei';
 import {Suspense, useMemo, useState, useEffect, useRef} from 'react';
 import * as THREE from 'three';
 
-// Check if device is touch-only (no mouse hover)
-const isTouchDevice = typeof window !== 'undefined' &&
-  ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+// Hook to check if device is touch-only (client-side only, safe for SSR)
+function useIsTouchDevice() {
+  const [isTouch, setIsTouch] = useState(false);
 
-function FullLogoModel() {
+  useEffect(() => {
+    setIsTouch(
+      'ontouchstart' in window || navigator.maxTouchPoints > 0
+    );
+  }, []);
+
+  return isTouch;
+}
+
+function FullLogoModel({isTouchDevice}: {isTouchDevice: boolean}) {
   const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const {pointer} = useThree();
@@ -52,6 +61,7 @@ function FullLogoModel() {
 
 export default function FooterLogo3D() {
   const [isClient, setIsClient] = useState(false);
+  const isTouchDevice = useIsTouchDevice();
 
   useEffect(() => {
     setIsClient(true);
@@ -67,7 +77,7 @@ export default function FooterLogo3D() {
         gl={{antialias: true, alpha: true}}
       >
         <Suspense fallback={null}>
-          <FullLogoModel />
+          <FullLogoModel isTouchDevice={isTouchDevice} />
         </Suspense>
         <ambientLight intensity={1} />
         <directionalLight position={[5, 5, 5]} intensity={2} />
