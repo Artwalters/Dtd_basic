@@ -445,6 +445,16 @@ export function HeaderMenu({
         className="header-menu-item"
         onClick={close}
         prefetch="intent"
+        to="/"
+        end
+      >
+        <span>Home</span>
+        <ChevronIcon />
+      </NavLink>
+      <NavLink
+        className="header-menu-item"
+        onClick={close}
+        prefetch="intent"
         to="/collections/all"
       >
         <span>Shop</span>
@@ -466,6 +476,15 @@ export function HeaderMenu({
         to="/lookbook"
       >
         <span>Lookbook</span>
+        <ChevronIcon />
+      </NavLink>
+      <NavLink
+        className="header-menu-item"
+        onClick={close}
+        prefetch="intent"
+        to="/about"
+      >
+        <span>About</span>
         <ChevronIcon />
       </NavLink>
       <div className="mobile-menu-spacer" />

@@ -461,6 +461,7 @@ aside li {
     flex-direction: column;
     overflow-x: hidden;
     box-sizing: border-box;
+    z-index: 70; /* Above close-outside (60) so menu links are clickable */
   }
 
   /* Hide the aside header (MENU title and close button) - we use our own */
