@@ -98,8 +98,8 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
 
       // Always animate to the same fixed end position
       animationRef.current = gsap.to(wrapper, {
-        scale: 0.85,
-        x: '5%',
+        scale: 0.65,
+        x: '1em',
         y: '7.5%',
         borderRadius: '12px',
         boxShadow: '0 25px 100px rgba(0, 0, 0, 0.25)',
