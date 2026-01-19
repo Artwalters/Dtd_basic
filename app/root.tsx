@@ -150,6 +150,16 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="preload" href={genesisFont} as="font" type="font/woff2" crossOrigin="anonymous" />
+        {/* Inline @font-face to ensure correct font URL resolution on all devices */}
+        <style dangerouslySetInnerHTML={{__html: `
+          @font-face {
+            font-family: 'Genesis';
+            src: url('${genesisFont}') format('woff2-variations');
+            font-weight: 100 1000;
+            font-style: normal;
+            font-display: swap;
+          }
+        `}} />
         <link rel="stylesheet" href={fontStyles}></link>
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>

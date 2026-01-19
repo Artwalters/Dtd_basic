@@ -116,21 +116,17 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         scrollPosRef.current = window.scrollY;
       }
 
-      // Set up the wrapper as a fixed viewport-sized frame
+      // Set up the wrapper as a fixed frame with negative top offset to maintain scroll position
       gsap.set(wrapper, {
         position: 'fixed',
-        top: 0,
+        top: -scrollPosRef.current,
         left: 0,
         width: '100vw',
-        height: '100vh',
+        height: 'auto',
+        minHeight: '100vh',
         overflow: 'hidden',
         transformOrigin: 'left center',
       });
-
-      // Set scrollTop to maintain the same visible content (only on fresh open)
-      if (!wasCartOpenRef.current) {
-        wrapper.scrollTop = scrollPosRef.current;
-      }
 
       wasCartOpenRef.current = true;
 

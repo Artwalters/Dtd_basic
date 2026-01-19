@@ -686,17 +686,18 @@ aside li {
     flex-direction: column;
     position: fixed;
     right: -1em;
-    top: 20vh;
+    top: 21vh;
     width: 30%;
-    height: 72vh;
+    height: 70vh;
     background: var(--color-cream);
     color: var(--color-black);
-    padding: 2em;
+    padding: 2em 3em 2em 2em; /* Extra right padding to compensate for right: -1em */
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.4s, visibility 0.4s;
     z-index: 30;
     border-radius: 12px;
+    box-sizing: border-box;
   }
 
   .desktop-cart-panel .cart-main {
@@ -707,6 +708,7 @@ aside li {
     background: var(--color-cream);
     overflow: hidden;
     width: 100%;
+    box-sizing: border-box;
   }
 
   .desktop-cart-panel .cart-content-scrollable {
@@ -721,6 +723,7 @@ aside li {
   .desktop-cart-panel .cart-footer-sticky {
     position: static !important;
     padding: 1em 0 !important;
+    margin: 0 !important;
     background: var(--color-cream);
     border-top: none;
     left: auto !important;
@@ -728,6 +731,7 @@ aside li {
     bottom: auto !important;
     width: 100% !important;
     max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .desktop-cart-panel .cart-divider {
@@ -752,8 +756,21 @@ aside li {
   .desktop-cart-panel .cart-accordion-icon,
   .desktop-cart-panel .cart-accordion-content p,
   .desktop-cart-panel .cart-disclaimer,
-  .desktop-cart-panel .cart-loading {
+  .desktop-cart-panel .cart-loading,
+  .desktop-cart-panel .quantity-button,
+  .desktop-cart-panel .quantity-number,
+  .desktop-cart-panel .cart-remove-button {
     color: var(--color-black);
+  }
+
+  /* Quantity button SVG icons should be black */
+  .desktop-cart-panel .quantity-button svg {
+    stroke: var(--color-black);
+  }
+
+  /* Remove button styling */
+  .desktop-cart-panel .cart-remove-button svg {
+    stroke: var(--color-black);
   }
 
   .desktop-cart-panel .cart-loading-spinner {
@@ -765,6 +782,9 @@ aside li {
     background: var(--color-black);
     color: var(--color-white);
     border-color: var(--color-black);
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .main-content-area[data-cart-open="true"] .desktop-cart-panel {
@@ -1181,7 +1201,21 @@ button.reset:hover:not(:has(> *)) {
   gap: 0.4em;
 }
 
-/* Glass button style - minimal liquid glass effect */
+/* ==========================================================================
+   BUTTON STYLES
+
+   Two main button types with consistent hover wipe effect:
+   1. .btn-glass - Transparent glass effect with blur (for secondary actions)
+   2. .btn-solid - Solid white background (for primary CTAs)
+
+   Hover Effect: All buttons use a subtle wipe animation that slides from
+   left to right using ::before pseudo-element with translateX transform.
+   - Glass buttons: white wipe (8% opacity) - visible on dark backgrounds
+   - Solid/white buttons: black wipe (12% opacity) - visible on white backgrounds
+   Easing: cubic-bezier(0.625, 0.05, 0, 1) for smooth deceleration.
+   ========================================================================== */
+
+/* Glass button - transparent with blur backdrop */
 .btn-glass,
 .header-nav-item {
   display: inline-flex;
@@ -1218,7 +1252,7 @@ button.reset:hover:not(:has(> *)) {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.08);
   pointer-events: none;
   z-index: -1;
   transform: translateX(-100%);
@@ -1242,7 +1276,7 @@ button.reset:hover:not(:has(> *)) {
   cursor: not-allowed;
 }
 
-/* Solid white button - for important CTAs */
+/* Solid button - white background for primary CTAs */
 .btn-solid {
   display: inline-flex;
   align-items: center;
@@ -1273,7 +1307,7 @@ button.reset:hover:not(:has(> *)) {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.12);
   pointer-events: none;
   z-index: -1;
   transform: translateX(-100%);
@@ -1626,6 +1660,23 @@ button.reset:hover:not(:has(> *)) {
     order: 3;
   }
 
+  /* Mobile cart button - white like desktop */
+  .mobile-cart-toggle .header-nav-item {
+    background: var(--color-white);
+    color: var(--color-black);
+    border-color: var(--color-white);
+  }
+
+  .mobile-cart-toggle .header-nav-item svg {
+    stroke: var(--color-black);
+  }
+
+  /* Remove hover wipe effect from mobile toggle buttons - not suitable for small icon buttons */
+  .mobile-menu-toggle.header-nav-item::before,
+  .mobile-cart-toggle .header-nav-item::before {
+    display: none;
+  }
+
   /* Mobile button font size */
   .btn,
   .btn-glass {
@@ -1944,6 +1995,7 @@ button.reset:hover:not(:has(> *)) {
   margin-top: 1.5em;
 }
 
+/* Checkout button - dark button with wipe hover effect */
 .checkout-button {
   display: block;
   width: 100%;
@@ -1955,13 +2007,34 @@ button.reset:hover:not(:has(> *)) {
   font-size: var(--font-base);
   font-weight: var(--weight-medium);
   border: 1px solid var(--color-black);
-  transition: all 0.2s;
+  border-radius: 4px;
+  transition: border-color 0.2s ease;
   letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover wipe effect - slides from left to right */
+.checkout-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  z-index: 0;
+  transform: translateX(-100%);
+  transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.checkout-button:hover::before {
+  transform: translateX(0%);
 }
 
 .checkout-button:hover {
-  background: var(--color-white);
-  color: var(--color-black);
+  border-color: var(--color-grey);
 }
 
 /* Cart Accordion (Shipping & Returns) */
@@ -3748,11 +3821,14 @@ button.reset:hover:not(:has(> *)) {
   opacity: 0.7;
 }
 
-/* Size Grid with Glass Buttons */
+/* ==========================================================================
+   Size Grid - Row of size option buttons
+   Uses subtle hover wipe effect consistent with other buttons
+   ========================================================================== */
 .size-grid {
   display: flex;
   border: 1px solid var(--white-light);
-  border-radius: 0;
+  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -3767,31 +3843,53 @@ button.reset:hover:not(:has(> *)) {
   font-size: var(--font-sm);
   font-weight: var(--weight-normal);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .size-grid-option:last-child {
   border-right: none;
 }
 
-.size-grid-option:hover:not(.unavailable):not(.selected) {
-  background: var(--white-subtle);
+/* Hover wipe effect - slides from left to right */
+.size-grid-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+  z-index: 0;
+  transform: translateX(-100%);
+  transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
 }
 
+.size-grid-option:hover:not(.unavailable):not(.selected)::before {
+  transform: translateX(0%);
+}
+
+/* Selected state - solid background */
 .size-grid-option.selected {
   background: var(--white-subtle);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }
 
+/* Unavailable sizes - grayed out */
 .size-grid-option.unavailable {
   opacity: 0.3;
   cursor: not-allowed;
   background: var(--white-subtle);
 }
 
-/* Product Actions - Buy Now and Add to Bag */
+/* ==========================================================================
+   Product Actions - Buy Now and Add to Bag
+   Uses the same hover wipe effect as .btn-solid and .btn-glass
+   ========================================================================== */
 .product-actions {
   display: flex;
   gap: 1em;
@@ -3802,43 +3900,87 @@ button.reset:hover:not(:has(> *)) {
   flex: 1;
 }
 
+/* Buy Now - Solid white button (matches .btn-solid pattern) */
 .buy-now-button {
   width: 100%;
   padding: 1em 1.5em;
   background: var(--color-white);
   border: 1px solid var(--color-white);
-  border-radius: 0;
+  border-radius: 4px;
   color: var(--color-black);
   font-family: inherit;
   font-size: var(--font-base);
   font-weight: var(--weight-normal);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover wipe effect - slides from left to right behind text */
+.buy-now-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  z-index: 0;
+  transform: translateX(-100%);
+  transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.buy-now-button:hover::before {
+  transform: translateX(0%);
 }
 
 .buy-now-button:hover {
-  background: var(--color-white);
+  border-color: rgba(255, 255, 255, 0.9);
 }
 
+/* Add to Bag - Glass button (matches .btn-glass pattern) */
 .add-to-bag-button {
   width: 100%;
   padding: 1em 1.5em;
   background: var(--white-subtle);
   border: 1px solid var(--white-light);
-  border-radius: 0;
+  border-radius: 4px;
   color: var(--color-white);
   font-family: inherit;
   font-size: var(--font-base);
   font-weight: var(--weight-normal);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover wipe effect - slides from left to right behind text */
+.add-to-bag-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+  z-index: 0;
+  transform: translateX(-100%);
+  transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.add-to-bag-button:hover:not(:disabled)::before {
+  transform: translateX(0%);
 }
 
 .add-to-bag-button:hover:not(:disabled) {
-  background: var(--white-light);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .add-to-bag-button:disabled {
@@ -5892,11 +6034,31 @@ button.reset:hover:not(:has(> *)) {
   border: 1px solid var(--white-subtle);
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover wipe effect */
+.mobile-quick-add__size-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+  z-index: 0;
+  transform: translateX(-100%);
+  transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.mobile-quick-add__size-btn:hover:not(:disabled)::before {
+  transform: translateX(0%);
 }
 
 .mobile-quick-add__size-btn:hover:not(:disabled) {
-  background: var(--white-light);
   border-color: var(--white-light);
 }
 
@@ -5926,16 +6088,34 @@ button.reset:hover:not(:has(> *)) {
   width: 100%;
   background: var(--color-white);
   color: var(--color-black);
-  border: none;
+  border: 1px solid var(--color-white);
+  border-radius: 4px;
   padding: 1em;
   font-size: var(--font-base);
   font-weight: var(--weight-medium);
   letter-spacing: 0.02em;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.mobile-quick-add__notify-btn:hover {
-  opacity: 0.9;
+/* Hover wipe effect */
+.mobile-quick-add__notify-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  z-index: 0;
+  transform: translateX(-100%);
+  transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
+}
+
+.mobile-quick-add__notify-btn:hover::before {
+  transform: translateX(0%);
 }
 

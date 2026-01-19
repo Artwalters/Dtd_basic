@@ -39,8 +39,8 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
 
   return (
     <div className={className}>
+      <div className="cart-divider" />
       <div className="cart-content-scrollable">
-        <div className="cart-divider" />
         {isAddingToCart && (
           <div className="cart-loading">
             <div className="cart-loading-spinner" />

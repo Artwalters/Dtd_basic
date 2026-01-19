@@ -220,7 +220,7 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin: 0 0 1em 0;
+  margin: 0 0 0em 0;
   padding: 0;
 }
 
@@ -434,9 +434,55 @@
    Mobile Cart Overrides
    =========================================== */
 @media (max-width: 47.99em) {
+  /* Top divider - 1em padding from edges */
+  .cart-main > .cart-divider {
+    margin: 0 1em;
+    width: calc(100% - 2em);
+    overflow: visible;
+  }
+
+  /* Top divider brackets extend DOWN */
+  .cart-main > .cart-divider::before,
+  .cart-main > .cart-divider::after {
+    top: 0;
+    bottom: auto;
+    height: 0.75em;
+  }
+
+  /* Bottom divider - 1em padding from edges (respects footer padding) */
+  .cart-footer-sticky > .cart-divider.divider-bottom {
+    margin: 0;
+    margin-bottom: 1em;
+    width: 100%;
+    overflow: visible;
+    background: var(--color-black);
+    opacity: 0.15;
+  }
+
+  /* Bottom divider brackets extend UP */
+  .cart-footer-sticky > .cart-divider.divider-bottom::before,
+  .cart-footer-sticky > .cart-divider.divider-bottom::after {
+    content: '';
+    position: absolute;
+    top: auto;
+    bottom: 0;
+    width: 1px;
+    height: 0.75em;
+    background: var(--color-black);
+    opacity: 1;
+  }
+
+  .cart-footer-sticky > .cart-divider.divider-bottom::before {
+    left: 0;
+  }
+
+  .cart-footer-sticky > .cart-divider.divider-bottom::after {
+    right: 0;
+  }
+
   .cart-content-scrollable {
     padding: 0 1em;
-    padding-top: 3em;
+    padding-top: 1em;
     flex: 1;
     overflow-y: auto;
   }
@@ -574,23 +620,32 @@
     position: static;
     background: var(--color-cream);
     padding: 1em;
+    padding-top: 0;
     border-top: none;
+    border: none;
+    box-sizing: border-box;
+  }
+
+  .cart-checkout-actions {
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .cart-subtotal {
-    padding: 1em 0;
-    margin-bottom: 0.75em;
+    /* padding: 1em 0; */
+    /* margin-bottom: 0.75em; */
   }
 
   .cart-subtotal dt {
     color: var(--color-black);
-    font-size: var(--font-sm);
+    font-size: var(--font-base);
+    font-weight: var(--weight-medium);
   }
 
   .cart-subtotal dd {
     color: var(--color-black);
-    font-size: 2em;
-    font-weight: var(--weight-bold);
+    font-size: var(--font-xl);
+    font-weight: var(--weight-semibold);
   }
 
   .checkout-button {
@@ -598,7 +653,9 @@
     color: var(--color-white);
     padding: 1em;
     font-size: var(--font-md);
-    border-radius: 0;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .checkout-button:hover {
