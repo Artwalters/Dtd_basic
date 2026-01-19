@@ -18,7 +18,7 @@ function useIsTouchDevice() {
   return isTouch;
 }
 
-function Model({isTouchDevice, introPlayed, onIntroComplete}: {isTouchDevice: boolean; introPlayed: boolean; onIntroComplete: () => void}) {
+function Model({isTouchDevice, introStarted, introPlayed, onIntroComplete}: {isTouchDevice: boolean; introStarted: boolean; introPlayed: boolean; onIntroComplete: () => void}) {
   const {scene, animations} = useGLTF('/3D/dtd_logo7.glb', '/draco/');
   const {actions, names} = useAnimations(animations, scene);
   const modelRef = useRef<THREE.Group>(null);
@@ -64,8 +64,8 @@ function Model({isTouchDevice, introPlayed, onIntroComplete}: {isTouchDevice: bo
   // Subtle mouse interaction (desktop only - no hover on touch devices)
   useFrame((state, delta) => {
     if (modelRef.current) {
-      // Intro animation - logo rises from bottom
-      if (!introPlayed && introProgressRef.current < 1) {
+      // Intro animation - logo rises from bottom (only when introStarted)
+      if (introStarted && !introPlayed && introProgressRef.current < 1) {
         introProgressRef.current += delta * 0.8; // Animation speed
         introProgressRef.current = Math.min(introProgressRef.current, 1);
 
@@ -79,7 +79,7 @@ function Model({isTouchDevice, introPlayed, onIntroComplete}: {isTouchDevice: bo
         if (introProgressRef.current >= 1) {
           onIntroComplete();
         }
-      } else {
+      } else if (introPlayed) {
         // Normal behavior after intro
         if (isTouchDevice) {
           // On touch devices, just maintain base rotation without hover effects
@@ -244,11 +244,12 @@ function GodrayEffect({children, isTouchDevice}: {children: React.ReactNode; isT
 }
 
 // 3D Marquee Carousel Component
-function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchDevice, introPlayed}: {
+function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchDevice, introStarted, introPlayed}: {
   radius?: number;
   baseSpeed?: number;
   panelCount?: number;
   isTouchDevice: boolean;
+  introStarted: boolean;
   introPlayed: boolean;
 }) {
   const groupRef = useRef<THREE.Group>(null);
@@ -292,8 +293,8 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchD
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
-    // Intro animation - fade in opacity and slow down spinning
-    if (!introPlayed && introProgressRef.current < 1) {
+    // Intro animation - fade in opacity and slow down spinning (only when introStarted)
+    if (introStarted && !introPlayed && introProgressRef.current < 1) {
       introProgressRef.current += delta * 0.6; // Slower than logo for staggered effect
       introProgressRef.current = Math.min(introProgressRef.current, 1);
 
@@ -459,9 +460,10 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchD
 }
 
 
-function SceneContent({hdriRotation, isTouchDevice, introPlayed, onIntroComplete}: {
+function SceneContent({hdriRotation, isTouchDevice, introStarted, introPlayed, onIntroComplete}: {
   hdriRotation: [number, number, number];
   isTouchDevice: boolean;
+  introStarted: boolean;
   introPlayed: boolean;
   onIntroComplete: () => void;
 }) {
@@ -482,8 +484,8 @@ function SceneContent({hdriRotation, isTouchDevice, introPlayed, onIntroComplete
     <>
       <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Suspense fallback={null}>
-        <Model isTouchDevice={isTouchDevice} introPlayed={introPlayed} onIntroComplete={onIntroComplete} />
-        <ImageCarousel radius={isTouchDevice ? 1.35 : 1.44} baseSpeed={0.15} panelCount={isTouchDevice ? 10 : 13} isTouchDevice={isTouchDevice} introPlayed={introPlayed} />
+        <Model isTouchDevice={isTouchDevice} introStarted={introStarted} introPlayed={introPlayed} onIntroComplete={onIntroComplete} />
+        <ImageCarousel radius={isTouchDevice ? 1.35 : 1.44} baseSpeed={0.15} panelCount={isTouchDevice ? 10 : 13} isTouchDevice={isTouchDevice} introStarted={introStarted} introPlayed={introPlayed} />
         <Environment
           files="/3D/studio_small_09_1k.hdr"
           environmentRotation={hdriRotation}
@@ -493,15 +495,16 @@ function SceneContent({hdriRotation, isTouchDevice, introPlayed, onIntroComplete
   );
 }
 
-function Scene({hdriRotation, isTouchDevice, introPlayed, onIntroComplete}: {
+function Scene({hdriRotation, isTouchDevice, introStarted, introPlayed, onIntroComplete}: {
   hdriRotation: [number, number, number];
   isTouchDevice: boolean;
+  introStarted: boolean;
   introPlayed: boolean;
   onIntroComplete: () => void;
 }) {
   return (
     <GodrayEffect isTouchDevice={isTouchDevice}>
-      <SceneContent hdriRotation={hdriRotation} isTouchDevice={isTouchDevice} introPlayed={introPlayed} onIntroComplete={onIntroComplete} />
+      <SceneContent hdriRotation={hdriRotation} isTouchDevice={isTouchDevice} introStarted={introStarted} introPlayed={introPlayed} onIntroComplete={onIntroComplete} />
     </GodrayEffect>
   );
 }
@@ -522,27 +525,37 @@ export default function CommunityCanvas() {
     setDpr(isTouchDevice ? Math.min(deviceDpr, 2) : deviceDpr);
   }, [isTouchDevice]);
 
+  // Separate observers: one for rendering (low threshold), one for intro trigger (high threshold)
+  const [introStarted, setIntroStarted] = useState(false);
+
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    // Observer for rendering - low threshold to start rendering early
+    const renderObserver = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
       {threshold: 0.1}
     );
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-    return () => observer.disconnect();
-  }, []);
 
-  // Trigger intro animation once when visible
-  useEffect(() => {
-    if (isVisible && !introTriggeredRef.current) {
-      introTriggeredRef.current = true;
-      // Small delay before starting intro for smoother experience
-      setTimeout(() => {
-        // Intro will start playing (introPlayed stays false until animation completes)
-      }, 100);
+    // Observer for intro animation - triggers when 40% visible
+    const introObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !introTriggeredRef.current) {
+          introTriggeredRef.current = true;
+          setIntroStarted(true);
+        }
+      },
+      {threshold: 0.4}
+    );
+
+    if (containerRef.current) {
+      renderObserver.observe(containerRef.current);
+      introObserver.observe(containerRef.current);
     }
-  }, [isVisible]);
+
+    return () => {
+      renderObserver.disconnect();
+      introObserver.disconnect();
+    };
+  }, []);
 
   const handleIntroComplete = useCallback(() => {
     setIntroPlayed(true);
@@ -581,6 +594,7 @@ export default function CommunityCanvas() {
         <Scene
           hdriRotation={[75 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180]}
           isTouchDevice={isTouchDevice}
+          introStarted={introStarted}
           introPlayed={introPlayed}
           onIntroComplete={handleIntroComplete}
         />
