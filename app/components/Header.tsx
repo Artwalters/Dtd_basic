@@ -178,8 +178,8 @@ export function Header({
 
       {/* Desktop: Left navigation */}
       <nav className="header-nav-left">
-        <NavLink to="/community" className="header-nav-item">
-          Community
+        <NavLink to="/about" className="header-nav-item">
+          About
         </NavLink>
         <NavLink to="/collections/all" className="header-nav-item">
           Shop

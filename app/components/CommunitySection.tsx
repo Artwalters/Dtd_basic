@@ -21,7 +21,7 @@ export function CommunitySection() {
       <div className="community-sticky-wrapper">
         <div className="community-sticky-content">
           <span className="community-sticky-text">Dream Bigger With Us</span>
-          <button className="btn-glass community-sticky-btn">Join Community</button>
+          <button className="btn-glass community-sticky-btn">About Us</button>
         </div>
       </div>
 
