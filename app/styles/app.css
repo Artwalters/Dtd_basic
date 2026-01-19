@@ -1181,13 +1181,13 @@ button.reset:hover:not(:has(> *)) {
   gap: 0.4em;
 }
 
-/* Button shimmer animation */
-@keyframes btn-shimmer {
+/* Button hover sweep animation */
+@keyframes btn-sweep {
   0% {
     transform: translateX(-100%);
   }
   100% {
-    transform: translateX(200%);
+    transform: translateX(300%);
   }
 }
 
@@ -1219,24 +1219,28 @@ button.reset:hover:not(:has(> *)) {
   overflow: hidden;
 }
 
-/* Subtle shimmer effect on buttons */
+/* Hover sweep effect on buttons */
 .btn-glass::before,
 .header-nav-item::before {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  width: 50%;
+  left: -100%;
+  width: 40%;
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.08) 50%,
+    rgba(0, 0, 0, 0.06) 50%,
     transparent 100%
   );
-  animation: btn-shimmer 3s ease-in-out infinite;
   pointer-events: none;
   z-index: 1;
+}
+
+.btn-glass:hover::before,
+.header-nav-item:hover::before {
+  animation: btn-sweep 1s ease-in-out infinite;
 }
 
 .btn-glass:hover,
@@ -1280,18 +1284,21 @@ button.reset:hover:not(:has(> *)) {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  width: 50%;
+  left: -100%;
+  width: 40%;
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.08) 50%,
+    rgba(0, 0, 0, 0.06) 50%,
     transparent 100%
   );
-  animation: btn-shimmer 3s ease-in-out infinite;
   pointer-events: none;
   z-index: 1;
+}
+
+.btn-solid:hover::before {
+  animation: btn-sweep 1s ease-in-out infinite;
 }
 
 .btn-solid:hover {
