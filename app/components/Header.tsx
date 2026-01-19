@@ -23,13 +23,15 @@ const LANGUAGES = [
   { code: 'de', label: 'Deutsch' },
 ];
 
-function AnnouncementBar({ onClose }: { onClose: () => void }) {
+function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => void; isCartOpen?: boolean; isMenuOpen?: boolean }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [activeLanguage, setActiveLanguage] = useState('en');
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
+    if (isCartOpen) return; // Don't rotate when cart is open
+
     const interval = setInterval(() => {
       setIsVisible(false);
       setTimeout(() => {
@@ -39,7 +41,7 @@ function AnnouncementBar({ onClose }: { onClose: () => void }) {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isCartOpen]);
 
   const handleClose = () => {
     setIsClosing(true);
@@ -48,22 +50,33 @@ function AnnouncementBar({ onClose }: { onClose: () => void }) {
     }, 300);
   };
 
+  // Cart-specific content
+  const cartMessage = 'Free delivery on orders over €160 • Use athlete codes for extra discount';
+
   return (
-    <div className={`announcement-bar ${isClosing ? 'closing' : ''}`}>
+    <div className={`announcement-bar ${isClosing ? 'closing' : ''} ${isCartOpen ? 'cart-mode' : ''} ${isMenuOpen ? 'dark-mode' : ''}`}>
       <div className="announcement-spacer" />
       <div className="announcement-center">
         <p className={`announcement-text ${isVisible ? 'visible' : ''}`}>
-          {ANNOUNCEMENT_MESSAGES[currentIndex]}
+          {isCartOpen ? cartMessage : ANNOUNCEMENT_MESSAGES[currentIndex]}
         </p>
       </div>
       {/* Mobile marquee announcement */}
       <div className="announcement-marquee">
         <div className="announcement-marquee-track">
-          {[...Array(4)].map((_, i) => (
-            <span key={i} className="announcement-marquee-item">
-              {ANNOUNCEMENT_MESSAGES.join(' • ')} •&nbsp;
-            </span>
-          ))}
+          {isCartOpen ? (
+            [...Array(4)].map((_, i) => (
+              <span key={i} className="announcement-marquee-item">
+                {cartMessage} •&nbsp;
+              </span>
+            ))
+          ) : (
+            [...Array(4)].map((_, i) => (
+              <span key={i} className="announcement-marquee-item">
+                {ANNOUNCEMENT_MESSAGES.join(' • ')} •&nbsp;
+              </span>
+            ))
+          )}
         </div>
       </div>
       <div className="language-switcher">
@@ -138,15 +151,30 @@ export function Header({
 }: HeaderProps) {
   const { headerRef, isScrolled } = useHeaderScroll();
   const [announcementClosed, setAnnouncementClosed] = useState(false);
-  const {type} = useAside();
+  const {type, close} = useAside();
   const isMobileMenuOpen = type === 'mobile';
+  const isCartOpen = type === 'cart';
+  const isAsideOpen = type !== 'closed';
 
   return (
     <div className={`header-wrapper ${isMobileMenuOpen ? 'menu-open' : ''}`}>
-      {!announcementClosed && <AnnouncementBar onClose={() => setAnnouncementClosed(true)} />}
+      {!announcementClosed && <AnnouncementBar onClose={() => setAnnouncementClosed(true)} isCartOpen={isCartOpen} isMenuOpen={isMobileMenuOpen} />}
       <header ref={headerRef} className="header">
-      {/* Mobile: Hamburger menu toggle */}
-      <MobileMenuToggle />
+      {/* Mobile: Hamburger menu toggle or cart title */}
+      {isCartOpen ? (
+        <div className="mobile-cart-title">
+          <Suspense fallback="Your cart">
+            <Await resolve={cart}>
+              {(cartData) => {
+                const count = cartData?.totalQuantity || 0;
+                return `Your cart (${count})`;
+              }}
+            </Await>
+          </Suspense>
+        </div>
+      ) : (
+        <MobileMenuToggle />
+      )}
 
       {/* Desktop: Left navigation */}
       <nav className="header-nav-left">
@@ -158,9 +186,18 @@ export function Header({
         </NavLink>
       </nav>
 
-      <NavLink to="/" className="header-logo">
+      <NavLink
+        to="/"
+        className="header-logo"
+        onClick={(e) => {
+          if (isAsideOpen) {
+            e.preventDefault();
+            close();
+          }
+        }}
+      >
         <Suspense fallback={<Logo />}>
-          <NavbarLogo3D isScrolled={isScrolled} isMenuOpen={isMobileMenuOpen} />
+          <NavbarLogo3D isScrolled={isScrolled} isMenuOpen={isAsideOpen} />
         </Suspense>
       </NavLink>
 
@@ -179,9 +216,28 @@ export function Header({
         <CartToggle cart={cart} />
       </nav>
 
-      {/* Mobile: Cart toggle */}
+      {/* Mobile: Cart toggle, close button, or account icon */}
       <div className="mobile-cart-toggle">
-        <CartToggleMobile cart={cart} />
+        {type === 'cart' ? (
+          <button
+            className="header-nav-item btn-glass--icon cart-close-button"
+            onClick={close}
+            aria-label="Close cart"
+          >
+            <CloseIcon />
+          </button>
+        ) : type === 'mobile' ? (
+          <NavLink
+            to="/account"
+            className="header-nav-item btn-glass--icon mobile-account-button"
+            onClick={close}
+            aria-label="Account"
+          >
+            <UserIcon />
+          </NavLink>
+        ) : (
+          <CartToggleMobile cart={cart} />
+        )}
       </div>
     </header>
     </div>
@@ -322,7 +378,7 @@ function CartBanner() {
   return <CartBadge count={cart?.totalQuantity ?? 0} />;
 }
 
-function CartBadgeMobile({count}: {count: number | null}) {
+function CartBadgeMobile() {
   const {open} = useAside();
   const {publish, shop, cart, prevCart} = useAnalytics();
 
@@ -349,7 +405,7 @@ function CartBadgeMobile({count}: {count: number | null}) {
 
 function CartToggleMobile({cart}: Pick<HeaderProps, 'cart'>) {
   return (
-    <Suspense fallback={<CartBadgeMobile count={null} />}>
+    <Suspense fallback={<CartBadgeMobile />}>
       <Await resolve={cart}>
         <CartBannerMobile />
       </Await>
@@ -358,9 +414,7 @@ function CartToggleMobile({cart}: Pick<HeaderProps, 'cart'>) {
 }
 
 function CartBannerMobile() {
-  const originalCart = useAsyncValue() as CartApiQueryFragment | null;
-  const cart = useOptimisticCart(originalCart);
-  return <CartBadgeMobile count={cart?.totalQuantity ?? 0} />;
+  return <CartBadgeMobile />;
 }
 
 function Logo() {
@@ -491,6 +545,7 @@ export function HeaderMenu({
       <div className="mobile-menu-languages">
         <button className="lang-btn">English</button>
         <button className="lang-btn active">Nederlands</button>
+        <button className="lang-btn">Deutsch</button>
       </div>
       <div className="mobile-menu-divider divider-bottom" />
     </nav>

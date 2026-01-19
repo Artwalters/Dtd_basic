@@ -529,7 +529,7 @@ aside li {
     max-width: 100vw;
     transform: none !important;
     box-shadow: none;
-    padding-top: calc(var(--header-height) + 3em);
+    padding-top: calc(var(--header-height) + 4em); /* Below fixed nav, same as mobile menu */
     padding-bottom: 0;
     background: var(--color-cream);
     color: var(--color-black);
@@ -553,8 +553,8 @@ aside li {
     display: flex;
     flex-direction: column;
     height: 100%;
-    padding: 0 1em;
-    overflow-y: auto;
+    padding: 0;
+    overflow: hidden;
   }
 }
 
@@ -610,6 +610,37 @@ button.reset:hover:not(:has(> *)) {
   overflow: hidden;
 }
 
+/* Dark mode - black text and border for visibility on white/cream background (menu & cart) */
+.announcement-bar.cart-mode,
+.announcement-bar.dark-mode {
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.announcement-bar.cart-mode .announcement-text,
+.announcement-bar.dark-mode .announcement-text {
+  color: var(--color-black);
+}
+
+.announcement-bar.cart-mode .language-btn,
+.announcement-bar.dark-mode .language-btn {
+  color: var(--color-black);
+}
+
+.announcement-bar.cart-mode .announcement-close,
+.announcement-bar.dark-mode .announcement-close {
+  color: var(--color-black);
+}
+
+.announcement-bar.cart-mode .announcement-close svg,
+.announcement-bar.dark-mode .announcement-close svg {
+  stroke: var(--color-black);
+}
+
+.announcement-bar.cart-mode .announcement-marquee-item,
+.announcement-bar.dark-mode .announcement-marquee-item {
+  color: var(--color-black);
+}
 
 .announcement-center {
   position: absolute;
@@ -702,16 +733,57 @@ button.reset:hover:not(:has(> *)) {
 
 /* Nav stays fixed on mobile - doesn't slide with content */
 
-/* Dark icons when mobile menu is open */
+/* Dark icons when mobile menu or cart is open */
 @media (max-width: 47.99em) {
-  body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper {
+  body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper,
+  body:has(.sliding-wrapper.cart-open) .header-wrapper {
     color: var(--color-black);
   }
 
-  body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper svg {
+  body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper svg,
+  body:has(.sliding-wrapper.cart-open) .header-wrapper svg {
+    stroke: var(--color-black);
+    fill: none;
+  }
+
+  body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper .mobile-cart-toggle svg,
+  body:has(.sliding-wrapper.cart-open) .header-wrapper .mobile-cart-toggle svg {
     stroke: var(--color-black);
   }
 
+  /* Hide menu button when cart is open */
+  body:has(.sliding-wrapper.cart-open) .mobile-menu-toggle {
+    visibility: hidden;
+  }
+
+  /* Account button in header when menu is open */
+  .mobile-account-button {
+    background: var(--color-black) !important;
+    border-radius: 4px;
+    padding: 0.75em;
+  }
+
+  .mobile-account-button svg {
+    stroke: var(--color-white) !important;
+  }
+
+  /* Cart title in header when cart is open */
+  .mobile-cart-title {
+    display: none;
+  }
+
+  /* Cart close button - always black with white icon (no dependency on body:has) */
+  .mobile-cart-toggle .cart-close-button {
+    background: var(--color-black) !important;
+    border-radius: 4px;
+    padding: 0.75em;
+    border: none;
+    cursor: pointer;
+  }
+
+  .mobile-cart-toggle .cart-close-button svg {
+    stroke: var(--color-white) !important;
+  }
 }
 
 .header {
@@ -753,7 +825,7 @@ button.reset:hover:not(:has(> *)) {
   gap: 0.4em;
 }
 
-/* Glass button style - unified button system */
+/* Glass button style - minimal liquid glass effect */
 .btn-glass,
 .header-nav-item {
   display: inline-flex;
@@ -767,23 +839,23 @@ button.reset:hover:not(:has(> *)) {
   letter-spacing: var(--tracking-wide);
   line-height: 1;
   text-decoration: none;
-  background: var(--white-subtle);
-  border: 1px solid var(--white-subtle);
-  border-radius: 4px;
   color: var(--color-white);
   cursor: pointer;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  transition: all 0.2s ease;
   height: 3em;
   box-sizing: border-box;
   margin: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  backdrop-filter: blur(4px) url(#liquidGlassFilter);
+  -webkit-backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
 }
 
 .btn-glass:hover,
 .header-nav-item:hover {
-  background: var(--white-light);
-  border-color: var(--white-light);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
   text-decoration: none;
   color: var(--color-white);
 }
@@ -1071,6 +1143,16 @@ button.reset:hover:not(:has(> *)) {
     stroke: var(--color-white) !important;
   }
 
+  /* Cart title when cart is open */
+  .mobile-cart-title {
+    display: flex;
+    order: 1;
+    font-size: var(--font-base);
+    font-weight: var(--weight-medium);
+    color: var(--color-black);
+    white-space: nowrap;
+  }
+
   .header-logo {
     position: relative;
     left: auto;
@@ -1212,7 +1294,6 @@ button.reset:hover:not(:has(> *)) {
   bottom: 0;
   left: 0;
   right: 0;
-  box-shadow: var(--shadow-soft);
   z-index: 10;
 }
 
