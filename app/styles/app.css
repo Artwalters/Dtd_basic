@@ -451,10 +451,12 @@ aside li {
     transform: none;
     box-shadow: none;
     padding-top: calc(var(--header-height) + 4em); /* Below fixed nav */
+    padding-bottom: 1em;
     background: transparent;
     color: var(--color-black);
     pointer-events: auto;
-    height: calc(100vh - var(--header-height) - 4em);
+    height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
@@ -820,7 +822,6 @@ button.reset:hover:not(:has(> *)) {
   height: 100%;
   padding: 0 1em;
   padding-top: 3em;
-  padding-bottom: 1.5em;
   box-sizing: border-box;
   overflow-x: hidden;
 }
