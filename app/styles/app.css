@@ -899,7 +899,8 @@ aside li {
   }
 
   /* Hide search and profile when cart is open on desktop (visibility to keep layout) */
-  body:has(.sliding-wrapper[data-cart-open="true"]) .header-nav-right .btn-glass--icon:not(.cart-close-icon) {
+  body:has(.sliding-wrapper[data-cart-open="true"]) .header-nav-right .btn-glass--icon:not(.cart-close-icon),
+  body:has(.sliding-wrapper[data-cart-open="true"]) .header-nav-right .btn-white--icon:not(.cart-close-icon) {
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
@@ -1335,39 +1336,63 @@ button.reset:hover:not(:has(> *)) {
   gap: 0.5em;
 }
 
-/* Button with cart count - solid white for prominence */
+/* Button with cart count - glass styling (empty cart) */
 .btn-glass--cart {
   gap: 0.35em;
   min-width: 6.5em; /* Prevent layout shift when text changes from "Bag / 0" to "Close" */
   justify-content: center;
-  background: var(--color-white);
-  color: var(--color-black);
-  border-color: var(--color-white);
-}
-
-.btn-glass--cart:hover {
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--color-black);
-  border-color: rgba(255, 255, 255, 0.9);
 }
 
 .btn-glass--cart .divider {
   opacity: 0.4;
 }
 
-/* Bag icon button - solid white to match cart button */
-.bag-icon-btn {
-  background: var(--color-white) !important;
-  border-color: var(--color-white) !important;
+/* White icon button - solid white for cart with items */
+.btn-white--icon,
+.header-nav-item.btn-white--icon {
+  width: 3em;
+  padding: 0;
+  gap: 0.5em;
+  background: var(--color-white);
+  border-color: var(--color-white);
 }
 
-.bag-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border-color: rgba(255, 255, 255, 0.9) !important;
+.btn-white--icon:hover,
+.header-nav-item.btn-white--icon:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.9);
 }
 
-.bag-icon-btn svg {
-  stroke: var(--color-black) !important;
+.btn-white--icon svg,
+.header-nav-item.btn-white--icon svg {
+  stroke: var(--color-black);
+}
+
+/* White cart button - solid white for cart with items */
+.btn-white--cart,
+.header-nav-item.btn-white--cart {
+  gap: 0.35em;
+  min-width: 6.5em;
+  justify-content: center;
+  background: var(--color-white);
+  color: var(--color-black);
+  border-color: var(--color-white);
+}
+
+.btn-white--cart:hover,
+.header-nav-item.btn-white--cart:hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-black);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+.btn-white--cart::before,
+.header-nav-item.btn-white--cart::before {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.btn-white--cart .divider {
+  opacity: 0.4;
 }
 
 .header a.header-logo {

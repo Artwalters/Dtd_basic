@@ -321,6 +321,7 @@ function CartBadge({count}: {count: number | null}) {
   const {type, open, close} = useAside();
   const {publish, shop, cart, prevCart} = useAnalytics();
   const isCartOpen = type === 'cart';
+  const hasItems = (count ?? 0) > 0;
 
   const handleCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -337,11 +338,15 @@ function CartBadge({count}: {count: number | null}) {
     }
   };
 
+  // Use white button when cart has items, glass when empty
+  const iconButtonClass = hasItems ? 'btn-white--icon' : 'btn-glass--icon';
+  const textButtonClass = hasItems ? 'btn-white--cart' : 'btn-glass--cart';
+
   return (
     <>
       {/* Icon button: Bag icon or X icon */}
       <button
-        className={`header-nav-item btn-glass--icon ${isCartOpen ? 'cart-close-icon' : 'bag-icon-btn'}`}
+        className={`header-nav-item ${iconButtonClass} ${isCartOpen ? 'cart-close-icon' : 'bag-icon-btn'}`}
         onClick={handleCartClick}
         aria-label={isCartOpen ? 'Close cart' : 'Open shopping bag'}
       >
@@ -349,7 +354,7 @@ function CartBadge({count}: {count: number | null}) {
       </button>
       {/* Text button: "Bag / count" or "Close" */}
       <button
-        className={`header-nav-item btn-glass--cart ${isCartOpen ? 'cart-close-text' : ''}`}
+        className={`header-nav-item ${textButtonClass} ${isCartOpen ? 'cart-close-text' : ''}`}
         onClick={handleCartClick}
       >
         {isCartOpen ? (
@@ -382,14 +387,18 @@ function CartBanner() {
   return <CartBadge count={cart?.totalQuantity ?? 0} />;
 }
 
-function CartBadgeMobile() {
+function CartBadgeMobile({count}: {count: number | null}) {
   const {open} = useAside();
   const {publish, shop, cart, prevCart} = useAnalytics();
+  const hasItems = (count ?? 0) > 0;
+
+  // Use white button when cart has items, glass when empty
+  const buttonClass = hasItems ? 'btn-white--icon' : 'btn-glass--icon';
 
   return (
     <a
       href="/cart"
-      className="header-nav-item btn-glass--icon"
+      className={`header-nav-item ${buttonClass}`}
       onClick={(e) => {
         e.preventDefault();
         open('cart');
@@ -409,7 +418,7 @@ function CartBadgeMobile() {
 
 function CartToggleMobile({cart}: Pick<HeaderProps, 'cart'>) {
   return (
-    <Suspense fallback={<CartBadgeMobile />}>
+    <Suspense fallback={<CartBadgeMobile count={null} />}>
       <Await resolve={cart}>
         <CartBannerMobile />
       </Await>
@@ -418,7 +427,9 @@ function CartToggleMobile({cart}: Pick<HeaderProps, 'cart'>) {
 }
 
 function CartBannerMobile() {
-  return <CartBadgeMobile />;
+  const originalCart = useAsyncValue() as CartApiQueryFragment | null;
+  const cart = useOptimisticCart(originalCart);
+  return <CartBadgeMobile count={cart?.totalQuantity ?? 0} />;
 }
 
 function Logo() {
