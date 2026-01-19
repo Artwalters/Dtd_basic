@@ -18,11 +18,16 @@ function useIsTouchDevice() {
   return isTouch;
 }
 
-function Model({isTouchDevice}: {isTouchDevice: boolean}) {
+function Model({isTouchDevice, introPlayed, onIntroComplete}: {isTouchDevice: boolean; introPlayed: boolean; onIntroComplete: () => void}) {
   const {scene, animations} = useGLTF('/3D/dtd_logo7.glb', '/draco/');
   const {actions, names} = useAnimations(animations, scene);
   const modelRef = useRef<THREE.Group>(null);
   const {pointer} = useThree();
+
+  // Intro animation state
+  const introProgressRef = useRef(0);
+  const introStartY = -1.5; // Start below the scene
+  const introEndY = 0; // End at normal position
 
   // Simple metallic material without textures (lighter weight)
   const material = useMemo(() => {
@@ -57,23 +62,41 @@ function Model({isTouchDevice}: {isTouchDevice: boolean}) {
   }, [actions, names]);
 
   // Subtle mouse interaction (desktop only - no hover on touch devices)
-  useFrame(() => {
+  useFrame((state, delta) => {
     if (modelRef.current) {
-      if (isTouchDevice) {
-        // On touch devices, just maintain base rotation without hover effects
-        modelRef.current.rotation.y += ((-Math.PI / 2) - modelRef.current.rotation.y) * 0.02;
-        modelRef.current.rotation.x += (0 - modelRef.current.rotation.x) * 0.02;
-        modelRef.current.position.x += (0 - modelRef.current.position.x) * 0.02;
-        modelRef.current.position.y += (0 - modelRef.current.position.y) * 0.02;
-      } else {
-        const targetX = pointer.x * 0.1;
-        const targetY = pointer.y * 0.05;
+      // Intro animation - logo rises from bottom
+      if (!introPlayed && introProgressRef.current < 1) {
+        introProgressRef.current += delta * 0.8; // Animation speed
+        introProgressRef.current = Math.min(introProgressRef.current, 1);
 
-        // Smooth interpolation for natural movement
-        modelRef.current.rotation.y += (targetX - modelRef.current.rotation.y + (-Math.PI / 2)) * 0.02;
-        modelRef.current.rotation.x += (targetY - modelRef.current.rotation.x) * 0.02;
-        modelRef.current.position.x += (targetX - modelRef.current.position.x) * 0.02;
-        modelRef.current.position.y += (targetY - modelRef.current.position.y) * 0.02;
+        // Easing function (ease out cubic)
+        const eased = 1 - Math.pow(1 - introProgressRef.current, 3);
+        const introY = introStartY + (introEndY - introStartY) * eased;
+
+        modelRef.current.position.y = introY;
+
+        // Trigger intro complete when done
+        if (introProgressRef.current >= 1) {
+          onIntroComplete();
+        }
+      } else {
+        // Normal behavior after intro
+        if (isTouchDevice) {
+          // On touch devices, just maintain base rotation without hover effects
+          modelRef.current.rotation.y += ((-Math.PI / 2) - modelRef.current.rotation.y) * 0.02;
+          modelRef.current.rotation.x += (0 - modelRef.current.rotation.x) * 0.02;
+          modelRef.current.position.x += (0 - modelRef.current.position.x) * 0.02;
+          modelRef.current.position.y += (0 - modelRef.current.position.y) * 0.02;
+        } else {
+          const targetX = pointer.x * 0.1;
+          const targetY = pointer.y * 0.05;
+
+          // Smooth interpolation for natural movement
+          modelRef.current.rotation.y += (targetX - modelRef.current.rotation.y + (-Math.PI / 2)) * 0.02;
+          modelRef.current.rotation.x += (targetY - modelRef.current.rotation.x) * 0.02;
+          modelRef.current.position.x += (targetX - modelRef.current.position.x) * 0.02;
+          modelRef.current.position.y += (targetY - modelRef.current.position.y) * 0.02;
+        }
       }
     }
   });
@@ -85,7 +108,7 @@ function Model({isTouchDevice}: {isTouchDevice: boolean}) {
     };
   }, [material]);
 
-  return <primitive ref={modelRef} object={scene} scale={isTouchDevice ? 0.40 : 0.45} rotation={[0, -Math.PI / 2, 0]} />;
+  return <primitive ref={modelRef} object={scene} scale={isTouchDevice ? 0.40 : 0.45} rotation={[0, -Math.PI / 2, 0]} position={[0, introStartY, 0]} />;
 }
 
 // Godray post-processing shaders
@@ -221,16 +244,23 @@ function GodrayEffect({children, isTouchDevice}: {children: React.ReactNode; isT
 }
 
 // 3D Marquee Carousel Component
-function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchDevice}: {
+function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchDevice, introPlayed}: {
   radius?: number;
   baseSpeed?: number;
   panelCount?: number;
   isTouchDevice: boolean;
+  introPlayed: boolean;
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const timeScaleRef = useRef(1);
   const targetTimeScaleRef = useRef(1);
   const {pointer} = useThree();
+
+  // Intro animation state
+  const introProgressRef = useRef(0);
+  const opacityRef = useRef(0);
+  const introSpeedMultiplier = useRef(8); // Start spinning 8x faster
+  const materialsRef = useRef<THREE.MeshBasicMaterial[]>([]);
 
   // Load all images from the Img directory
   const textures = useTexture([
@@ -262,11 +292,47 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchD
   useFrame((state, delta) => {
     if (!groupRef.current) return;
 
-    // Lerp timeScale toward target for smooth inertia
-    timeScaleRef.current += (targetTimeScaleRef.current - timeScaleRef.current) * 0.05;
+    // Intro animation - fade in opacity and slow down spinning
+    if (!introPlayed && introProgressRef.current < 1) {
+      introProgressRef.current += delta * 0.6; // Slower than logo for staggered effect
+      introProgressRef.current = Math.min(introProgressRef.current, 1);
 
-    // Apply rotation
-    groupRef.current.rotation.y += delta * baseSpeed * timeScaleRef.current;
+      // Easing function (ease out cubic)
+      const eased = 1 - Math.pow(1 - introProgressRef.current, 3);
+
+      // Fade in opacity
+      opacityRef.current = eased;
+
+      // Slow down from fast spin (8x) to normal (1x)
+      introSpeedMultiplier.current = 8 - (7 * eased); // 8 -> 1
+
+      // Update material opacity
+      materialsRef.current.forEach(mat => {
+        mat.opacity = opacityRef.current;
+        mat.transparent = true;
+        mat.needsUpdate = true;
+      });
+
+      // Apply fast spinning during intro
+      groupRef.current.rotation.y += delta * baseSpeed * introSpeedMultiplier.current;
+    } else {
+      // Ensure final opacity is 1
+      if (opacityRef.current < 1) {
+        opacityRef.current = 1;
+        materialsRef.current.forEach(mat => {
+          mat.opacity = 1;
+          mat.transparent = false;
+          mat.needsUpdate = true;
+        });
+      }
+
+      // Normal behavior after intro
+      // Lerp timeScale toward target for smooth inertia
+      timeScaleRef.current += (targetTimeScaleRef.current - timeScaleRef.current) * 0.05;
+
+      // Apply rotation
+      groupRef.current.rotation.y += delta * baseSpeed * timeScaleRef.current;
+    }
 
     // Subtle tilt based on mouse position (desktop only - no hover on touch devices)
     if (isTouchDevice) {
@@ -338,47 +404,67 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchD
     return geometry;
   }, [panelCount, radius]);
 
+  // Create materials with initial opacity 0 for intro animation
+  const materials = useMemo(() => {
+    const textureArray = Array.isArray(textures) ? textures : [textures];
+    const mats: THREE.MeshBasicMaterial[] = [];
+
+    for (let i = 0; i < panelCount; i++) {
+      const textureIndex = i % textureArray.length;
+      const mat = new THREE.MeshBasicMaterial({
+        map: textureArray[textureIndex],
+        side: THREE.DoubleSide,
+        toneMapped: false,
+        transparent: true,
+        opacity: 0, // Start invisible for intro
+      });
+      mats.push(mat);
+    }
+
+    // Store reference for useFrame
+    materialsRef.current = mats;
+    return mats;
+  }, [panelCount, textures]);
+
   // Create panels arranged in a circle
   const panels = useMemo(() => {
     const items = [];
     const angleStep = (Math.PI * 2) / panelCount;
-    const textureArray = Array.isArray(textures) ? textures : [textures];
 
     for (let i = 0; i < panelCount; i++) {
       const angle = i * angleStep;
-      // Use modulo to cycle through textures if we have fewer textures than panels
-      const textureIndex = i % textureArray.length;
 
       items.push(
         <mesh
           key={i}
           geometry={curvedGeometry}
+          material={materials[i]}
           rotation={[0, -angle + Math.PI, 0]} // Position around circle
-        >
-          <meshBasicMaterial
-            map={textureArray[textureIndex]}
-            side={THREE.DoubleSide}
-            toneMapped={false}
-          />
-        </mesh>
+        />
       );
     }
     return items;
-  }, [panelCount, curvedGeometry, textures]);
+  }, [panelCount, curvedGeometry, materials]);
 
-  // Cleanup geometry and textures on unmount
+  // Cleanup geometry, materials and textures on unmount
   useEffect(() => {
     return () => {
       curvedGeometry.dispose();
+      materials.forEach(mat => mat.dispose());
       textures.forEach(texture => texture.dispose());
     };
-  }, [curvedGeometry, textures]);
+  }, [curvedGeometry, materials, textures]);
 
   return <group ref={groupRef}>{panels}</group>;
 }
 
 
-function SceneContent({hdriRotation, isTouchDevice}: {hdriRotation: [number, number, number]; isTouchDevice: boolean}) {
+function SceneContent({hdriRotation, isTouchDevice, introPlayed, onIntroComplete}: {
+  hdriRotation: [number, number, number];
+  isTouchDevice: boolean;
+  introPlayed: boolean;
+  onIntroComplete: () => void;
+}) {
   const {scene} = useThree();
   const fogColor = '#000000';
 
@@ -396,8 +482,8 @@ function SceneContent({hdriRotation, isTouchDevice}: {hdriRotation: [number, num
     <>
       <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Suspense fallback={null}>
-        <Model isTouchDevice={isTouchDevice} />
-        <ImageCarousel radius={isTouchDevice ? 1.35 : 1.44} baseSpeed={0.15} panelCount={isTouchDevice ? 10 : 13} isTouchDevice={isTouchDevice} />
+        <Model isTouchDevice={isTouchDevice} introPlayed={introPlayed} onIntroComplete={onIntroComplete} />
+        <ImageCarousel radius={isTouchDevice ? 1.35 : 1.44} baseSpeed={0.15} panelCount={isTouchDevice ? 10 : 13} isTouchDevice={isTouchDevice} introPlayed={introPlayed} />
         <Environment
           files="/3D/studio_small_09_1k.hdr"
           environmentRotation={hdriRotation}
@@ -407,10 +493,15 @@ function SceneContent({hdriRotation, isTouchDevice}: {hdriRotation: [number, num
   );
 }
 
-function Scene({hdriRotation, isTouchDevice}: {hdriRotation: [number, number, number]; isTouchDevice: boolean}) {
+function Scene({hdriRotation, isTouchDevice, introPlayed, onIntroComplete}: {
+  hdriRotation: [number, number, number];
+  isTouchDevice: boolean;
+  introPlayed: boolean;
+  onIntroComplete: () => void;
+}) {
   return (
     <GodrayEffect isTouchDevice={isTouchDevice}>
-      <SceneContent hdriRotation={hdriRotation} isTouchDevice={isTouchDevice} />
+      <SceneContent hdriRotation={hdriRotation} isTouchDevice={isTouchDevice} introPlayed={introPlayed} onIntroComplete={onIntroComplete} />
     </GodrayEffect>
   );
 }
@@ -420,6 +511,10 @@ export default function CommunityCanvas() {
   const [isVisible, setIsVisible] = useState(false);
   const [dpr, setDpr] = useState(2);
   const isTouchDevice = useIsTouchDevice();
+
+  // Intro animation state - plays once when section becomes visible
+  const [introPlayed, setIntroPlayed] = useState(false);
+  const introTriggeredRef = useRef(false);
 
   useEffect(() => {
     // Set DPR on client side - cap at 2 on mobile for better performance
@@ -436,6 +531,21 @@ export default function CommunityCanvas() {
       observer.observe(containerRef.current);
     }
     return () => observer.disconnect();
+  }, []);
+
+  // Trigger intro animation once when visible
+  useEffect(() => {
+    if (isVisible && !introTriggeredRef.current) {
+      introTriggeredRef.current = true;
+      // Small delay before starting intro for smoother experience
+      setTimeout(() => {
+        // Intro will start playing (introPlayed stays false until animation completes)
+      }, 100);
+    }
+  }, [isVisible]);
+
+  const handleIntroComplete = useCallback(() => {
+    setIntroPlayed(true);
   }, []);
 
   // Drag gesture for carousel control
@@ -468,7 +578,12 @@ export default function CommunityCanvas() {
         frameloop={isVisible ? 'always' : 'never'}
         gl={{antialias: true, powerPreference: 'high-performance'}}
       >
-        <Scene hdriRotation={[75 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180]} isTouchDevice={isTouchDevice} />
+        <Scene
+          hdriRotation={[75 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180]}
+          isTouchDevice={isTouchDevice}
+          introPlayed={introPlayed}
+          onIntroComplete={handleIntroComplete}
+        />
       </Canvas>
     </div>
   );
