@@ -57,6 +57,8 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
   const isCartOpen = type === 'cart';
   const wrapperRef = useRef<HTMLDivElement>(null);
   const prevCartOpenRef = useRef(false);
+  const scrollPosRef = useRef(0);
+  const animationRef = useRef<gsap.core.Tween | null>(null);
 
   useEffect(() => {
     if (!wrapperRef.current || typeof window === 'undefined') return;
@@ -67,28 +69,57 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
 
     const wrapper = wrapperRef.current;
 
+    // Kill any running animation to prevent conflicts
+    if (animationRef.current) {
+      animationRef.current.kill();
+    }
+
     if (isCartOpen && !prevCartOpenRef.current) {
-      // Opening cart: set height first, then animate
-      gsap.set(wrapper, { height: '100vh', overflow: 'hidden' });
-      gsap.to(wrapper, {
+      // Save scroll position before opening
+      scrollPosRef.current = window.scrollY;
+
+      // Set up the wrapper as a fixed viewport-sized frame
+      // This clips the content to only show what was visible
+      gsap.set(wrapper, {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        overflowY: 'scroll',
+        transformOrigin: 'left center',
+      });
+
+      // Set scrollTop to maintain the same visible content
+      wrapper.scrollTop = scrollPosRef.current;
+
+      // Hide scrollbar after positioning
+      gsap.set(wrapper, { overflow: 'hidden' });
+
+      // Always animate to the same fixed end position
+      animationRef.current = gsap.to(wrapper, {
         scale: 0.85,
-        x: '-15%',
-        borderRadius: '8px',
-        boxShadow: '0 25px 100px rgba(0, 0, 0, 0.2)',
+        x: '5%',
+        y: '7.5%',
+        borderRadius: '12px',
+        boxShadow: '0 25px 100px rgba(0, 0, 0, 0.25)',
         duration: 0.5,
         ease: 'power2.out',
       });
     } else if (!isCartOpen && prevCartOpenRef.current) {
-      // Closing cart: animate first, then reset height
-      gsap.to(wrapper, {
+      // Closing cart: animate back to original state
+      animationRef.current = gsap.to(wrapper, {
         scale: 1,
         x: '0%',
+        y: '0%',
         borderRadius: '0px',
         boxShadow: 'none',
         duration: 0.5,
         ease: 'power2.out',
         onComplete: () => {
-          gsap.set(wrapper, { height: 'auto', overflow: 'visible', clearProps: 'all' });
+          // Reset all properties and restore scroll
+          gsap.set(wrapper, { clearProps: 'all' });
+          window.scrollTo(0, scrollPosRef.current);
         },
       });
     }
