@@ -1218,9 +1218,9 @@ button.reset:hover:not(:has(> *)) {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
   transform: translateX(-100%);
   transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
 }
@@ -1273,9 +1273,9 @@ button.reset:hover:not(:has(> *)) {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.05);
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
   transform: translateX(-100%);
   transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
 }
