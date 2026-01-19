@@ -1,5 +1,6 @@
 import {Await, Link} from 'react-router';
-import {Suspense, useId} from 'react';
+import {Suspense, useId, useRef, useEffect} from 'react';
+import gsap from 'gsap';
 import type {
   CartApiQueryFragment,
   HeaderQuery,
@@ -54,9 +55,56 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
   const {type} = useAside();
   const isMobileMenuOpen = type === 'mobile';
   const isCartOpen = type === 'cart';
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const prevCartOpenRef = useRef(false);
+
+  useEffect(() => {
+    if (!wrapperRef.current || typeof window === 'undefined') return;
+
+    // Only use GSAP for desktop cart animation
+    const mediaQuery = window.matchMedia('(min-width: 48em)');
+    if (!mediaQuery.matches) return;
+
+    const wrapper = wrapperRef.current;
+
+    if (isCartOpen && !prevCartOpenRef.current) {
+      // Opening cart: set height first, then animate
+      gsap.set(wrapper, { height: '100vh', overflow: 'hidden' });
+      gsap.to(wrapper, {
+        scale: 0.85,
+        x: '-15%',
+        borderRadius: '8px',
+        boxShadow: '0 25px 100px rgba(0, 0, 0, 0.2)',
+        duration: 0.5,
+        ease: 'power2.out',
+      });
+    } else if (!isCartOpen && prevCartOpenRef.current) {
+      // Closing cart: animate first, then reset height
+      gsap.to(wrapper, {
+        scale: 1,
+        x: '0%',
+        borderRadius: '0px',
+        boxShadow: 'none',
+        duration: 0.5,
+        ease: 'power2.out',
+        onComplete: () => {
+          gsap.set(wrapper, { height: 'auto', overflow: 'visible', clearProps: 'all' });
+        },
+      });
+    }
+
+    prevCartOpenRef.current = isCartOpen;
+  }, [isCartOpen]);
+
+  // For mobile, still use CSS classes
+  const mobileClasses = isMobileMenuOpen ? 'mobile-menu-open' : '';
 
   return (
-    <div className={`sliding-wrapper ${isMobileMenuOpen ? 'mobile-menu-open' : ''} ${isCartOpen ? 'cart-open' : ''}`}>
+    <div
+      ref={wrapperRef}
+      className={`sliding-wrapper ${mobileClasses}`}
+      data-cart-open={isCartOpen}
+    >
       {children}
     </div>
   );

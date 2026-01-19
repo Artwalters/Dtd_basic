@@ -419,13 +419,13 @@ aside li {
   }
 
   /* Cart: slide page to left (opposite direction of menu) */
-  html:has(.sliding-wrapper.cart-open),
-  body:has(.sliding-wrapper.cart-open) {
+  html:has(.sliding-wrapper[data-cart-open="true"]),
+  body:has(.sliding-wrapper[data-cart-open="true"]) {
     background: var(--color-cream);
     overflow: hidden;
   }
 
-  .sliding-wrapper.cart-open {
+  .sliding-wrapper[data-cart-open="true"] {
     transform: translateX(-100%);
   }
 
@@ -555,6 +555,167 @@ aside li {
     height: 100%;
     padding: 0;
     overflow: hidden;
+  }
+}
+
+/* ===========================================
+   Desktop Cart - Slide & Scale Effect
+   =========================================== */
+@media (min-width: 48em) {
+  /* Light background when cart is open on desktop */
+  html:has(.sliding-wrapper[data-cart-open="true"]),
+  body:has(.sliding-wrapper[data-cart-open="true"]) {
+    background: var(--color-cream);
+    overflow: hidden;
+  }
+
+  /* Sliding wrapper for desktop cart - GSAP handles all animation */
+  .sliding-wrapper {
+    transform-origin: center center;
+  }
+
+  /* Header stays fixed - does NOT move with content on desktop */
+  /* Remove the header transform - nav stays in place */
+
+  /* Desktop cart overlay styling */
+  .overlay[data-aside-type="cart"] {
+    background: var(--color-cream);
+    top: 0;
+    z-index: 40;
+    /* No fade - instant show/hide synced with sliding-wrapper */
+    opacity: 1;
+    transition: visibility 0s 0.5s; /* Delay visibility change until animation completes */
+  }
+
+  .overlay[data-aside-type="cart"].expanded {
+    background: var(--color-cream);
+    transition: visibility 0s 0s; /* Show immediately when expanding */
+  }
+
+  .overlay[data-aside-type="cart"] .close-outside {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 55%;
+    height: 100%;
+    background: transparent;
+  }
+
+  .overlay[data-aside-type="cart"] aside {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 40%;
+    max-width: 550px;
+    min-width: 400px;
+    height: 100vh;
+    background: var(--color-cream);
+    transform: none !important;
+    transition: none !important; /* Disable aside transition for desktop cart */
+    box-shadow: none;
+    padding: calc(var(--header-height) + 4em) 2em 2em;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .overlay[data-aside-type="cart"] aside header {
+    display: none;
+  }
+
+  .overlay[data-aside-type="cart"] aside main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  /* Desktop: header elements need transitions for smooth cart open/close */
+  .header-wrapper {
+    transition: color 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .header-wrapper svg {
+    transition: stroke 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .header-nav-item {
+    transition: color 0.5s cubic-bezier(0.22, 0.61, 0.36, 1),
+                background 0.5s cubic-bezier(0.22, 0.61, 0.36, 1),
+                border-color 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .header-nav-left,
+  .header-nav-right .btn-glass--icon {
+    transition: visibility 0.5s cubic-bezier(0.22, 0.61, 0.36, 1),
+                opacity 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  /* Desktop: header gets dark colors when cart is open */
+  body:has(.sliding-wrapper[data-cart-open="true"]) .header-wrapper {
+    color: var(--color-black);
+  }
+
+  body:has(.sliding-wrapper[data-cart-open="true"]) .header-wrapper svg {
+    stroke: var(--color-black);
+  }
+
+  body:has(.sliding-wrapper[data-cart-open="true"]) .header-nav-item {
+    color: var(--color-black);
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  body:has(.sliding-wrapper[data-cart-open="true"]) .header-nav-item:hover {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: var(--color-black);
+  }
+
+  /* Hide left nav (Community, Shop) when cart is open on desktop */
+  body:has(.sliding-wrapper[data-cart-open="true"]) .header-nav-left {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Hide search and profile when cart is open on desktop (visibility to keep layout) */
+  body:has(.sliding-wrapper[data-cart-open="true"]) .header-nav-right .btn-glass--icon:not(.cart-close-icon) {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Cart close buttons - black with white text/icon */
+  .cart-close-icon,
+  .cart-close-text {
+    background: var(--color-black) !important;
+    border-color: var(--color-black) !important;
+    color: var(--color-white) !important;
+  }
+
+  /* Keep same size as original buttons */
+  .cart-close-icon {
+    width: 3em;
+    padding: 0;
+  }
+
+  .cart-close-text {
+    min-width: 6.5em;
+  }
+
+  .cart-close-icon svg {
+    stroke: var(--color-white) !important;
+  }
+
+  .cart-close-icon:hover,
+  .cart-close-text:hover {
+    background: #222 !important;
+    border-color: #222 !important;
+  }
+
+  /* Hide desktop cart header - we use the normal header instead */
+  .desktop-cart-header {
+    display: none !important;
   }
 }
 
@@ -736,23 +897,23 @@ button.reset:hover:not(:has(> *)) {
 /* Dark icons when mobile menu or cart is open */
 @media (max-width: 47.99em) {
   body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper,
-  body:has(.sliding-wrapper.cart-open) .header-wrapper {
+  body:has(.sliding-wrapper[data-cart-open="true"]) .header-wrapper {
     color: var(--color-black);
   }
 
   body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper svg,
-  body:has(.sliding-wrapper.cart-open) .header-wrapper svg {
+  body:has(.sliding-wrapper[data-cart-open="true"]) .header-wrapper svg {
     stroke: var(--color-black);
     fill: none;
   }
 
   body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper .mobile-cart-toggle svg,
-  body:has(.sliding-wrapper.cart-open) .header-wrapper .mobile-cart-toggle svg {
+  body:has(.sliding-wrapper[data-cart-open="true"]) .header-wrapper .mobile-cart-toggle svg {
     stroke: var(--color-black);
   }
 
   /* Hide menu button when cart is open */
-  body:has(.sliding-wrapper.cart-open) .mobile-menu-toggle {
+  body:has(.sliding-wrapper[data-cart-open="true"]) .mobile-menu-toggle {
     visibility: hidden;
   }
 
@@ -1107,6 +1268,11 @@ button.reset:hover:not(:has(> *)) {
 /* Hide mobile elements on desktop */
 .mobile-menu-toggle,
 .mobile-cart-toggle {
+  display: none;
+}
+
+/* Hide desktop cart header on mobile */
+.desktop-cart-header {
   display: none;
 }
 

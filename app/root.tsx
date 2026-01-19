@@ -170,6 +170,15 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <Links />
       </head>
       <body>
+        {/* SVG filter for liquid glass effect (Chromium progressive enhancement) */}
+        <svg style={{display: 'none'}} aria-hidden="true">
+          <defs>
+            <filter id="liquidGlassFilter">
+              <feTurbulence type="turbulence" baseFrequency="0.015" numOctaves="3" result="turbulence"/>
+              <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+          </defs>
+        </svg>
         {children}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />

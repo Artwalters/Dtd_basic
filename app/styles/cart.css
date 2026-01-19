@@ -627,3 +627,153 @@
     border-top-color: var(--color-black);
   }
 }
+
+/* ===========================================
+   Desktop Cart Overrides (Light Background)
+   =========================================== */
+@media (min-width: 48em) {
+  /* Cart content on light background */
+  .overlay[data-aside-type="cart"] .cart-content-scrollable {
+    padding: 0 1.5em;
+  }
+
+  /* Scrollbar for light background */
+  .overlay[data-aside-type="cart"] .cart-content-scrollable::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .overlay[data-aside-type="cart"] .cart-content-scrollable::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-content-scrollable::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  .overlay[data-aside-type="cart"] .cart-content-scrollable::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-line {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-line-title {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-line-options {
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-line-price {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .quantity-selector {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+
+  .overlay[data-aside-type="cart"] .quantity-button {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .quantity-number {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-remove-button {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-remove-button svg {
+    stroke: var(--color-black);
+  }
+
+  /* Cart empty - desktop light */
+  .overlay[data-aside-type="cart"] .cart-empty-message {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-empty-button {
+    background: var(--color-black);
+    color: var(--color-white);
+  }
+
+  /* Cart footer - desktop light */
+  .overlay[data-aside-type="cart"] .cart-footer-sticky {
+    background: var(--color-cream);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-subtotal dt {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-subtotal dd {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .checkout-button {
+    background: var(--color-black);
+    color: var(--color-white);
+  }
+
+  .overlay[data-aside-type="cart"] .checkout-button:hover {
+    background: #222;
+    color: var(--color-white);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-disclaimer {
+    color: rgba(0, 0, 0, 0.5);
+  }
+
+  /* Recommended products - desktop light */
+  .overlay[data-aside-type="cart"] .recommended-products {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .overlay[data-aside-type="cart"] .recommended-title {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .recommended-product-title {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .recommended-product-price {
+    color: var(--color-black);
+  }
+
+  /* Accordion - desktop light */
+  .overlay[data-aside-type="cart"] .cart-accordion {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-accordion-item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-accordion-trigger {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-accordion-icon {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-accordion-content {
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  /* Loading state - desktop light */
+  .overlay[data-aside-type="cart"] .cart-loading {
+    color: var(--color-black);
+  }
+
+  .overlay[data-aside-type="cart"] .cart-loading-spinner {
+    border-color: rgba(0, 0, 0, 0.2);
+    border-top-color: var(--color-black);
+  }
+}

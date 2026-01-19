@@ -318,46 +318,50 @@ function BagIcon() {
 }
 
 function CartBadge({count}: {count: number | null}) {
-  const {open} = useAside();
+  const {type, open, close} = useAside();
   const {publish, shop, cart, prevCart} = useAnalytics();
+  const isCartOpen = type === 'cart';
+
+  const handleCartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isCartOpen) {
+      close();
+    } else {
+      open('cart');
+      publish('cart_viewed', {
+        cart,
+        prevCart,
+        shop,
+        url: window.location.href || '',
+      } as CartViewPayload);
+    }
+  };
 
   return (
     <>
-      <a
-        href="/cart"
-        className="header-nav-item btn-glass--icon"
-        onClick={(e) => {
-          e.preventDefault();
-          open('cart');
-          publish('cart_viewed', {
-            cart,
-            prevCart,
-            shop,
-            url: window.location.href || '',
-          } as CartViewPayload);
-        }}
-        aria-label="Open shopping bag"
+      {/* Icon button: Bag icon or X icon */}
+      <button
+        className={`header-nav-item btn-glass--icon ${isCartOpen ? 'cart-close-icon' : ''}`}
+        onClick={handleCartClick}
+        aria-label={isCartOpen ? 'Close cart' : 'Open shopping bag'}
       >
-        <BagIcon />
-      </a>
-      <a
-        href="/cart"
-        className="header-nav-item btn-glass--cart"
-        onClick={(e) => {
-          e.preventDefault();
-          open('cart');
-          publish('cart_viewed', {
-            cart,
-            prevCart,
-            shop,
-            url: window.location.href || '',
-          } as CartViewPayload);
-        }}
+        {isCartOpen ? <CloseIcon /> : <BagIcon />}
+      </button>
+      {/* Text button: "Bag / count" or "Close" */}
+      <button
+        className={`header-nav-item btn-glass--cart ${isCartOpen ? 'cart-close-text' : ''}`}
+        onClick={handleCartClick}
       >
-        <span>Bag</span>
-        <span className="divider">/</span>
-        <span>{count ?? 0}</span>
-      </a>
+        {isCartOpen ? (
+          <span>Close</span>
+        ) : (
+          <>
+            <span>Bag</span>
+            <span className="divider">/</span>
+            <span>{count ?? 0}</span>
+          </>
+        )}
+      </button>
     </>
   );
 }
