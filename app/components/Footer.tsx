@@ -9,16 +9,13 @@ export function Footer() {
           <h3 className="footer-links-title">Help</h3>
           <ul className="footer-links-list">
             <li>
-              <Link to="/pages/faq">FAQ</Link>
+              <Link to="/policies#contact">Contact us</Link>
             </li>
             <li>
-              <Link to="/pages/contact">Contact us</Link>
+              <Link to="/policies#shipping">Shipping & Delivery</Link>
             </li>
             <li>
-              <Link to="/pages/shipping">Shipping & Delivery</Link>
-            </li>
-            <li>
-              <Link to="/pages/returns">Make a return</Link>
+              <Link to="/policies#returns">Make a return</Link>
             </li>
           </ul>
         </nav>
