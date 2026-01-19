@@ -3,9 +3,7 @@ import {Link, useFetchers} from 'react-router';
 import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
-import {CartSummary, ShippingReturnsAccordion, CartCheckoutActions} from './CartSummary';
-import {RecommendedProducts} from './RecommendedProducts';
-import {useState} from 'react';
+import {CartSummary, CartCheckoutActions} from './CartSummary';
 
 export type CartLayout = 'page' | 'aside';
 
@@ -60,10 +58,8 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
                 ))}
               </ul>
             </div>
-            <ShippingReturnsAccordion />
           </div>
         )}
-        <RecommendedProducts />
       </div>
       {cartHasItems && (
         <div className="cart-footer-sticky">

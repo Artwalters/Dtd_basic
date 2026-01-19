@@ -389,6 +389,18 @@ aside li {
 }
 
 /* ===========================================
+   Main Content Area (contains sliding wrapper + desktop cart)
+   =========================================== */
+.main-content-area {
+  position: relative;
+}
+
+/* Hide desktop cart panel on mobile - use overlay instead */
+.desktop-cart-panel {
+  display: none;
+}
+
+/* ===========================================
    Sliding Wrapper (for mobile menu slide effect)
    =========================================== */
 .sliding-wrapper {
@@ -562,10 +574,14 @@ aside li {
    Desktop Cart - Slide & Scale Effect
    =========================================== */
 @media (min-width: 48em) {
-  /* Light background when cart is open on desktop */
+  /* Background always cream on desktop */
+  html, body {
+    background: var(--color-cream);
+  }
+
+  /* Lock scroll when cart is open */
   html:has(.sliding-wrapper[data-cart-open="true"]),
   body:has(.sliding-wrapper[data-cart-open="true"]) {
-    background: var(--color-cream);
     overflow: hidden;
   }
 
@@ -577,56 +593,116 @@ aside li {
   /* Header stays fixed - does NOT move with content on desktop */
   /* Remove the header transform - nav stays in place */
 
-  /* Desktop cart overlay styling */
+  /* Hide the cart overlay on desktop - we use desktop-cart-panel instead */
   .overlay[data-aside-type="cart"] {
-    background: var(--color-cream);
-    top: 0;
-    z-index: 40;
-    /* No fade - instant show/hide synced with sliding-wrapper */
-    opacity: 1;
-    transition: visibility 0s 0.5s; /* Delay visibility change until animation completes */
+    display: none !important;
   }
 
-  .overlay[data-aside-type="cart"].expanded {
-    background: var(--color-cream);
-    transition: visibility 0s 0s; /* Show immediately when expanding */
-  }
-
-  .overlay[data-aside-type="cart"] .close-outside {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 55%;
-    height: 100%;
-    background: transparent;
-  }
-
-  .overlay[data-aside-type="cart"] aside {
-    position: fixed;
-    right: 0;
-    top: 0;
-    width: 40%;
-    max-width: 550px;
-    min-width: 400px;
-    height: 100vh;
-    background: var(--color-cream);
-    transform: none !important;
-    transition: none !important; /* Disable aside transition for desktop cart */
-    box-shadow: none;
-    padding: calc(var(--header-height) + 4em) 2em 2em;
+  /* Desktop cart panel - positioned next to the zoomed page */
+  .desktop-cart-panel {
     display: flex;
     flex-direction: column;
+    position: fixed;
+    right: -1em;
+    top: 20vh;
+    width: 30%;
+    height: 72vh;
+    background: var(--color-cream);
+    color: var(--color-black);
+    padding: 2em;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s, visibility 0.4s;
+    z-index: 30;
+    border-radius: 12px;
   }
 
-  .overlay[data-aside-type="cart"] aside header {
-    display: none;
-  }
-
-  .overlay[data-aside-type="cart"] aside main {
+  .desktop-cart-panel .cart-main {
+    display: flex;
+    flex-direction: column;
     flex: 1;
-    display: flex;
-    flex-direction: column;
+    min-height: 0;
+    background: var(--color-cream);
+  }
+
+  .desktop-cart-panel .cart-content-scrollable {
+    flex: 1;
     overflow-y: auto;
+    min-height: 0;
+    background: var(--color-cream);
+    padding: 1em 0;
+  }
+
+  .desktop-cart-panel .cart-footer-sticky {
+    position: relative;
+    padding: 1em 0;
+    background: var(--color-cream);
+  }
+
+  .desktop-cart-panel .cart-divider {
+    background: var(--color-grey);
+    height: 1px;
+  }
+
+  /* Ensure all text in desktop cart is dark on cream background */
+  .desktop-cart-panel,
+  .desktop-cart-panel .cart-main,
+  .desktop-cart-panel .cart-line-title,
+  .desktop-cart-panel .cart-line-price,
+  .desktop-cart-panel .cart-line-details a,
+  .desktop-cart-panel .cart-subtotal,
+  .desktop-cart-panel .cart-subtotal dt,
+  .desktop-cart-panel .cart-subtotal dd,
+  .desktop-cart-panel .cart-accordion-trigger,
+  .desktop-cart-panel .cart-accordion-icon,
+  .desktop-cart-panel .cart-accordion-content p,
+  .desktop-cart-panel .cart-disclaimer,
+  .desktop-cart-panel .cart-loading {
+    color: var(--color-black);
+  }
+
+  .desktop-cart-panel .cart-loading-spinner {
+    border-color: var(--color-grey);
+    border-top-color: var(--color-black);
+  }
+
+  .desktop-cart-panel .checkout-button {
+    background: var(--color-black);
+    color: var(--color-white);
+    border-color: var(--color-black);
+  }
+
+  .main-content-area[data-cart-open="true"] .desktop-cart-panel {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .desktop-cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1em;
+  }
+
+  .desktop-cart-header h3 {
+    font-family: var(--font-family-serif);
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--color-black);
+    margin: 0;
+  }
+
+  .desktop-cart-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5em;
+    color: var(--color-black);
+    transition: opacity 0.2s ease;
+  }
+
+  .desktop-cart-close:hover {
+    opacity: 0.7;
   }
 
   /* Desktop: header elements need transitions for smooth cart open/close */
@@ -1450,6 +1526,12 @@ button.reset:hover:not(:has(> *)) {
 
 .cart-details {
   padding-bottom: 1em;
+}
+
+.cart-details ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .cart-footer-sticky {

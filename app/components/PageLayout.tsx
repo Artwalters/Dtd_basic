@@ -43,22 +43,58 @@ export function PageLayout({
           publicStoreDomain={publicStoreDomain}
         />
       )}
-      {/* Only page content slides */}
-      <SlidingWrapper>
+      {/* Main content area with sliding page and desktop cart */}
+      <MainContentArea cart={cart}>
         <PageContent>{children}</PageContent>
-      </SlidingWrapper>
+      </MainContentArea>
     </Aside.Provider>
   );
 }
 
+function MainContentArea({children, cart}: {children: React.ReactNode, cart: PageLayoutProps['cart']}) {
+  const {type, close} = useAside();
+  const isCartOpen = type === 'cart';
+
+  return (
+    <div className="main-content-area" data-cart-open={isCartOpen}>
+      <SlidingWrapper>{children}</SlidingWrapper>
+      {/* Desktop cart - rendered next to the page, not as overlay */}
+      <div className="desktop-cart-panel">
+        <header className="desktop-cart-header">
+          <h3>
+            <Suspense fallback="Your cart">
+              <Await resolve={cart}>
+                {(cart) => {
+                  const count = cart?.totalQuantity || 0;
+                  return `Your cart${count > 0 ? ` (${count})` : ''}`;
+                }}
+              </Await>
+            </Suspense>
+          </h3>
+          <button className="desktop-cart-close" onClick={close} aria-label="Close cart">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </header>
+        <Suspense fallback={<p>Loading cart ...</p>}>
+          <Await resolve={cart}>
+            {(cart) => <CartMain cart={cart} layout="aside" />}
+          </Await>
+        </Suspense>
+      </div>
+    </div>
+  );
+}
+
 function SlidingWrapper({children}: {children: React.ReactNode}) {
-  const {type} = useAside();
+  const {type, setIsAnimating} = useAside();
   const isMobileMenuOpen = type === 'mobile';
   const isCartOpen = type === 'cart';
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const prevCartOpenRef = useRef(false);
   const scrollPosRef = useRef(0);
   const animationRef = useRef<gsap.core.Tween | null>(null);
+  const wasCartOpenRef = useRef(false);
 
   useEffect(() => {
     if (!wrapperRef.current || typeof window === 'undefined') return;
@@ -74,29 +110,34 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
       animationRef.current.kill();
     }
 
-    if (isCartOpen && !prevCartOpenRef.current) {
-      // Save scroll position before opening
-      scrollPosRef.current = window.scrollY;
+    if (isCartOpen) {
+      // Only save scroll position on fresh open
+      if (!wasCartOpenRef.current) {
+        scrollPosRef.current = window.scrollY;
+      }
 
       // Set up the wrapper as a fixed viewport-sized frame
-      // This clips the content to only show what was visible
       gsap.set(wrapper, {
         position: 'fixed',
         top: 0,
         left: 0,
         width: '100vw',
         height: '100vh',
-        overflowY: 'scroll',
+        overflow: 'hidden',
         transformOrigin: 'left center',
       });
 
-      // Set scrollTop to maintain the same visible content
-      wrapper.scrollTop = scrollPosRef.current;
+      // Set scrollTop to maintain the same visible content (only on fresh open)
+      if (!wasCartOpenRef.current) {
+        wrapper.scrollTop = scrollPosRef.current;
+      }
 
-      // Hide scrollbar after positioning
-      gsap.set(wrapper, { overflow: 'hidden' });
+      wasCartOpenRef.current = true;
 
-      // Always animate to the same fixed end position
+      // Block buttons during animation
+      setIsAnimating(true);
+
+      // Animate to open state
       animationRef.current = gsap.to(wrapper, {
         scale: 0.65,
         x: '1em',
@@ -105,9 +146,19 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         boxShadow: '0 25px 100px rgba(0, 0, 0, 0.25)',
         duration: 0.5,
         ease: 'power2.out',
+        onComplete: () => {
+          // Re-enable buttons when animation completes
+          setIsAnimating(false);
+        },
       });
-    } else if (!isCartOpen && prevCartOpenRef.current) {
-      // Closing cart: animate back to original state
+    } else if (wasCartOpenRef.current) {
+      // Only animate close if cart was previously open
+      wasCartOpenRef.current = false;
+
+      // Block buttons during animation
+      setIsAnimating(true);
+
+      // Animate back to closed state
       animationRef.current = gsap.to(wrapper, {
         scale: 1,
         x: '0%',
@@ -117,15 +168,14 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         duration: 0.5,
         ease: 'power2.out',
         onComplete: () => {
-          // Reset all properties and restore scroll
+          // Re-enable buttons and reset
+          setIsAnimating(false);
           gsap.set(wrapper, { clearProps: 'all' });
           window.scrollTo(0, scrollPosRef.current);
         },
       });
     }
-
-    prevCartOpenRef.current = isCartOpen;
-  }, [isCartOpen]);
+  }, [isCartOpen, setIsAnimating]);
 
   // For mobile, still use CSS classes
   const mobileClasses = isMobileMenuOpen ? 'mobile-menu-open' : '';

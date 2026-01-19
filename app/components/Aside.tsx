@@ -11,6 +11,8 @@ type AsideContextValue = {
   type: AsideType;
   open: (mode: AsideType) => void;
   close: () => void;
+  isAnimating: boolean;
+  setIsAnimating: (value: boolean) => void;
 };
 
 /**
@@ -111,13 +113,24 @@ const AsideContext = createContext<AsideContextValue | null>(null);
 
 Aside.Provider = function AsideProvider({children}: {children: ReactNode}) {
   const [type, setType] = useState<AsideType>('closed');
+  const [isAnimating, setIsAnimating] = useState(false);
 
   return (
     <AsideContext.Provider
       value={{
         type,
-        open: setType,
-        close: () => setType('closed'),
+        open: (mode: AsideType) => {
+          // Block during animation
+          if (isAnimating) return;
+          setType(mode);
+        },
+        close: () => {
+          // Block during animation
+          if (isAnimating) return;
+          setType('closed');
+        },
+        isAnimating,
+        setIsAnimating,
       }}
     >
       {children}
