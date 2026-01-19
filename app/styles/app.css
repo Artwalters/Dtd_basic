@@ -4885,6 +4885,12 @@ button.reset:hover:not(:has(> *)) {
   font-weight: var(--weight-medium);
 }
 
+.community-sticky-btn {
+  background: var(--color-white) !important;
+  color: var(--color-black) !important;
+  border-color: var(--color-white) !important;
+}
+
 .community-content {
   position: absolute;
   top: 0;
