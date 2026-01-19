@@ -143,7 +143,6 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         x: '1em',
         y: '7.5%',
         borderRadius: '12px',
-        boxShadow: '0 25px 100px rgba(0, 0, 0, 0.25)',
         duration: 0.5,
         ease: 'power2.out',
         onComplete: () => {
@@ -164,7 +163,6 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         x: '0%',
         y: '0%',
         borderRadius: '0px',
-        boxShadow: 'none',
         duration: 0.5,
         ease: 'power2.out',
         onComplete: () => {

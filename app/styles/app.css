@@ -1112,15 +1112,6 @@ button.reset:hover:not(:has(> *)) {
     stroke: var(--color-black);
   }
 
-  /* Hide all mobile elements on desktop - completely out of layout */
-  .mobile-menu-toggle,
-  .mobile-cart-toggle {
-    display: none !important;
-    position: absolute;
-    visibility: hidden;
-    pointer-events: none;
-  }
-
   /* Hide menu button when cart is open */
   body:has(.sliding-wrapper[data-cart-open="true"]) .mobile-menu-toggle {
     visibility: hidden;
@@ -1135,14 +1126,6 @@ button.reset:hover:not(:has(> *)) {
 
   .mobile-account-button svg {
     stroke: var(--color-white) !important;
-  }
-
-  /* Cart title in header when cart is open - completely hidden on desktop */
-  .mobile-cart-title {
-    display: none !important;
-    position: absolute;
-    visibility: hidden;
-    pointer-events: none;
   }
 
   /* Cart close button - always black with white icon (no dependency on body:has) */
