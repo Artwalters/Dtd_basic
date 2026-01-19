@@ -5055,6 +5055,11 @@ button.reset:hover:not(:has(> *)) {
     display: none;
   }
 
+  .community-sticky-btn {
+    width: calc(100% - 2em);
+    margin: 0 1em;
+  }
+
   .community-section .section-divider-bottom {
     display: none;
   }
