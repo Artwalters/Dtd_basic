@@ -1181,6 +1181,16 @@ button.reset:hover:not(:has(> *)) {
   gap: 0.4em;
 }
 
+/* Button shimmer animation */
+@keyframes btn-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
 /* Glass button style - minimal liquid glass effect */
 .btn-glass,
 .header-nav-item {
@@ -1205,6 +1215,27 @@ button.reset:hover:not(:has(> *)) {
   backdrop-filter: blur(4px) url(#liquidGlassFilter);
   -webkit-backdrop-filter: blur(4px);
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle shimmer effect on buttons */
+.btn-glass::before,
+.header-nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.03) 50%,
+    transparent 100%
+  );
+  animation: btn-shimmer 4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .btn-glass:hover,
@@ -1240,6 +1271,25 @@ button.reset:hover:not(:has(> *)) {
   height: 3em;
   box-sizing: border-box;
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-solid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.04) 50%,
+    transparent 100%
+  );
+  animation: btn-shimmer 4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .btn-solid:hover {
