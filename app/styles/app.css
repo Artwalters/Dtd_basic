@@ -1231,11 +1231,12 @@ button.reset:hover:not(:has(> *)) {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.03) 50%,
+    rgba(0, 0, 0, 0.08) 50%,
     transparent 100%
   );
-  animation: btn-shimmer 4s ease-in-out infinite;
+  animation: btn-shimmer 3s ease-in-out infinite;
   pointer-events: none;
+  z-index: 1;
 }
 
 .btn-glass:hover,
@@ -1285,11 +1286,12 @@ button.reset:hover:not(:has(> *)) {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(0, 0, 0, 0.04) 50%,
+    rgba(0, 0, 0, 0.08) 50%,
     transparent 100%
   );
-  animation: btn-shimmer 4s ease-in-out infinite;
+  animation: btn-shimmer 3s ease-in-out infinite;
   pointer-events: none;
+  z-index: 1;
 }
 
 .btn-solid:hover {
