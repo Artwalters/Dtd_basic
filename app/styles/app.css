@@ -1181,16 +1181,6 @@ button.reset:hover:not(:has(> *)) {
   gap: 0.4em;
 }
 
-/* Button hover sweep animation */
-@keyframes btn-sweep {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(300%);
-  }
-}
-
 /* Glass button style - minimal liquid glass effect */
 .btn-glass,
 .header-nav-item {
@@ -1214,38 +1204,34 @@ button.reset:hover:not(:has(> *)) {
   border-radius: 4px;
   backdrop-filter: blur(4px) url(#liquidGlassFilter);
   -webkit-backdrop-filter: blur(4px);
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
   position: relative;
   overflow: hidden;
 }
 
-/* Hover sweep effect on buttons */
+/* Hover wipe effect on buttons - background slides from left to right */
 .btn-glass::before,
 .header-nav-item::before {
   content: '';
   position: absolute;
   top: 0;
-  left: -100%;
-  width: 40%;
+  left: -10%;
+  width: 120%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(0, 0, 0, 0.06) 50%,
-    transparent 100%
-  );
+  background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
+  transform: translateX(-100%) skewX(-15deg);
+  transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
 }
 
 .btn-glass:hover::before,
 .header-nav-item:hover::before {
-  animation: btn-sweep 1s ease-in-out infinite;
+  transform: translateX(0%) skewX(-15deg);
 }
 
 .btn-glass:hover,
 .header-nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
   text-decoration: none;
   color: var(--color-white);
@@ -1275,7 +1261,7 @@ button.reset:hover:not(:has(> *)) {
   cursor: pointer;
   height: 3em;
   box-sizing: border-box;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease;
   position: relative;
   overflow: hidden;
 }
@@ -1284,25 +1270,21 @@ button.reset:hover:not(:has(> *)) {
   content: '';
   position: absolute;
   top: 0;
-  left: -100%;
-  width: 40%;
+  left: -10%;
+  width: 120%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(0, 0, 0, 0.06) 50%,
-    transparent 100%
-  );
+  background: rgba(0, 0, 0, 0.08);
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
+  transform: translateX(-100%) skewX(-15deg);
+  transition: transform 0.5s cubic-bezier(0.625, 0.05, 0, 1);
 }
 
 .btn-solid:hover::before {
-  animation: btn-sweep 1s ease-in-out infinite;
+  transform: translateX(0%) skewX(-15deg);
 }
 
 .btn-solid:hover {
-  background: rgba(255, 255, 255, 0.9);
   text-decoration: none;
 }
 
