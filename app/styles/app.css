@@ -6312,46 +6312,101 @@ button.reset:hover:not(:has(> *)) {
   opacity: 0.7;
 }
 
+/* Tablet Policies */
+@media (max-width: 64em) {
+  .policies-container {
+    gap: 8em;
+  }
+
+  .policies-content {
+    max-width: 100%;
+  }
+}
+
 /* Mobile Policies */
 @media (max-width: 47.99em) {
   .policies-page {
-    padding-top: 6em;
+    padding-top: 8em;
   }
 
   .policies-container {
-    grid-template-columns: 1fr;
-    gap: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
     padding: 0 1em 4em;
   }
 
+  /* Mobile nav - horizontal scrolling */
   .policies-nav {
-    position: relative;
-    top: 0;
-  }
-
-  .policies-nav-inner {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
+    position: sticky;
+    top: 4em;
+    z-index: 50;
+    background: var(--color-black);
+    margin: 0 -1em;
     padding: 0 1em;
   }
 
+  .policies-nav-inner {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .policies-nav-inner::-webkit-scrollbar {
+    display: none;
+  }
+
+  .policies-nav-inner .policy-divider {
+    display: none;
+  }
+
   .policies-nav-list {
-    padding: 1em 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     gap: 0;
+    padding: 0;
+    white-space: nowrap;
   }
 
   .policies-nav-link {
-    padding: 0.75em 0;
+    padding: 1em 1.25em;
     font-size: var(--font-xs);
+    border-bottom: 2px solid transparent;
+    opacity: 0.5;
+  }
+
+  .policies-nav-link.active {
+    opacity: 1;
+    border-bottom-color: var(--color-white);
+  }
+
+  .policies-nav-arrow {
+    display: none;
+  }
+
+  /* Mobile content */
+  .policies-content {
+    padding-top: 2em;
+    max-width: 100%;
   }
 
   .policy-section {
     padding: 0 0 2em 0;
   }
 
+  .policy-section > .policy-divider:first-child {
+    margin-bottom: 1.5em;
+  }
+
+  .policy-section > .policy-divider.divider-bottom {
+    margin-top: 1.5em;
+  }
+
   .policy-title {
     font-size: var(--font-xl);
-    margin-bottom: 1.5em;
+    margin-bottom: 1.25em;
   }
 
   .policy-block {
@@ -6360,11 +6415,18 @@ button.reset:hover:not(:has(> *)) {
 
   .policy-block h3 {
     font-size: var(--font-sm);
+    margin-bottom: 0.5em;
   }
 
   .policy-block p,
   .policy-block li {
     font-size: var(--font-sm);
+    line-height: var(--leading-relaxed);
+  }
+
+  .policy-block ul,
+  .policy-block ol {
+    padding-left: 1.25em;
   }
 }
 
