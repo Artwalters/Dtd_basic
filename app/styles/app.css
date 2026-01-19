@@ -57,7 +57,7 @@
   --color-black: #070707;           /* Primary dark background */
   --color-white: #FFFFFF;           /* Primary light color */
   --color-grey: #999999;            /* Muted text, placeholders */
-  --color-cream: #F5F0E8;           /* Warm cream background */
+  --color-cream: #F7F6F3;           /* Soft off-white with subtle warmth */
 
   /* --- Accent Colors --- */
   --color-success: #22c55e;         /* Success states, in-stock */
@@ -817,6 +817,7 @@ button.reset:hover:not(:has(> *)) {
   width: 100%;
   height: 100%;
   padding: 0 1em;
+  padding-top: 1.5em;
 }
 
 .header-menu-desktop {
@@ -838,30 +839,58 @@ button.reset:hover:not(:has(> *)) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25em 0;
-  font-size: 1rem;
+  padding: 1.5em 0;
+  font-size: var(--font-base);
   font-weight: 400;
   text-decoration: none;
   color: var(--color-black);
-  border-bottom: 1px solid var(--color-grey);
   opacity: 1;
-}
-
-.header-menu-mobile .header-menu-item:last-of-type {
-  border-bottom: none;
 }
 
 .header-menu-mobile .header-menu-item svg {
   stroke: var(--color-black);
-  opacity: 0.5;
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
 }
 
-/* Mobile menu divider - matches site style */
+.header-menu-mobile .header-menu-item:active svg {
+  opacity: 0.8;
+}
+
+/* Mobile menu divider - with corner brackets like site style */
 .mobile-menu-divider {
+  position: relative;
   width: 100%;
   height: 1px;
-  background: var(--color-grey);
-  opacity: 0.3;
+  background: var(--color-black);
+  opacity: 0.15;
+  margin: 0 auto;
+}
+
+.mobile-menu-divider::before,
+.mobile-menu-divider::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 0.75em;
+  background: var(--color-black);
+  opacity: 1;
+}
+
+.mobile-menu-divider::before {
+  left: 0;
+}
+
+.mobile-menu-divider::after {
+  right: 0;
+}
+
+/* Bottom divider has corners going down */
+.mobile-menu-divider.divider-bottom::before,
+.mobile-menu-divider.divider-bottom::after {
+  top: auto;
+  bottom: 0;
 }
 
 /* Spacer to push language switcher to bottom */
@@ -873,18 +902,20 @@ button.reset:hover:not(:has(> *)) {
 .mobile-menu-languages {
   display: flex;
   justify-content: center;
-  gap: 1em;
-  padding: 1.5em 0;
+  gap: 1.5em;
+  padding: 2em 0;
 }
 
 .mobile-menu-languages .lang-btn {
   background: none;
   border: none;
-  font-size: 0.875rem;
+  font-size: var(--font-sm);
+  font-family: var(--font-sans);
   color: var(--color-black);
   opacity: 0.4;
   cursor: pointer;
   padding: 0;
+  transition: opacity 0.2s ease;
 }
 
 .mobile-menu-languages .lang-btn.active {

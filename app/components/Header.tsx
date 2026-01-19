@@ -459,12 +459,21 @@ export function HeaderMenu({
         <span>Community</span>
         <ChevronIcon />
       </NavLink>
+      <NavLink
+        className="header-menu-item"
+        onClick={close}
+        prefetch="intent"
+        to="/lookbook"
+      >
+        <span>Lookbook</span>
+        <ChevronIcon />
+      </NavLink>
       <div className="mobile-menu-spacer" />
       <div className="mobile-menu-languages">
         <button className="lang-btn">English</button>
         <button className="lang-btn active">Nederlands</button>
       </div>
-      <div className="mobile-menu-divider" />
+      <div className="mobile-menu-divider divider-bottom" />
     </nav>
   );
 }
