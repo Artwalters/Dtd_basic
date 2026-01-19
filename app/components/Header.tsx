@@ -341,7 +341,7 @@ function CartBadge({count}: {count: number | null}) {
     <>
       {/* Icon button: Bag icon or X icon */}
       <button
-        className={`header-nav-item btn-glass--icon ${isCartOpen ? 'cart-close-icon' : ''}`}
+        className={`header-nav-item btn-glass--icon ${isCartOpen ? 'cart-close-icon' : 'bag-icon-btn'}`}
         onClick={handleCartClick}
         aria-label={isCartOpen ? 'Close cart' : 'Open shopping bag'}
       >

@@ -53,7 +53,7 @@ export function NewArrivals({
           </div>
         </div>
         <Link to="/collections/all" className="btn btn-glass new-arrivals-shop-all">
-          SHOP ALL
+          Shop all
         </Link>
       </div>
       <div data-gsap-slider-collection="" className="new-arrivals-collection">

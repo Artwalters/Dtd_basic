@@ -16,7 +16,8 @@ import {HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import cartStyles from '~/styles/cart.css?url';
-import neueHaasFont from '~/assets/fonts/NeueHaasGroteskDisp Pro Md-normal-500-100.ttf?url';
+import fontStyles from '~/assets/fonts/fonts.css?url';
+import genesisFont from '~/assets/fonts/Genesis.woff2?url';
 import {PageLayout} from './components/PageLayout';
 import {useLenis} from '~/hooks/useLenis';
 import {ThemeProvider} from '~/contexts/ThemeContext';
@@ -148,21 +149,8 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <meta name="theme-color" content="#000000" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="preload" href={neueHaasFont} as="font" type="font/ttf" crossOrigin="anonymous" />
-        <style
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: `
-              @font-face {
-                font-family: 'Neue Haas Grotesk';
-                src: url('${neueHaasFont}') format('truetype');
-                font-weight: 500;
-                font-style: normal;
-                font-display: swap;
-              }
-            `,
-          }}
-        />
+        <link rel="preload" href={genesisFont} as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="stylesheet" href={fontStyles}></link>
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
         <link rel="stylesheet" href={cartStyles}></link>

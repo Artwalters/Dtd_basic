@@ -1,0 +1,73 @@
+/* Genesis - Dare to Dream Collection */
+/* Variable Font - alle weights en styles in 1 bestand */
+
+@font-face {
+  font-family: 'Genesis';
+  src: url('./Genesis.woff2') format('woff2-variations');
+  font-weight: 100 1000;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ==========================================================================
+   CSS Custom Properties voor makkelijk gebruik
+   ========================================================================== */
+
+:root {
+  /* Weight presets */
+  --genesis-thin: 100;
+  --genesis-light: 300;
+  --genesis-regular: 400;
+  --genesis-medium: 500;
+  --genesis-semibold: 600;
+  --genesis-bold: 700;
+  --genesis-heavy: 900;
+  --genesis-black: 1000;
+}
+
+/* ==========================================================================
+   Utility classes
+   ========================================================================== */
+
+/* Basis */
+.genesis {
+  font-family: 'Genesis', sans-serif;
+  font-variation-settings: 'wght' 400, 'ital' 0, 'MONO' 0, 'XHGT' 0;
+}
+
+/* Mono variant */
+.genesis-mono {
+  font-family: 'Genesis', monospace;
+  font-variation-settings: 'wght' 400, 'ital' 0, 'MONO' 100, 'XHGT' 0;
+}
+
+/* Semi-Mono variant */
+.genesis-semimono {
+  font-family: 'Genesis', sans-serif;
+  font-variation-settings: 'wght' 400, 'ital' 0, 'MONO' 50, 'XHGT' 0;
+}
+
+/* XH (Extra Height) variant */
+.genesis-xh {
+  font-family: 'Genesis', sans-serif;
+  font-variation-settings: 'wght' 400, 'ital' 0, 'MONO' 0, 'XHGT' 100;
+}
+
+/* Italic */
+.genesis-italic {
+  font-variation-settings: 'wght' 400, 'ital' 9, 'MONO' 0, 'XHGT' 0;
+}
+
+/* ==========================================================================
+   Variable Font Axes Reference
+   ==========================================================================
+
+   wght: 100 - 1000  (Thin → Black)
+   ital: 0 - 9       (Normal → Italic)
+   MONO: 0 - 100     (Proportional → Monospace)
+   XHGT: 0 - 100     (Normal → Extra Height)
+
+   Voorbeeld:
+   font-variation-settings: 'wght' 700, 'ital' 9, 'MONO' 50, 'XHGT' 100;
+
+   ========================================================================== */

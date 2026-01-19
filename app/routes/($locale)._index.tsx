@@ -16,7 +16,7 @@ const heroSlides = [
     backgroundImage: '/hero-bg.jpg',
     subtitle: 'our first collection',
     title: 'BE PART OF THE START',
-    buttonText: 'SHOP NOW',
+    buttonText: 'Shop now',
     buttonLink: '/collections/all'
   },
   {
@@ -24,7 +24,7 @@ const heroSlides = [
     backgroundImage: '/hero-bg.jpg',
     subtitle: 'new arrivals',
     title: 'FRESH STYLES DAILY',
-    buttonText: 'DISCOVER',
+    buttonText: 'Discover',
     buttonLink: '/collections/new'
   },
   {
@@ -32,7 +32,7 @@ const heroSlides = [
     backgroundImage: '/hero-bg.jpg',
     subtitle: 'limited edition',
     title: 'EXCLUSIVE DROPS',
-    buttonText: 'GET YOURS',
+    buttonText: 'Get yours',
     buttonLink: '/collections/limited'
   }
 ];
