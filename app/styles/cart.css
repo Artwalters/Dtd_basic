@@ -206,20 +206,20 @@
 }
 
 .cart-remove-button::after {
-  content: '×';
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  font-size: 1.5em;
-  font-weight: bold;
-  color: #e53935;
+  width: 1.5em;
+  height: 1px;
+  background: #e53935;
+  transform: translate(-50%, -50%) rotate(45deg) scaleX(0);
   transition: transform 0.2s ease;
   pointer-events: none;
 }
 
 .cart-remove-button:hover::after {
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%, -50%) rotate(45deg) scaleX(1);
 }
 
 /* Cart Footer Sticky */
