@@ -210,16 +210,16 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 1.5em;
+  width: 1.25em;
   height: 1px;
   background: #e53935;
-  transform: translate(-50%, -50%) rotate(45deg) scaleX(0);
+  transform: translate(-50%, -50%) rotate(-45deg) scaleX(0);
   transition: transform 0.2s ease;
   pointer-events: none;
 }
 
 .cart-remove-button:hover::after {
-  transform: translate(-50%, -50%) rotate(45deg) scaleX(1);
+  transform: translate(-50%, -50%) rotate(-45deg) scaleX(1);
 }
 
 /* Cart Footer Sticky */
