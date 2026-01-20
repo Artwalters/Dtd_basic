@@ -13,7 +13,7 @@ import type {CollectionItemFragment} from 'storefrontapi.generated';
 const heroSlides = [
   {
     id: '1',
-    backgroundImage: '/hero-bg.jpg',
+    backgroundVideo: '/app/assets/img/dtd-bts-dropday.mp4',
     subtitle: 'our first collection',
     title: 'BE PART OF THE START',
     buttonText: 'Shop now',

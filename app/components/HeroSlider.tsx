@@ -3,7 +3,8 @@ import {Link} from 'react-router';
 
 interface HeroSlide {
   id: string;
-  backgroundImage: string;
+  backgroundImage?: string;
+  backgroundVideo?: string;
   subtitle: string;
   title: string;
   buttonText: string;
@@ -42,17 +43,36 @@ export function HeroSlider({ slides }: HeroSliderProps) {
 
   if (slides.length === 0) return null;
 
+  // Render slide media (video or image)
+  const renderSlideMedia = (slide: HeroSlide) => {
+    if (slide.backgroundVideo) {
+      return (
+        <video
+          src={slide.backgroundVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="hero-slide-video"
+        />
+      );
+    }
+    return (
+      <img
+        src={slide.backgroundImage}
+        alt=""
+        draggable={false}
+        className="hero-slide-image"
+      />
+    );
+  };
+
   // Show first slide while Swiper loads
   const renderSlider = () => {
     if (!isClient || !SwiperComponents) {
       return (
         <div className="hero-slide">
-          <img
-            src={slides[0].backgroundImage}
-            alt=""
-            draggable={false}
-            className="hero-slide-image"
-          />
+          {renderSlideMedia(slides[0])}
         </div>
       );
     }
@@ -64,8 +84,8 @@ export function HeroSlider({ slides }: HeroSliderProps) {
         speed={600}
         spaceBetween={0}
         slidesPerView={1}
-        threshold={10}
-        touchRatio={0.6}
+        threshold={5}
+        touchRatio={0.8}
         resistanceRatio={0.5}
         loop={true}
         onSlideChange={(s: any) => setCurrentSlide(s.realIndex)}
@@ -80,12 +100,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
         {slides.map((slide) => (
           <SwiperSlide key={slide.id} style={{ width: '100%', height: '100%' }}>
             <div className="hero-slide">
-              <img
-                src={slide.backgroundImage}
-                alt=""
-                draggable={false}
-                className="hero-slide-image"
-              />
+              {renderSlideMedia(slide)}
             </div>
           </SwiperSlide>
         ))}

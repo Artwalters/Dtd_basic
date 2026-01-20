@@ -46,24 +46,25 @@ export function CartLineItem({
       )}
 
       <div className="cart-line-details">
-        <Link
-          prefetch="intent"
-          to={lineItemUrl}
-          onClick={() => {
-            if (layout === 'aside') {
-              close();
-            }
-          }}
-        >
-          <h3 className="cart-line-title">{displayTitle}</h3>
-        </Link>
+        <div className="cart-line-header">
+          <Link
+            prefetch="intent"
+            to={lineItemUrl}
+            onClick={() => {
+              if (layout === 'aside') {
+                close();
+              }
+            }}
+          >
+            <h3 className="cart-line-title">{displayTitle}</h3>
+          </Link>
+          <CartLineRemoveButton lineIds={[id]} disabled={!!line.isOptimistic} />
+        </div>
 
         <ProductPrice price={line?.cost?.totalAmount} className="cart-line-price" />
 
         <CartLineQuantity line={line} />
       </div>
-
-      <CartLineRemoveButton lineIds={[id]} disabled={!!line.isOptimistic} />
     </li>
   );
 }
@@ -133,7 +134,8 @@ function CartLineRemoveButton({
     >
       <button disabled={disabled} type="submit" className="cart-remove-button" aria-label="Remove item">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M3 7H5H21" stroke="currentColor"></path>
+          <path d="M18.5 7L17.5 21H6.5L5.5 7M8 7L8.5 3.5H15.5L16 7" stroke="currentColor"></path>
         </svg>
       </button>
     </CartForm>
