@@ -30,13 +30,6 @@ const buildMultiplier = {
   heavyweight: 1.2,
 };
 
-const athleteExamples = [
-  {name: 'Chris Bumstead', height: '185cm', weight: '104kg', size: 'XL', note: 'Classic Physique Olympia'},
-  {name: 'David Laid', height: '188cm', weight: '93kg', size: 'L', note: 'Aesthetic/Athletic Build'},
-  {name: 'Jeff Nippard', height: '165cm', weight: '79kg', size: 'M', note: 'Natural Powerbuilder'},
-  {name: 'Sam Sulek', height: '180cm', weight: '109kg', size: 'XL', note: 'Mass Monster Era'},
-];
-
 export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
   const [step, setStep] = useState<'intro' | 'form' | 'result'>('intro');
   const [mounted, setMounted] = useState(false);
@@ -137,211 +130,188 @@ export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
     <>
       {step === 'intro' && (
           <div className="size-guide-content">
-            <h2 className="size-guide-title">Find Your Perfect Fit</h2>
-            <p className="size-guide-subtitle">
-              Built for athletes who push limits. Our sizing is designed with serious lifters in mind.
-            </p>
+            <div className="size-guide-header">
+              <h2 className="size-guide-title">Find Your Fit</h2>
+            </div>
+            <div className="size-guide-divider-bracket" />
+            <div className="size-guide-scrollable">
+              <p className="size-guide-subtitle">
+                Built for athletes who push limits. Our sizing is designed with serious lifters in mind.
+              </p>
 
-            <div className="size-guide-options">
-              <button className="size-guide-option-btn" onClick={() => setStep('form')}>
-                <span className="option-text">
-                  <strong>Find My Size</strong>
-                  <small>Answer a few questions</small>
-                </span>
-              </button>
+              <div className="size-guide-options">
+                <button className="size-guide-option-btn" onClick={() => setStep('form')}>
+                  <span className="option-text">Find My Size</span>
+                </button>
 
-              <div className="size-guide-divider">
-                <span>or</span>
-              </div>
+                <div className="size-guide-or">
+                  <span>or view size chart</span>
+                </div>
 
-              <div className="size-chart-preview">
-                <h3>Size Chart</h3>
-                <table className="size-table">
-                  <thead>
-                    <tr>
-                      <th>Size</th>
-                      <th>Chest (cm)</th>
-                      <th>Weight (kg)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(sizeChart).map(([size, data]) => (
-                      <tr key={size}>
-                        <td>{size}</td>
-                        <td>{data.chest[0]}-{data.chest[1]}</td>
-                        <td>{data.weight[0]}-{data.weight[1]}</td>
+                <div className="size-chart-preview">
+                  <table className="size-table">
+                    <thead>
+                      <tr>
+                        <th>Size</th>
+                        <th>Chest</th>
+                        <th>Weight</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="athlete-reference">
-                <h3>Athlete Reference</h3>
-                <p className="reference-note">See what athletes similar to your build wear:</p>
-                <div className="athlete-list">
-                  {athleteExamples.map((athlete) => (
-                    <div key={athlete.name} className="athlete-card">
-                      <div className="athlete-info">
-                        <strong>{athlete.name}</strong>
-                        <small>{athlete.note}</small>
-                      </div>
-                      <div className="athlete-stats">
-                        <span>{athlete.height} / {athlete.weight}</span>
-                        <span className="athlete-size">Size {athlete.size}</span>
-                      </div>
-                    </div>
-                  ))}
+                    </thead>
+                    <tbody>
+                      {Object.entries(sizeChart).map(([size, data]) => (
+                        <tr key={size}>
+                          <td>{size}</td>
+                          <td>{data.chest[0]}-{data.chest[1]}cm</td>
+                          <td>{data.weight[0]}-{data.weight[1]}kg</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
+            <div className="size-guide-divider-bracket divider-bottom" />
           </div>
         )}
 
         {step === 'form' && (
           <div className="size-guide-content">
-            <button className="size-guide-back" onClick={() => setStep('intro')}>
-              ← Back
-            </button>
-            <h2 className="size-guide-title">Your Measurements</h2>
-            <p className="size-guide-subtitle">
-              Enter your stats for a personalized recommendation
-            </p>
-
-            <div className="size-form">
-              <div className="form-group">
-                <label>Height (cm)</label>
-                <input
-                  type="number"
-                  placeholder="e.g. 180"
-                  value={measurements.height}
-                  onChange={(e) => setMeasurements({...measurements, height: e.target.value})}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Weight (kg)</label>
-                <input
-                  type="number"
-                  placeholder="e.g. 90"
-                  value={measurements.weight}
-                  onChange={(e) => setMeasurements({...measurements, weight: e.target.value})}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Chest circumference (cm) <span className="optional">optional</span></label>
-                <input
-                  type="number"
-                  placeholder="e.g. 110"
-                  value={measurements.chest}
-                  onChange={(e) => setMeasurements({...measurements, chest: e.target.value})}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Body Type</label>
-                <div className="build-options">
-                  {(['lean', 'athletic', 'muscular', 'heavyweight'] as const).map((build) => (
-                    <button
-                      key={build}
-                      className={`build-option ${measurements.build === build ? 'active' : ''}`}
-                      onClick={() => setMeasurements({...measurements, build})}
-                    >
-                      {build.charAt(0).toUpperCase() + build.slice(1)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Preferred Fit</label>
-                <div className="fit-options">
-                  {(['fitted', 'regular', 'oversized'] as const).map((fit) => (
-                    <button
-                      key={fit}
-                      className={`fit-option ${measurements.fit === fit ? 'active' : ''}`}
-                      onClick={() => setMeasurements({...measurements, fit})}
-                    >
-                      <span className="fit-label">{fit.charAt(0).toUpperCase() + fit.slice(1)}</span>
-                      <span className="fit-desc">
-                        {fit === 'fitted' && 'Shows physique'}
-                        {fit === 'regular' && 'True to size'}
-                        {fit === 'oversized' && 'Relaxed fit'}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                className="size-guide-submit"
-                onClick={calculateSize}
-                disabled={!measurements.weight && !measurements.chest}
-              >
-                Find My Size
+            <div className="size-guide-header">
+              <button className="size-guide-back" onClick={() => setStep('intro')}>
+                ← Back
               </button>
+              <h2 className="size-guide-title">Your Measurements</h2>
             </div>
+            <div className="size-guide-divider-bracket" />
+            <div className="size-guide-scrollable">
+              <p className="size-guide-subtitle">
+                Enter your stats for a personalized recommendation
+              </p>
+
+              <div className="size-form">
+                <div className="form-group">
+                  <label>Height (cm)</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 180"
+                    value={measurements.height}
+                    onChange={(e) => setMeasurements({...measurements, height: e.target.value})}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Weight (kg)</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 90"
+                    value={measurements.weight}
+                    onChange={(e) => setMeasurements({...measurements, weight: e.target.value})}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Chest circumference (cm) <span className="optional">optional</span></label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 110"
+                    value={measurements.chest}
+                    onChange={(e) => setMeasurements({...measurements, chest: e.target.value})}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Body Type</label>
+                  <div className="build-options">
+                    {(['lean', 'athletic', 'muscular', 'heavyweight'] as const).map((build) => (
+                      <button
+                        key={build}
+                        className={`build-option ${measurements.build === build ? 'active' : ''}`}
+                        onClick={() => setMeasurements({...measurements, build})}
+                      >
+                        {build.charAt(0).toUpperCase() + build.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Preferred Fit</label>
+                  <div className="fit-options">
+                    {(['fitted', 'regular', 'oversized'] as const).map((fit) => (
+                      <button
+                        key={fit}
+                        className={`fit-option ${measurements.fit === fit ? 'active' : ''}`}
+                        onClick={() => setMeasurements({...measurements, fit})}
+                      >
+                        <span className="fit-label">{fit.charAt(0).toUpperCase() + fit.slice(1)}</span>
+                        <span className="fit-desc">
+                          {fit === 'fitted' && 'Shows physique'}
+                          {fit === 'regular' && 'True to size'}
+                          {fit === 'oversized' && 'Relaxed fit'}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  className="size-guide-submit"
+                  onClick={calculateSize}
+                  disabled={!measurements.weight && !measurements.chest}
+                >
+                  Find My Size
+                </button>
+              </div>
+            </div>
+            <div className="size-guide-divider-bracket divider-bottom" />
           </div>
         )}
 
         {step === 'result' && recommendedSize && (
           <div className="size-guide-content">
-            <button className="size-guide-back" onClick={resetGuide}>
-              ← Start Over
-            </button>
+            <div className="size-guide-header">
+              <button className="size-guide-back" onClick={resetGuide}>
+                ← Start Over
+              </button>
+              <h2 className="size-guide-title">Your Size</h2>
+            </div>
+            <div className="size-guide-divider-bracket" />
+            <div className="size-guide-scrollable">
+              <div className="size-result">
+                <div className="recommended-size">
+                  <span className="size-badge">{recommendedSize}</span>
+                  <p className="size-description">
+                    {sizeChart[recommendedSize as keyof typeof sizeChart]?.description}
+                  </p>
+                  <p className="fit-preference-badge">
+                    {measurements.fit === 'fitted' && 'Fitted look'}
+                    {measurements.fit === 'regular' && 'Regular fit'}
+                    {measurements.fit === 'oversized' && 'Oversized style'}
+                  </p>
+                </div>
 
-            <div className="size-result">
-              <h2 className="size-guide-title">Your Recommended Size</h2>
-
-              <div className="recommended-size">
-                <span className="size-badge">{recommendedSize}</span>
-                <p className="size-description">
-                  {sizeChart[recommendedSize as keyof typeof sizeChart]?.description}
-                </p>
-                <p className="fit-preference-badge">
-                  {measurements.fit === 'fitted' && 'Fitted look'}
-                  {measurements.fit === 'regular' && 'Regular fit'}
-                  {measurements.fit === 'oversized' && 'Oversized style'}
-                </p>
-              </div>
-
-              <div className="size-tips">
-                <h3>Fit Tips</h3>
-                <ul>
-                  <li>Our tees are designed with dropped shoulders for unrestricted movement</li>
-                  {measurements.fit === 'fitted' && (
-                    <li>Fitted selection: This will hug your physique and show definition</li>
-                  )}
-                  {measurements.fit === 'regular' && (
-                    <li>Regular fit: Comfortable all-day wear with room to move</li>
-                  )}
-                  {measurements.fit === 'oversized' && (
-                    <li>Oversized selection: Extra room for that relaxed streetwear look</li>
-                  )}
-                  <li>Stretchy premium cotton adapts to your pump</li>
-                  {measurements.build === 'heavyweight' && (
-                    <li>For mass monsters: extra room in shoulders included</li>
-                  )}
-                </ul>
-              </div>
-
-              <div className="similar-athletes">
-                <h3>Athletes in Size {recommendedSize}</h3>
-                <div className="athlete-list compact">
-                  {athleteExamples
-                    .filter((a) => a.size === recommendedSize)
-                    .map((athlete) => (
-                      <div key={athlete.name} className="athlete-card">
-                        <div className="athlete-info">
-                          <strong>{athlete.name}</strong>
-                          <small>{athlete.height} / {athlete.weight}</small>
-                        </div>
-                      </div>
-                    ))}
+                <div className="size-tips">
+                  <h3>Fit Tips</h3>
+                  <ul>
+                    <li>Our tees are designed with dropped shoulders for unrestricted movement</li>
+                    {measurements.fit === 'fitted' && (
+                      <li>Fitted selection: This will hug your physique and show definition</li>
+                    )}
+                    {measurements.fit === 'regular' && (
+                      <li>Regular fit: Comfortable all-day wear with room to move</li>
+                    )}
+                    {measurements.fit === 'oversized' && (
+                      <li>Oversized selection: Extra room for that relaxed streetwear look</li>
+                    )}
+                    <li>Stretchy premium cotton adapts to your pump</li>
+                    {measurements.build === 'heavyweight' && (
+                      <li>For mass monsters: extra room in shoulders included</li>
+                    )}
+                  </ul>
                 </div>
               </div>
             </div>
+            <div className="size-guide-divider-bracket divider-bottom" />
           </div>
         )}
     </>
@@ -356,6 +326,16 @@ export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
       >
         <div className={`size-guide-mobile ${isOpen ? 'size-guide-mobile--open' : ''}`}>
           <div className="size-guide-mobile__header">
+            {step !== 'intro' ? (
+              <button
+                className="size-guide-mobile__back"
+                onClick={() => step === 'result' ? resetGuide() : setStep('intro')}
+              >
+                BACK
+              </button>
+            ) : (
+              <span className="size-guide-mobile__spacer" />
+            )}
             <h2 className="size-guide-mobile__title">Size Guide</h2>
             <button
               className="size-guide-mobile__close"
