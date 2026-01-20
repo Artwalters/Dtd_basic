@@ -1,6 +1,8 @@
 import {Link, useLoaderData} from 'react-router';
 import type {Route} from './+types/policies.$handle';
 import {type Shop} from '@shopify/hydrogen/storefront-api-types';
+import {Footer} from '~/components/Footer';
+import {FooterParallax} from '~/components/FooterReveal';
 
 type SelectedPolicies = keyof Pick<
   Shop,
@@ -8,7 +10,7 @@ type SelectedPolicies = keyof Pick<
 >;
 
 export const meta: Route.MetaFunction = ({data}) => {
-  return [{title: `Hydrogen | ${data?.policy.title ?? ''}`}];
+  return [{title: `Dare to Dream | ${data?.policy.title ?? ''}`}];
 };
 
 export async function loader({params, context}: Route.LoaderArgs) {
@@ -45,16 +47,26 @@ export default function Policy() {
   const {policy} = useLoaderData<typeof loader>();
 
   return (
-    <div className="policy">
-      <br />
-      <br />
-      <div>
-        <Link to="/policies">← Back to Policies</Link>
-      </div>
-      <br />
-      <h1>{policy.title}</h1>
-      <div dangerouslySetInnerHTML={{__html: policy.body}} />
-    </div>
+    <>
+      <section className="policies-page">
+        <div className="policies-container policies-container-single">
+          <div className="policies-content">
+            <article className="policy-section">
+              <div className="policy-divider" />
+              <Link to="/policies" className="policy-back-link">
+                <span className="policies-nav-arrow">&larr;</span>
+                Back to Policies
+              </Link>
+              <h2 className="policy-title">{policy.title}</h2>
+              <div className="policy-block policy-html-content" dangerouslySetInnerHTML={{__html: policy.body}} />
+              <div className="policy-divider divider-bottom" />
+            </article>
+          </div>
+        </div>
+      </section>
+      <Footer />
+      <FooterParallax />
+    </>
   );
 }
 

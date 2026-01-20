@@ -6087,6 +6087,85 @@ button.is-loading {
   opacity: 0.7;
 }
 
+/* Single Policy Page (from Shopify) */
+.policies-container-single {
+  display: block;
+}
+
+.policies-container-single .policies-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.policy-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  color: var(--color-white);
+  opacity: 0.6;
+  font-size: var(--font-sm);
+  text-decoration: none;
+  margin-bottom: 2em;
+  transition: opacity 0.2s ease;
+}
+
+.policy-back-link:hover {
+  opacity: 1;
+}
+
+.policy-back-link .policies-nav-arrow {
+  opacity: 1;
+}
+
+.policy-html-content p {
+  font-size: var(--font-base);
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 1.5em;
+}
+
+.policy-html-content h1,
+.policy-html-content h2,
+.policy-html-content h3 {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-normal);
+  text-transform: uppercase;
+  color: var(--color-white);
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+.policy-html-content h1 {
+  font-size: var(--font-xl);
+}
+
+.policy-html-content h2 {
+  font-size: var(--font-lg);
+}
+
+.policy-html-content h3 {
+  font-size: var(--font-base);
+}
+
+.policy-html-content ul,
+.policy-html-content ol {
+  padding-left: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.policy-html-content li {
+  font-size: var(--font-base);
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0.5em;
+}
+
+.policy-html-content a {
+  color: var(--color-white);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 /* Tablet Policies */
 @media (max-width: 64em) {
   .policies-container {
