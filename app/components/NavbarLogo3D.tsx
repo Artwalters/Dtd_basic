@@ -180,7 +180,9 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
     // Responsive scale based on viewport width
     const updateScale = () => {
       const width = window.innerWidth;
-      if (width < 1400) {
+      if (width < 480) {
+        setLogoScale(0.85); // Larger on phones
+      } else if (width < 1400) {
         setLogoScale(0.65); // Smaller on 14" MacBooks and below
       } else if (width < 1600) {
         setLogoScale(0.75); // Slightly smaller on medium screens
