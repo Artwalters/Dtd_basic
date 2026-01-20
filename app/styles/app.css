@@ -69,11 +69,15 @@
 
   /* --- White Transparency (6 levels) --- */
   --white-subtle: rgba(255, 255, 255, 0.05);   /* Hover states, subtle bg */
-  --white-light: rgba(255, 255, 255, 0.1);     /* Borders, dividers */
+  --white-light: rgba(255, 255, 255, 0.15);     /* Borders, dividers */
   --white-medium: rgba(255, 255, 255, 0.2);    /* Active borders, focus */
   --white-strong: rgba(255, 255, 255, 0.5);    /* Secondary text on dark */
   --white-bright: rgba(255, 255, 255, 0.7);    /* Bright text on dark */
   --white-solid: rgba(255, 255, 255, 0.9);     /* Near-solid white */
+
+  /* --- Dividers --- */
+  --divider-bracket: 0.15;       /* Section dividers met haakjes */
+  --divider-line: 0.1;           /* Gewone rechte lijnen (accordions, etc) */
 
   /* --- Black Transparency (5 levels) --- */
   --black-subtle: rgba(0, 0, 0, 0.05);         /* Very subtle bg on light */
@@ -242,7 +246,7 @@ img {
   height: 1px;
   background: var(--color-white);
   margin: 0 0 2em;
-  opacity: 0.2;
+  opacity: var(--divider-bracket);
 }
 
 .section-divider::before,
@@ -3444,7 +3448,6 @@ button.reset:hover:not(:has(> *)) {
 /* Product Section Divider with brackets */
 .product-section-divider {
   margin: 0 0 2em;
-  opacity: 0.2;
 }
 
 /* Section Label */
@@ -3642,11 +3645,11 @@ button.reset:hover:not(:has(> *)) {
 
 /* Expandable Sections */
 .product-expandable-sections {
-  border-top: 1px solid var(--white-light);
+  border-top: 1px solid rgba(255, 255, 255, var(--divider-line));
 }
 
 .expandable-section {
-  border-bottom: 1px solid var(--white-light);
+  border-bottom: 1px solid rgba(255, 255, 255, var(--divider-line));
 }
 
 .section-header {
@@ -3678,7 +3681,7 @@ button.reset:hover:not(:has(> *)) {
 
 .section-content {
   padding: 0 1em 1em;
-  border-top: 1px solid var(--white-light);
+  border-top: 1px solid rgba(255, 255, 255, var(--divider-line));
 }
 
 .product-details-content {
@@ -3938,7 +3941,7 @@ button.reset:hover:not(:has(> *)) {
   position: relative;
   width: calc(100% - 4em);
   height: 1px;
-  background: var(--white-light);
+  background: rgba(255, 255, 255, var(--divider-bracket));
   margin: 0 2em;
 }
 
@@ -3949,7 +3952,7 @@ button.reset:hover:not(:has(> *)) {
   top: 0;
   width: 1px;
   height: 0.75em;
-  background: var(--white-light);
+  background: rgba(255, 255, 255, var(--divider-bracket));
 }
 
 .size-guide-divider-bracket::before {
@@ -4075,7 +4078,7 @@ button.reset:hover:not(:has(> *)) {
 .size-table td {
   padding: 0.75em;
   text-align: left;
-  border-bottom: 1px solid var(--white-light);
+  border-bottom: 1px solid rgba(255, 255, 255, var(--divider-line));
 }
 
 .size-table th {
@@ -4313,7 +4316,7 @@ button.reset:hover:not(:has(> *)) {
   text-align: left;
   margin: 2em 0;
   padding-top: 1.5em;
-  border-top: 1px solid var(--white-light);
+  border-top: 1px solid rgba(255, 255, 255, var(--divider-line));
 }
 
 .size-tips ul {
@@ -4532,11 +4535,11 @@ button.reset:hover:not(:has(> *)) {
 
 .accordion-css__item {
   list-style: none;
-  border-bottom: 1px solid var(--white-light);
+  border-bottom: 1px solid rgba(255, 255, 255, var(--divider-line));
 }
 
 .accordion-css__item:last-child {
-  border-bottom: 1px solid var(--white-light);
+  border-bottom: 1px solid rgba(255, 255, 255, var(--divider-line));
 }
 
 @media (max-width: 767px) {
@@ -4713,7 +4716,7 @@ button.reset:hover:not(:has(> *)) {
   flex: 1;
   height: 1px;
   background: var(--color-white);
-  opacity: 0.2;
+  opacity: var(--divider-bracket);
   position: relative;
 }
 
@@ -4725,7 +4728,6 @@ button.reset:hover:not(:has(> *)) {
   width: 1px;
   height: 0.75em;
   background: var(--color-white);
-  opacity: 1;
 }
 
 .section-divider-line-right::after {
@@ -4736,7 +4738,6 @@ button.reset:hover:not(:has(> *)) {
   width: 1px;
   height: 0.75em;
   background: var(--color-white);
-  opacity: 1;
 }
 
 .section-divider-title {
@@ -5237,7 +5238,7 @@ button.reset:hover:not(:has(> *)) {
   color: var(--white-medium);
   margin: 0;
   padding-bottom: 0.75em;
-  border-bottom: 1px solid var(--white-light);
+  border-bottom: 1px solid rgba(255, 255, 255, var(--divider-line));
   margin-bottom: 0.5em;
 }
 
@@ -5431,7 +5432,7 @@ button.reset:hover:not(:has(> *)) {
   }
 
   .footer-accordion .accordion-css__item {
-    border-bottom: 1px solid var(--white-subtle);
+    border-bottom: 1px solid rgba(255, 255, 255, var(--divider-line));
   }
 
   .footer-accordion .accordion-css__item:last-child {
@@ -5748,7 +5749,7 @@ button.reset:hover:not(:has(> *)) {
   gap: 1em;
   margin-bottom: 1.5em;
   padding-bottom: 1.5em;
-  border-bottom: 1px solid var(--white-light);
+  border-bottom: 1px solid rgba(255, 255, 255, var(--divider-line));
 }
 
 .mobile-quick-add__image {
