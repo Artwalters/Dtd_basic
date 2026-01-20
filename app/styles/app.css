@@ -4312,14 +4312,14 @@ button.reset:hover:not(:has(> *)) {
 .size-tips {
   text-align: left;
   margin: 2em 0;
-  padding: 1.5em;
-  background: var(--white-subtle);
-  border-radius: 0.5em;
+  padding-top: 1.5em;
+  border-top: 1px solid var(--white-light);
 }
 
 .size-tips ul {
   margin: 0;
-  padding-left: 1.25em;
+  padding-left: 0;
+  list-style-position: inside;
 }
 
 .size-tips li {
@@ -4508,7 +4508,7 @@ button.reset:hover:not(:has(> *)) {
 
 .size-guide-mobile .size-tips {
   margin: 1.5em 0;
-  padding: 1em;
+  padding-top: 1em;
 }
 
 /*
