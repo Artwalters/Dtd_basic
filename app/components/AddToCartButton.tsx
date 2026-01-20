@@ -1,5 +1,52 @@
 import {type FetcherWithComponents} from 'react-router';
 import {CartForm, type OptimisticCartLineInput} from '@shopify/hydrogen';
+import {useState, useEffect, useRef} from 'react';
+
+function AddToCartButtonInner({
+  fetcher,
+  children,
+  disabled,
+  onClick,
+  className,
+}: {
+  fetcher: FetcherWithComponents<any>;
+  children: React.ReactNode;
+  disabled?: boolean;
+  onClick?: () => void;
+  className?: string;
+}) {
+  const [showSuccess, setShowSuccess] = useState(false);
+  const prevStateRef = useRef<string>('idle');
+  const isLoading = fetcher.state !== 'idle';
+
+  useEffect(() => {
+    if (prevStateRef.current !== 'idle' && fetcher.state === 'idle') {
+      setShowSuccess(true);
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+    prevStateRef.current = fetcher.state;
+  }, [fetcher.state]);
+
+  return (
+    <button
+      type="submit"
+      onClick={onClick}
+      disabled={disabled ?? isLoading}
+      className={`${className} ${isLoading ? 'is-loading' : ''} ${showSuccess ? 'is-success' : ''}`}
+    >
+      {isLoading ? (
+        <span className="btn-loader"></span>
+      ) : showSuccess ? (
+        <span>Added to bag</span>
+      ) : (
+        children
+      )}
+    </button>
+  );
+}
 
 export function AddToCartButton({
   analytics,
@@ -30,14 +77,14 @@ export function AddToCartButton({
             type="hidden"
             value="LinesAdd"
           />
-          <button
-            type="submit"
+          <AddToCartButtonInner
+            fetcher={fetcher}
+            disabled={disabled}
             onClick={onClick}
-            disabled={disabled ?? fetcher.state !== 'idle'}
             className={className}
           >
             {children}
-          </button>
+          </AddToCartButtonInner>
         </>
       )}
     </CartForm>
