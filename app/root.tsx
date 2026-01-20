@@ -154,7 +154,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
         <style dangerouslySetInnerHTML={{__html: `
           @font-face {
             font-family: 'Genesis';
-            src: url('${genesisFont}') format('woff2-variations');
+            src: url('${genesisFont}') format('woff2');
             font-weight: 100 1000;
             font-style: normal;
             font-display: swap;
