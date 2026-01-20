@@ -65,7 +65,7 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
         <div className="cart-footer-sticky">
           <div className="cart-divider divider-bottom" />
           <dl className="cart-subtotal">
-            <dt>Total*:</dt>
+            <dt>Total:</dt>
             <dd>
               {cart?.cost?.subtotalAmount?.amount ? (
                 <Money data={cart?.cost?.subtotalAmount} />
@@ -76,10 +76,19 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
           </dl>
           <CartCheckoutActions checkoutUrl={cart?.checkoutUrl} />
           <p className="cart-disclaimer">
-            * Shipping and discounts calculated at checkout.
+            Shipping and discounts calculated at checkout.
           </p>
         </div>
       )}
+      {/* Fixed corner elements - desktop only */}
+      <span className="cart-copyright">©Dare to Dream 2026. All rights reserved.</span>
+      <div className="cart-payment-badges">
+        <img src="/app/assets/icons/apple-pay-badge-1.svg" alt="Apple Pay" />
+        <img src="/app/assets/icons/shop-pay-badge.svg" alt="Shop Pay" />
+        <img src="/app/assets/icons/google-pay-badge-1.svg" alt="Google Pay" />
+        <img src="/app/assets/icons/mastercard-badge-2.svg" alt="Mastercard" />
+        <img src="/app/assets/icons/paypal-badge-1.svg" alt="PayPal" />
+      </div>
     </div>
   );
 }

@@ -1385,6 +1385,38 @@ button.reset:hover:not(:has(> *)) {
   opacity: 0.4;
 }
 
+/* Cart count animation - slot machine effect */
+.cart-count-wrapper {
+  display: inline-flex;
+  overflow: hidden;
+  height: 1em;
+  vertical-align: baseline;
+  position: relative;
+}
+
+.cart-count-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-count-number {
+  height: 1em;
+  line-height: 1;
+}
+
+.cart-count-inner.is-animating {
+  animation: countSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes countSlide {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-1em);
+  }
+}
+
 .header a.header-logo {
   display: flex;
   align-items: center;

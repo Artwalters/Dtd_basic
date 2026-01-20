@@ -41,13 +41,25 @@ export default function Collection() {
 
   const totalProducts = products.nodes?.length || 0;
 
+  // Convert number to circled Unicode character
+  const getCircledNumber = (num: number): string => {
+    if (num >= 1 && num <= 20) {
+      return String.fromCodePoint(0x2460 + num - 1);
+    } else if (num >= 21 && num <= 35) {
+      return String.fromCodePoint(0x3251 + num - 21);
+    } else if (num >= 36 && num <= 50) {
+      return String.fromCodePoint(0x32B1 + num - 36);
+    }
+    return `(${num})`;
+  };
+
   return (
     <>
       <section className="shop-page">
         <div className="section-divider" />
         <div className="shop-page-header">
           <span className="shop-page-title">All Products</span>
-          <span className="shop-page-count">{totalProducts} Products</span>
+          <span className="shop-page-count">Products {getCircledNumber(totalProducts)}</span>
         </div>
 
         <PaginatedResourceSection<CollectionItemFragment>

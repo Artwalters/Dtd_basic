@@ -1,4 +1,4 @@
-import {Suspense, useState, useEffect, lazy} from 'react';
+import {Suspense, useState, useEffect, useRef, lazy} from 'react';
 import {Await, NavLink, useAsyncValue} from 'react-router';
 import {
   type CartViewPayload,
@@ -320,6 +320,35 @@ function BagIcon() {
   );
 }
 
+function AnimatedCount({count}: {count: number}) {
+  const [displayCount, setDisplayCount] = useState(count);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const prevCountRef = useRef(count);
+
+  useEffect(() => {
+    if (count !== prevCountRef.current) {
+      setIsAnimating(true);
+
+      // After animation completes, update display and reset
+      setTimeout(() => {
+        setDisplayCount(count);
+        setIsAnimating(false);
+      }, 400);
+
+      prevCountRef.current = count;
+    }
+  }, [count]);
+
+  return (
+    <span className="cart-count-wrapper">
+      <span className={`cart-count-inner ${isAnimating ? 'is-animating' : ''}`}>
+        <span className="cart-count-number">{displayCount}</span>
+        <span className="cart-count-number">{count}</span>
+      </span>
+    </span>
+  );
+}
+
 function CartBadge({count}: {count: number | null}) {
   const {type, open, close} = useAside();
   const {publish, shop, cart, prevCart} = useAnalytics();
@@ -366,7 +395,7 @@ function CartBadge({count}: {count: number | null}) {
           <>
             <span>Bag</span>
             <span className="divider">/</span>
-            <span>{count ?? 0}</span>
+            <AnimatedCount count={count ?? 0} />
           </>
         )}
       </button>
