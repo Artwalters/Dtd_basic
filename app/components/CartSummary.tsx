@@ -40,7 +40,7 @@ export function CartCheckoutActions({checkoutUrl}: {checkoutUrl?: string}) {
   return (
     <div className="cart-checkout-actions">
       <a href={checkoutUrl} target="_self" className="checkout-button">
-        Checkout
+        <span>Checkout</span>
       </a>
     </div>
   );

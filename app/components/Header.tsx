@@ -9,6 +9,7 @@ import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {useHeaderScroll} from '~/hooks/useHeaderScroll';
 import {useTheme} from '~/contexts/ThemeContext';
+import {ClientOnly} from '~/components/ClientOnly';
 
 const NavbarLogo3D = lazy(() => import('~/components/NavbarLogo3D'));
 
@@ -196,9 +197,11 @@ export function Header({
           }
         }}
       >
-        <Suspense fallback={<Logo />}>
-          <NavbarLogo3D isScrolled={isScrolled} isMenuOpen={isAsideOpen} />
-        </Suspense>
+        <ClientOnly fallback={<Logo />}>
+          <Suspense fallback={<Logo />}>
+            <NavbarLogo3D isScrolled={isScrolled} isMenuOpen={isAsideOpen} />
+          </Suspense>
+        </ClientOnly>
       </NavLink>
 
       {/* Desktop: Right navigation */}

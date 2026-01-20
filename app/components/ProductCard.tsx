@@ -78,9 +78,8 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   };
 
   const handleAddToCart = (variantId: string) => {
-    // Close panel and open cart immediately
+    // Close panel
     onToggle?.();
-    openAside('cart');
 
     const formData = new FormData();
     formData.append(

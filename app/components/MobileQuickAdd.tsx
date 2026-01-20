@@ -76,7 +76,6 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
 
   const handleAddToCart = (variantId: string) => {
     onClose();
-    openAside('cart');
 
     const formData = new FormData();
     formData.append(

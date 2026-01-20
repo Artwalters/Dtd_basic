@@ -16,7 +16,7 @@ function useIsTouchDevice() {
   return isTouch;
 }
 
-function FullLogoModel({isTouchDevice}: {isTouchDevice: boolean}) {
+function FullLogoModel({isTouchDevice, logoScale = 1}: {isTouchDevice: boolean; logoScale?: number}) {
   const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const {pointer} = useThree();
@@ -53,7 +53,7 @@ function FullLogoModel({isTouchDevice}: {isTouchDevice: boolean}) {
   });
 
   return (
-    <group ref={groupRef} scale={2.8}>
+    <group ref={groupRef} scale={2.8 * logoScale}>
       <primitive object={clonedScene} rotation={[0, 0, 0]} />
     </group>
   );
@@ -61,10 +61,27 @@ function FullLogoModel({isTouchDevice}: {isTouchDevice: boolean}) {
 
 export default function FooterLogo3D() {
   const [isClient, setIsClient] = useState(false);
+  const [logoScale, setLogoScale] = useState(1);
   const isTouchDevice = useIsTouchDevice();
 
   useEffect(() => {
     setIsClient(true);
+
+    // Responsive scale based on viewport width
+    const updateScale = () => {
+      const width = window.innerWidth;
+      if (width < 1400) {
+        setLogoScale(0.65); // Smaller on 14" MacBooks and below
+      } else if (width < 1600) {
+        setLogoScale(0.75); // Slightly smaller on medium screens
+      } else {
+        setLogoScale(1); // Full size on large screens
+      }
+    };
+
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
   }, []);
 
   if (!isClient) return null;
@@ -77,7 +94,7 @@ export default function FooterLogo3D() {
         gl={{antialias: true, alpha: true}}
       >
         <Suspense fallback={null}>
-          <FullLogoModel isTouchDevice={isTouchDevice} />
+          <FullLogoModel isTouchDevice={isTouchDevice} logoScale={logoScale} />
         </Suspense>
         <ambientLight intensity={1} />
         <directionalLight position={[5, 5, 5]} intensity={2} />

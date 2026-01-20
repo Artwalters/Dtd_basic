@@ -209,9 +209,6 @@ export function ProductDetails({
           <AddToCartButton
             className="add-to-bag-button"
             disabled={!selectedVariant || !selectedVariant.availableForSale}
-            onClick={() => {
-              open('cart');
-            }}
             lines={
               selectedVariant
                 ? [

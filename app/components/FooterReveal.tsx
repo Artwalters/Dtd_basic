@@ -2,6 +2,7 @@
 import {useEffect, useRef, lazy, Suspense} from 'react';
 import {gsap} from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
+import {ClientOnly} from '~/components/ClientOnly';
 
 const FooterLogo3D = lazy(() => import('~/components/FooterLogo3D'));
 
@@ -92,11 +93,20 @@ export function FooterParallax() {
           </button>
         </div>
         <div className="footer-parallax-logo-center">
-          <Suspense fallback={null}>
-            <FooterLogo3D />
-          </Suspense>
+          <ClientOnly>
+            <Suspense fallback={null}>
+              <FooterLogo3D />
+            </Suspense>
+          </ClientOnly>
         </div>
         <span className="footer-parallax-copyright">©Dare to Dream 2026. All rights reserved.</span>
+        <div className="footer-parallax-badges">
+          <img src="/app/assets/icons/apple-pay-badge-1.svg" alt="Apple Pay" />
+          <img src="/app/assets/icons/shop-pay-badge.svg" alt="Shop Pay" />
+          <img src="/app/assets/icons/google-pay-badge-1.svg" alt="Google Pay" />
+          <img src="/app/assets/icons/mastercard-badge-2.svg" alt="Mastercard" />
+          <img src="/app/assets/icons/paypal-badge-1.svg" alt="PayPal" />
+        </div>
       </footer>
       <div ref={darkRef} className="footer-parallax-dark" />
     </div>

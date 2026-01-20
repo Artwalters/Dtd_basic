@@ -22,9 +22,10 @@ interface NavbarLogo3DProps {
 interface ModelProps {
   isActive: boolean;
   isMenuOpen?: boolean;
+  logoScale?: number;
 }
 
-function FullLogoModel({isActive, isMenuOpen}: ModelProps) {
+function FullLogoModel({isActive, isMenuOpen, logoScale = 1}: ModelProps) {
   const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
@@ -61,7 +62,7 @@ function FullLogoModel({isActive, isMenuOpen}: ModelProps) {
       animProgress.current += (target - animProgress.current) * 0.08;
 
       const progress = animProgress.current;
-      const scale = 3.557 * progress;
+      const scale = 3.557 * progress * logoScale;
       groupRef.current.scale.setScalar(scale);
       groupRef.current.visible = progress > 0.01;
 
@@ -82,7 +83,7 @@ function FullLogoModel({isActive, isMenuOpen}: ModelProps) {
   );
 }
 
-function SmallLogoModel({isActive, isMenuOpen}: ModelProps) {
+function SmallLogoModel({isActive, isMenuOpen, logoScale = 1}: ModelProps) {
   const {scene, animations} = useGLTF('/3D/dtd_logo7_nav.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
@@ -139,7 +140,7 @@ function SmallLogoModel({isActive, isMenuOpen}: ModelProps) {
       animProgress.current += (target - animProgress.current) * 0.08;
 
       const progress = animProgress.current;
-      const scale = 1.65 * progress;
+      const scale = 1.65 * progress * logoScale;
       groupRef.current.scale.setScalar(scale);
       groupRef.current.visible = progress > 0.01;
 
@@ -171,9 +172,26 @@ function SmallLogoModel({isActive, isMenuOpen}: ModelProps) {
 
 export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps) {
   const [isClient, setIsClient] = useState(false);
+  const [logoScale, setLogoScale] = useState(1);
 
   useEffect(() => {
     setIsClient(true);
+
+    // Responsive scale based on viewport width
+    const updateScale = () => {
+      const width = window.innerWidth;
+      if (width < 1400) {
+        setLogoScale(0.65); // Smaller on 14" MacBooks and below
+      } else if (width < 1600) {
+        setLogoScale(0.75); // Slightly smaller on medium screens
+      } else {
+        setLogoScale(1); // Full size on large screens
+      }
+    };
+
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
   }, []);
 
   if (!isClient) return null;
@@ -186,8 +204,8 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
         gl={{antialias: true, alpha: true}}
       >
         <Suspense fallback={null}>
-          <FullLogoModel isActive={!isScrolled} isMenuOpen={isMenuOpen} />
-          <SmallLogoModel isActive={isScrolled} isMenuOpen={isMenuOpen} />
+          <FullLogoModel isActive={!isScrolled} isMenuOpen={isMenuOpen} logoScale={logoScale} />
+          <SmallLogoModel isActive={isScrolled} isMenuOpen={isMenuOpen} logoScale={logoScale} />
           <Environment files="/3D/studio_small_09_1k.hdr" />
         </Suspense>
       </Canvas>
