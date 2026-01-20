@@ -85,10 +85,11 @@ export function FooterParallax() {
         <div className="footer-parallax-bar">
           <span className="footer-parallax-text">Genesis Collection</span>
           <span className="footer-parallax-text-mobile">Genesis</span>
-          <button className="btn-glass footer-parallax-btn" onClick={scrollToTop}>
+          <button className="btn-glass btn-glass--icon footer-parallax-btn" onClick={scrollToTop}>
             <span className="footer-parallax-btn-text">Scroll to top</span>
-            <svg className="footer-parallax-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 19V5M5 12l7-7 7 7"/>
+            <svg className="footer-parallax-btn-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{transform: 'rotate(-90deg)'}}>
+              <path d="M15 10L20 15L15 20" stroke="currentColor" strokeMiterlimit="10"></path>
+              <path d="M4 4V12L7 15H20" stroke="currentColor" strokeMiterlimit="10"></path>
             </svg>
           </button>
         </div>
