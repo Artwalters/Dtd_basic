@@ -1936,61 +1936,6 @@ button.reset:hover:not(:has(> *)) {
   margin-top: auto;
 }
 
-.cart-line-quantity {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 0.75em;
-}
-
-.quantity-selector {
-  display: flex;
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-@media (max-width: 47.99em) {
-  .quantity-selector {
-    width: auto;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 0;
-    justify-content: flex-start;
-  }
-}
-
-.quantity-button {
-  background: none;
-  border: none;
-  padding: 0.25em;
-  font-size: var(--font-base);
-  color: var(--color-black);
-  cursor: pointer;
-  width: 1.5em;
-  height: 1.5em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.2s;
-}
-
-.quantity-button:hover:not(:disabled) {
-  opacity: 0.6;
-}
-
-.quantity-button:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.quantity-number {
-  min-width: 2em;
-  text-align: center;
-  font-size: var(--font-base);
-  color: var(--color-black);
-}
-
 .cart-remove-button {
   background: none;
   border: none;
