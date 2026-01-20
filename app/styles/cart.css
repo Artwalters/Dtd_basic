@@ -750,13 +750,17 @@
   }
 
   /* Cart empty - desktop light */
-  .overlay[data-aside-type="cart"] .cart-empty-message {
+  .cart-empty-message {
     color: var(--color-black);
   }
 
-  .overlay[data-aside-type="cart"] .cart-empty-button {
+  .cart-empty-button {
     background: var(--color-black);
     color: var(--color-white);
+  }
+
+  .cart-empty-button:hover {
+    background: #222;
   }
 
   /* Cart footer - desktop light */
