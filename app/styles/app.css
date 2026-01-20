@@ -4532,11 +4532,17 @@ button.reset:hover:not(:has(> *)) {
 
 .accordion-css__item {
   list-style: none;
-  border-bottom: 1px solid var(--white-subtle);
+  border-bottom: 1px solid var(--white-light);
 }
 
 .accordion-css__item:last-child {
-  border-bottom: none;
+  border-bottom: 1px solid var(--white-light);
+}
+
+@media (max-width: 767px) {
+  .accordion-css__item:last-child {
+    border-bottom: none;
+  }
 }
 
 .accordion-css__item-top {
