@@ -79,7 +79,6 @@ export function Footer() {
         {/* Newsletter - wider column */}
         <div className="footer-links-col footer-newsletter">
           <h3 className="footer-links-title">Get a look behind the brand</h3>
-          <p className="footer-newsletter-subtitle">join the newsletter</p>
           <form className="footer-newsletter-form">
             <input
               type="email"

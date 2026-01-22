@@ -484,16 +484,11 @@ aside li {
   pointer-events: none;
 }
 
-/* Show overlay when menu or cart is open */
-.main-content-area[data-menu-open="true"] .sliding-wrapper-overlay,
-.main-content-area[data-cart-open="true"] .sliding-wrapper-overlay {
-  display: block;
-  pointer-events: auto;
-}
-
-/* On desktop, don't cover the cart panel */
+/* Show overlay when cart is open (desktop only) */
 @media (min-width: 48em) {
   .main-content-area[data-cart-open="true"] .sliding-wrapper-overlay {
+    display: block;
+    pointer-events: auto;
     right: 34em;
   }
 }
@@ -3894,8 +3889,7 @@ button.is-loading {
 
 .size-model-info {
   font-size: var(--font-sm);
-  color: var(--color-white);
-  opacity: 0.7;
+  color: var(--white-strong);
 }
 
 .size-guide-link {
@@ -4070,7 +4064,7 @@ button.is-loading {
 }
 
 .product-details-content {
-  color: var(--color-white);
+  color: var(--white-strong);
   font-size: var(--font-sm);
   line-height: var(--leading-normal);
 }
@@ -5591,9 +5585,7 @@ button.is-loading {
 .footer-links-title {
   font-size: var(--font-sm);
   font-weight: var(--weight-normal);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--white-strong);
+  color: var(--color-white);
   margin: 0;
   padding-bottom: 0.75em;
   border-bottom: 1px solid var(--white-light);
@@ -5610,17 +5602,17 @@ button.is-loading {
 }
 
 .footer-links-list li a {
-  color: var(--color-white);
+  color: var(--white-strong);
   text-decoration: none;
   font-size: var(--font-base);
   font-weight: 400;
   font-variation-settings: 'wght' 400, 'ital' 0, 'MONO' 0, 'XHGT' 0;
   line-height: var(--leading-normal);
-  transition: opacity 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .footer-links-list li a:hover {
-  opacity: 0.7;
+  color: var(--color-white);
 }
 
 /* Footer Newsletter */
@@ -5807,26 +5799,15 @@ button.is-loading {
   }
 
   .footer-accordion .footer-links-list li a {
-    color: var(--color-white);
+    color: var(--white-strong);
     font-weight: 400;
     font-variation-settings: 'wght' 400, 'ital' 0, 'MONO' 0, 'XHGT' 0;
     line-height: var(--leading-normal);
     font-size: var(--font-sm);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5em;
   }
 
-  .footer-accordion .footer-links-list li a::after {
-    content: '';
-    width: 6px;
-    height: 10px;
-    background-image: url("data:image/svg+xml,%3Csvg width='6' height='10' viewBox='0 0 6 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L1 9' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-size: contain;
-    flex-shrink: 0;
-    opacity: 0.5;
+  .footer-accordion .footer-links-list li a:hover {
+    color: var(--color-white);
   }
 
   .footer-accordion .footer-links-list {
