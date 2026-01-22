@@ -1,7 +1,9 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useState} from 'react';
+import {createPortal} from 'react-dom';
 import type {Route} from './+types/policies._index';
 import {Footer} from '~/components/Footer';
 import {FooterParallax} from '~/components/FooterReveal';
+import {getLenis} from '~/hooks/useLenis';
 
 export const meta: Route.MetaFunction = () => {
   return [{title: 'Dare to Dream | Policies'}];
@@ -17,6 +19,13 @@ const policyNavItems = [
 
 export default function PoliciesPage() {
   const [activeSection, setActiveSection] = useState('privacy');
+  const [isQuickNavOpen, setIsQuickNavOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Wait for client-side mount for portal
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const sections = policyNavItems.map(item => document.getElementById(item.id));
@@ -46,18 +55,41 @@ export default function PoliciesPage() {
     };
   }, []);
 
+  // Lock scroll when quick nav is open
+  useEffect(() => {
+    if (!isQuickNavOpen) return;
+
+    const lenis = getLenis();
+    lenis?.stop();
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    return () => {
+      lenis?.start();
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isQuickNavOpen]);
+
   const handleNavClick = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      // Use Lenis scroll if available
-      const lenis = (window as any).lenis;
-      if (lenis) {
-        lenis.scrollTo(element, {offset: -100});
-      } else {
-        element.scrollIntoView({behavior: 'smooth', block: 'start'});
-      }
+      // Close quick nav popup first
+      setIsQuickNavOpen(false);
+
+      // Small delay to let popup close before scrolling
+      setTimeout(() => {
+        const lenis = getLenis();
+        if (lenis) {
+          lenis.scrollTo(element, {offset: -100});
+        } else {
+          element.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+      }, 100);
     }
   };
+
+  const activeLabel = policyNavItems.find(item => item.id === activeSection)?.label || 'Quick Nav';
 
   return (
     <>
@@ -401,6 +433,69 @@ export default function PoliciesPage() {
           </div>
         </div>
       </section>
+
+      {/* Mobile Quick Nav */}
+      {mounted && createPortal(
+        <>
+          {/* Sticky Button */}
+          <div className="policies-quick-nav-trigger">
+            <button
+              className="policies-quick-nav-btn"
+              onClick={() => setIsQuickNavOpen(true)}
+            >
+              <span>{activeLabel}</span>
+              <span className="policies-quick-nav-icon">OPEN</span>
+            </button>
+            {/* Progress Bar */}
+            <div className="policies-quick-nav-progress">
+              <div className="progress-track">
+                <div
+                  className="progress-fill"
+                  style={{
+                    width: `${100 / policyNavItems.length}%`,
+                    transform: `translateX(${policyNavItems.findIndex(item => item.id === activeSection) * 100}%)`
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Backdrop */}
+          <div
+            className={`policies-quick-nav-backdrop ${isQuickNavOpen ? 'open' : ''}`}
+            onClick={() => setIsQuickNavOpen(false)}
+          />
+
+          {/* Popup */}
+          <div className={`policies-quick-nav-popup ${isQuickNavOpen ? 'open' : ''}`}>
+            <div className="policies-quick-nav-popup__header">
+              <h2 className="policies-quick-nav-popup__title">Quick Nav</h2>
+              <button
+                className="policies-quick-nav-popup__close"
+                onClick={() => setIsQuickNavOpen(false)}
+              >
+                CLOSE
+              </button>
+            </div>
+            <div className="mobile-quick-add__divider-bracket" />
+            <ul className="policies-quick-nav-popup__list">
+              {policyNavItems.map((item) => (
+                <li key={item.id}>
+                  <button
+                    onClick={() => handleNavClick(item.id)}
+                    className={`policies-quick-nav-popup__link ${activeSection === item.id ? 'active' : ''}`}
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="mobile-quick-add__divider-bracket divider-bottom" />
+          </div>
+        </>,
+        document.body
+      )}
+
       <Footer />
       <FooterParallax />
     </>
