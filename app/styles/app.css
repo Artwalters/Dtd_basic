@@ -6179,15 +6179,20 @@ button.is-loading {
 }
 
 .mobile-quick-add__close {
-  background: var(--white-subtle);
-  border: 1px solid var(--white-subtle);
-  border-radius: 4px;
+  background: none;
+  border: none;
   font-size: var(--font-sm);
-  font-weight: var(--weight-medium);
+  font-family: var(--font-body);
   color: var(--color-white);
   cursor: pointer;
-  padding: 0.5em 1em;
+  text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.mobile-quick-add__close:hover {
+  opacity: 1;
 }
 
 /* Divider with corner brackets */
