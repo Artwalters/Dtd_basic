@@ -5424,7 +5424,7 @@ button.is-loading {
 * --------------------------------------------------
 */
 .shop-page {
-  padding: 16em 1em 6em 1em;
+  padding: 16em 1em 0 1em;
   background: var(--color-black);
   position: relative;
   z-index: 2;
@@ -5463,6 +5463,14 @@ button.is-loading {
   gap: 1em;
 }
 
+.shop-no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4em 1em;
+  color: var(--white-strong);
+  font-size: var(--font-base);
+}
+
 @media (max-width: 62.5em) {
   .shop-page-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -5471,7 +5479,7 @@ button.is-loading {
 
 @media (max-width: 47.99em) {
   .shop-page {
-    padding: 10em 0.5em 6em 0.5em;
+    padding: 10em 0.5em 0 0.5em;
   }
 
   .shop-page-grid {
@@ -5487,131 +5495,61 @@ button.is-loading {
 .shop-filter-bar {
   position: sticky;
   bottom: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1em 1.5em;
+  z-index: 100;
   background: var(--color-black);
   border-top: 1px solid var(--white-light);
-  margin-top: 2em;
-  z-index: 100;
+  margin: 0 -1em;
+  padding: 1.25em 1.5em;
+  padding-bottom: calc(1.25em + env(safe-area-inset-bottom, 0));
 }
 
-.shop-filter-pagination {
+.shop-filter-bar__inner {
   display: flex;
-  gap: 0.5em;
-}
-
-.shop-filter-page {
-  font-size: var(--font-sm);
-  color: var(--white-strong);
-  font-family: inherit;
-  font-variation-settings: 'wght' 400, 'ital' 0, 'MONO' 100, 'XHGT' 0;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.shop-filter-page.active {
-  color: var(--color-white);
-}
-
-.shop-filter-page:hover {
-  color: var(--color-white);
-}
-
-.shop-filter-types {
-  display: flex;
-  gap: 1.5em;
+  justify-content: center;
   align-items: center;
+  gap: 2em;
 }
 
-.shop-filter-type {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
+.shop-filter-bar__btn {
   background: none;
   border: none;
-  color: var(--white-strong);
+  color: var(--color-white);
   font-size: var(--font-sm);
+  font-family: var(--font-body);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
   cursor: pointer;
   padding: 0;
-  font-family: inherit;
-  transition: color 0.2s ease;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
 }
 
-.shop-filter-type.active {
-  color: var(--color-white);
+.shop-filter-bar__btn:hover,
+.shop-filter-bar__btn.active {
+  opacity: 1;
 }
 
-.shop-filter-type:hover {
-  color: var(--color-white);
-}
-
-.shop-filter-icon {
-  font-size: var(--font-md);
-}
-
-.shop-filter-soldout {
-  display: flex;
-  align-items: center;
-  gap: 0.75em;
-  font-size: var(--font-sm);
-  color: var(--white-strong);
-}
-
-.shop-filter-toggle {
-  position: relative;
-  width: 2.5em;
-  height: 1.25em;
-  background: var(--white-medium);
-  border: none;
-  border-radius: 1em;
-  cursor: pointer;
-  padding: 0;
-  transition: background 0.2s ease;
-}
-
-.shop-filter-toggle.active {
-  background: var(--color-success);
-}
-
-.toggle-indicator {
-  position: absolute;
-  top: 0.15em;
-  left: 0.15em;
-  width: 0.95em;
-  height: 0.95em;
-  background: var(--color-white);
-  border-radius: 50%;
-  transition: transform 0.2s ease;
-}
-
-.shop-filter-toggle.active .toggle-indicator {
-  transform: translateX(1.25em);
+.shop-filter-bar__icon {
+  width: 14px;
+  height: 14px;
+  filter: invert(1);
+  opacity: 0.5;
 }
 
 @media (max-width: 47.99em) {
   .shop-filter-bar {
-    padding: 0.75em 1em;
+    margin: 0 -0.5em;
+    padding: 1em 1em 0em 0em;
+    padding-bottom: calc(1em + env(safe-area-inset-bottom, 0));
   }
 
-  .shop-filter-pagination {
-    display: none;
-  }
-
-  .shop-filter-types {
-    gap: 1em;
+  .shop-filter-bar__inner {
+    gap: 1.25em;
     flex-wrap: wrap;
   }
 
-  .shop-filter-type {
-    font-size: var(--font-sm);
-  }
-
-  .shop-filter-soldout span {
-    display: none;
+  .shop-filter-bar__btn {
+    font-size: var(--font-xs);
   }
 }
 
@@ -5796,7 +5734,7 @@ button.is-loading {
 /* Footer Links Mobile */
 @media (max-width: 767px) {
   .footer-links {
-    padding: 0 1em 2em;
+    padding: 2em 1em 2em;
   }
 
   .footer-links .footer-divider-top {
