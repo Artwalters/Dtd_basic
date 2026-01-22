@@ -155,13 +155,6 @@ export default function PageComponent() {}
 --duration-slow: 0.5s;     /* Slower, smoother animations */
 ```
 
-### Shadows
-
-```css
---shadow-soft: 0 4px 12px var(--black-light);     /* Cards, dropdowns */
---shadow-strong: -4px 0 24px var(--black-light);  /* Side panels, modals */
-```
-
 ### Button System
 
 Use the existing button classes:
