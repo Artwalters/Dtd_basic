@@ -430,7 +430,7 @@ function CartBadgeMobile({count}: {count: number | null}) {
   return (
     <a
       href="/cart"
-      className={`header-nav-item ${buttonClass}`}
+      className={`header-nav-item ${buttonClass} mobile-cart-btn`}
       onClick={(e) => {
         e.preventDefault();
         open('cart');
@@ -444,6 +444,11 @@ function CartBadgeMobile({count}: {count: number | null}) {
       aria-label="Open shopping bag"
     >
       <BagIcon />
+      {hasItems && (
+        <span className="mobile-cart-badge">
+          <AnimatedCount count={count ?? 0} />
+        </span>
+      )}
     </a>
   );
 }

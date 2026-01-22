@@ -1437,6 +1437,39 @@ button.is-loading {
   }
 }
 
+/* Mobile cart badge */
+.mobile-cart-btn {
+  position: relative;
+}
+
+.mobile-cart-badge {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 15px;
+  height: 15px;
+  background: var(--color-black);
+  color: var(--color-white);
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: var(--weight-semibold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 1.5px solid var(--color-white);
+}
+
+.mobile-cart-badge .cart-count-wrapper {
+  height: 9px;
+  transform: translateY(0.5px);
+}
+
+.mobile-cart-badge .cart-count-number {
+  height: 9px;
+  line-height: 9px;
+}
+
 .header a.header-logo {
   display: flex;
   align-items: center;
