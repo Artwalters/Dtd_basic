@@ -950,6 +950,7 @@ button.reset:hover:not(:has(> *)) {
 .announcement-bar.dark-mode {
   background: transparent;
   border-bottom: 1px solid var(--black-muted);
+  border-top-color: var(--black-muted);
 }
 
 .announcement-bar.cart-mode .announcement-text,
@@ -975,6 +976,16 @@ button.reset:hover:not(:has(> *)) {
 .announcement-bar.cart-mode .announcement-marquee-item,
 .announcement-bar.dark-mode .announcement-marquee-item {
   color: var(--color-black);
+}
+
+
+.announcement-bar.cart-mode .language-switcher,
+.announcement-bar.dark-mode .language-switcher {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-left-color: var(--black-muted);
+  border-top-color: var(--black-muted);
 }
 
 .announcement-center {
@@ -1814,6 +1825,7 @@ button.is-loading {
     padding: 0;
     overflow: hidden;
     justify-content: space-between;
+    border-top: 1px solid var(--white-subtle);
   }
 
   .announcement-center,
@@ -1832,6 +1844,7 @@ button.is-loading {
     padding: 0 0.75em;
     gap: 0.15em;
     border-left: 1px solid var(--white-subtle);
+    border-top: 1px solid var(--white-subtle);
     background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
