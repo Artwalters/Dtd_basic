@@ -19,9 +19,9 @@ const ANNOUNCEMENT_MESSAGES = [
 ];
 
 const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'nl', label: 'Nederlands' },
-  { code: 'de', label: 'Deutsch' },
+  { code: 'en', label: 'English', short: 'EN' },
+  { code: 'nl', label: 'Nederlands', short: 'NL' },
+  { code: 'de', label: 'Deutsch', short: 'DE' },
 ];
 
 function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => void; isCartOpen?: boolean; isMenuOpen?: boolean }) {
@@ -87,7 +87,8 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
             className={`language-btn ${activeLanguage === lang.code ? 'active' : ''}`}
             onClick={() => setActiveLanguage(lang.code)}
           >
-            {lang.label}
+            <span className="language-full">{lang.label}</span>
+            <span className="language-short">{lang.short}</span>
           </button>
         ))}
         <button

@@ -1030,6 +1030,10 @@ button.reset:hover:not(:has(> *)) {
   color: var(--color-white);
 }
 
+.language-short {
+  display: none;
+}
+
 .language-btn.active {
   color: var(--color-white);
 }
@@ -1809,18 +1813,44 @@ button.is-loading {
   .announcement-bar {
     padding: 0;
     overflow: hidden;
+    justify-content: space-between;
   }
 
   .announcement-center,
-  .language-switcher,
   .announcement-spacer {
     display: none;
   }
 
   .announcement-marquee {
     display: flex;
-    width: 100%;
+    flex: 1;
     overflow: hidden;
+  }
+
+  .language-switcher {
+    flex-shrink: 0;
+    padding: 0 0.75em;
+    gap: 0.15em;
+    border-left: 1px solid var(--white-subtle);
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .language-btn {
+    font-size: var(--font-xs);
+    padding: 0.25em 0.5em;
+  }
+
+  .language-full {
+    display: none;
+  }
+
+  .language-short {
+    display: inline;
   }
 }
 
