@@ -78,7 +78,8 @@ export function Footer() {
       <div className="footer-links-grid footer-desktop">
         {/* Newsletter - wider column */}
         <div className="footer-links-col footer-newsletter">
-          <h3 className="footer-links-title">Get a look behind the brand</h3>
+          <h3 className="footer-links-title">Newsletter</h3>
+          <p className="footer-newsletter-subtitle">Get a look behind the brand</p>
           <form className="footer-newsletter-form">
             <input
               type="email"
