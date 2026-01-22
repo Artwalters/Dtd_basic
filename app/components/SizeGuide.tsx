@@ -170,17 +170,19 @@ export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
                 </div>
               </div>
             </div>
-            <div className="size-guide-divider-bracket divider-bottom" />
-          </div>
+                      </div>
         )}
 
         {step === 'form' && (
           <div className="size-guide-content">
-            <div className="size-guide-header">
+            <div className="size-guide-header size-guide-header--row">
               <button className="size-guide-back" onClick={() => setStep('intro')}>
-                ← Back
+                Back
               </button>
-              <h2 className="size-guide-title">Your Measurements</h2>
+              <h2 className="size-guide-title">Measurements</h2>
+              <button className="size-guide-header-close" onClick={onClose}>
+                Close
+              </button>
             </div>
             <div className="size-guide-divider-bracket" />
             <div className="size-guide-scrollable">
@@ -263,17 +265,19 @@ export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
                 </button>
               </div>
             </div>
-            <div className="size-guide-divider-bracket divider-bottom" />
-          </div>
+                      </div>
         )}
 
         {step === 'result' && recommendedSize && (
           <div className="size-guide-content">
-            <div className="size-guide-header">
+            <div className="size-guide-header size-guide-header--row">
               <button className="size-guide-back" onClick={resetGuide}>
-                ← Start Over
+                Back
               </button>
               <h2 className="size-guide-title">Your Size</h2>
+              <button className="size-guide-header-close" onClick={onClose}>
+                Close
+              </button>
             </div>
             <div className="size-guide-divider-bracket" />
             <div className="size-guide-scrollable">
@@ -311,8 +315,7 @@ export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
                 </div>
               </div>
             </div>
-            <div className="size-guide-divider-bracket divider-bottom" />
-          </div>
+                      </div>
         )}
     </>
   );
@@ -360,11 +363,6 @@ export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
   return (
     <div className="size-guide-overlay" onClick={onClose}>
       <div className="size-guide-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="size-guide-close" onClick={onClose}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
         {renderContent()}
       </div>
     </div>
