@@ -493,23 +493,13 @@ aside li {
   }
 }
 
-/* Mobile menu: slide page to right */
+/* Mobile menu: slide page to right (GSAP handles animation) */
 @media (max-width: 47.99em) {
   /* Cream background behind everything when menu open, prevent all scrolling */
-  html:has(.sliding-wrapper.mobile-menu-open),
-  body:has(.sliding-wrapper.mobile-menu-open) {
+  html:has(.sliding-wrapper[data-menu-open="true"]),
+  body:has(.sliding-wrapper[data-menu-open="true"]) {
     background: var(--color-cream);
     overflow: hidden;
-  }
-
-  /* Only apply transform when menu is open - no default transform */
-  /* Power2.out easing from GSAP */
-  .sliding-wrapper {
-    transition: transform 0.5s var(--ease-smooth);
-  }
-
-  .sliding-wrapper.mobile-menu-open {
-    transform: translateX(100%);
   }
 
   /* Cart: slide page to left (opposite direction of menu) */
@@ -517,10 +507,6 @@ aside li {
   body:has(.sliding-wrapper[data-cart-open="true"]) {
     background: var(--color-cream);
     overflow: hidden;
-  }
-
-  .sliding-wrapper[data-cart-open="true"] {
-    transform: translateX(-100%);
   }
 
   /* Mobile menu overlay - transparent, only for positioning menu */
@@ -1141,18 +1127,18 @@ button.reset:hover:not(:has(> *)) {
 
 /* Dark icons when mobile menu or cart is open */
 @media (max-width: 47.99em) {
-  body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper,
+  body:has(.sliding-wrapper[data-menu-open="true"]) .header-wrapper,
   body:has(.sliding-wrapper[data-cart-open="true"]) .header-wrapper {
     color: var(--color-black);
   }
 
-  body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper svg,
+  body:has(.sliding-wrapper[data-menu-open="true"]) .header-wrapper svg,
   body:has(.sliding-wrapper[data-cart-open="true"]) .header-wrapper svg {
     stroke: var(--color-black);
     fill: none;
   }
 
-  body:has(.sliding-wrapper.mobile-menu-open) .header-wrapper .mobile-cart-toggle svg,
+  body:has(.sliding-wrapper[data-menu-open="true"]) .header-wrapper .mobile-cart-toggle svg,
   body:has(.sliding-wrapper[data-cart-open="true"]) .header-wrapper .mobile-cart-toggle svg {
     stroke: var(--color-black);
   }
@@ -5494,7 +5480,7 @@ button.is-loading {
 /* Shop Filter Bar */
 .shop-filter-bar {
   position: sticky;
-  bottom: 0;
+  bottom: -1px;
   z-index: 100;
   background: var(--color-black);
   border-top: 1px solid var(--white-light);
@@ -5540,7 +5526,7 @@ button.is-loading {
   .shop-filter-bar {
     margin: 0 -0.5em;
     padding: 1em 1em 0em 0em;
-    padding-bottom: calc(1em + env(safe-area-inset-bottom, 0));
+    padding-bottom: 1em;
   }
 
   .shop-filter-bar__inner {

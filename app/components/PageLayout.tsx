@@ -1,7 +1,14 @@
 import {Await, Link} from 'react-router';
 import {Suspense, useId, useRef, useEffect} from 'react';
 import gsap from 'gsap';
+import {CustomEase} from 'gsap/CustomEase';
 import {useCursor} from '~/hooks/useCursor';
+
+// Register GSAP plugins
+gsap.registerPlugin(CustomEase);
+
+// Create custom ease
+CustomEase.create("menuEase", "M0,0 C0.126,0.382 0.29,0.669 0.44,0.822 0.613,0.998 0.818,1.001 1,1");
 import type {
   CartApiQueryFragment,
   HeaderQuery,
@@ -109,7 +116,9 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
   const scrollPosRef = useRef(0);
   const animationRef = useRef<gsap.core.Tween | null>(null);
   const wasCartOpenRef = useRef(false);
+  const wasMobileMenuOpenRef = useRef(false);
 
+  // Desktop cart animation
   useEffect(() => {
     if (!wrapperRef.current || typeof window === 'undefined') return;
 
@@ -157,8 +166,8 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         x: '1em',
         y: '7.5%',
         borderRadius: '12px',
-        duration: 0.5,
-        ease: 'power2.out',
+        duration: 2.5,
+        ease: 'menuEase',
         onComplete: () => {
           // Re-enable buttons when animation completes
           setIsAnimating(false);
@@ -167,6 +176,22 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
     } else if (wasCartOpenRef.current) {
       // Only animate close if cart was previously open
       wasCartOpenRef.current = false;
+
+      // Keep styles during close animation
+      document.body.style.background = 'var(--color-cream)';
+
+      // Keep cart panel visible
+      const cartPanel = document.querySelector('.desktop-cart-panel') as HTMLElement;
+      if (cartPanel) {
+        cartPanel.style.opacity = '1';
+        cartPanel.style.visibility = 'visible';
+      }
+
+      // Keep header styled
+      const header = document.querySelector('.header-wrapper') as HTMLElement;
+      if (header) {
+        header.style.color = 'var(--color-black)';
+      }
 
       // Block buttons during animation
       setIsAnimating(true);
@@ -177,26 +202,113 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         x: '0%',
         y: '0%',
         borderRadius: '0px',
-        duration: 0.5,
-        ease: 'power2.out',
+        duration: 2.5,
+        ease: 'menuEase',
         onComplete: () => {
           // Re-enable buttons and reset
           setIsAnimating(false);
           gsap.set(wrapper, { clearProps: 'all' });
+          document.body.style.background = '';
+          if (cartPanel) {
+            cartPanel.style.opacity = '';
+            cartPanel.style.visibility = '';
+          }
+          if (header) {
+            header.style.color = '';
+          }
           window.scrollTo(0, scrollPosRef.current);
         },
       });
     }
   }, [isCartOpen, setIsAnimating]);
 
-  // For mobile, still use CSS classes
-  const mobileClasses = isMobileMenuOpen ? 'mobile-menu-open' : '';
+  // Mobile menu and cart animation
+  useEffect(() => {
+    if (!wrapperRef.current || typeof window === 'undefined') return;
+
+    // Only use GSAP for mobile animations
+    const mediaQuery = window.matchMedia('(max-width: 47.99em)');
+    if (!mediaQuery.matches) return;
+
+    const wrapper = wrapperRef.current;
+
+    // Kill any running animation to prevent conflicts
+    if (animationRef.current) {
+      animationRef.current.kill();
+    }
+
+    if (isMobileMenuOpen) {
+      wasMobileMenuOpenRef.current = true;
+
+      // Block buttons during animation
+      setIsAnimating(true);
+
+      // Animate to open state - slide right
+      animationRef.current = gsap.to(wrapper, {
+        x: '100%',
+        duration: 2.5,
+        ease: 'menuEase',
+        onComplete: () => {
+          setIsAnimating(false);
+        },
+      });
+    } else if (isCartOpen) {
+      wasCartOpenRef.current = true;
+
+      // Block buttons during animation
+      setIsAnimating(true);
+
+      // Animate to open state - slide left
+      animationRef.current = gsap.to(wrapper, {
+        x: '-100%',
+        duration: 2.5,
+        ease: 'menuEase',
+        onComplete: () => {
+          setIsAnimating(false);
+        },
+      });
+    } else if (wasMobileMenuOpenRef.current || wasCartOpenRef.current) {
+      const wasCart = wasCartOpenRef.current;
+      wasMobileMenuOpenRef.current = false;
+      wasCartOpenRef.current = false;
+
+      // Keep background cream during close animation
+      document.body.style.background = 'var(--color-cream)';
+
+      // Keep cart overlay visible during close animation
+      const cartOverlay = document.querySelector('.overlay[data-aside-type="cart"]') as HTMLElement;
+      if (wasCart && cartOverlay) {
+        cartOverlay.style.opacity = '1';
+        cartOverlay.style.visibility = 'visible';
+      }
+
+      // Block buttons during animation
+      setIsAnimating(true);
+
+      // Animate back to closed state
+      animationRef.current = gsap.to(wrapper, {
+        x: '0%',
+        duration: 2.5,
+        ease: 'menuEase',
+        onComplete: () => {
+          setIsAnimating(false);
+          gsap.set(wrapper, { clearProps: 'all' });
+          document.body.style.background = '';
+          if (cartOverlay) {
+            cartOverlay.style.opacity = '';
+            cartOverlay.style.visibility = '';
+          }
+        },
+      });
+    }
+  }, [isMobileMenuOpen, isCartOpen, setIsAnimating]);
 
   return (
     <div
       ref={wrapperRef}
-      className={`sliding-wrapper ${mobileClasses}`}
+      className="sliding-wrapper"
       data-cart-open={isCartOpen}
+      data-menu-open={isMobileMenuOpen}
     >
       {children}
     </div>
