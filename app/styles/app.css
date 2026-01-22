@@ -5803,8 +5803,8 @@ button.is-loading {
   }
 
   .footer-parallax-btn {
-    width: 48px;
-    height: 48px;
+    width: 3em;
+    height: 3em;
     min-width: unset;
     padding: 0;
     display: flex;
@@ -5821,11 +5821,25 @@ button.is-loading {
   }
 
   .footer-parallax-copyright {
-    display: none;
+    position: absolute;
+    bottom: 0.65em;
+    left: 1em;
+    font-size: var(--font-xs);
   }
 
   .footer-parallax-badges {
-    display: none;
+    position: absolute;
+    bottom: 0.5em;
+    right: 1em;
+    left: auto;
+    transform: none;
+    align-items: center;
+  }
+
+  .footer-parallax-badges img {
+    width: 1.5em;
+    height: auto;
+    opacity: 1;
   }
 }
 

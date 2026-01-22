@@ -100,7 +100,7 @@ export function FooterParallax() {
             </Suspense>
           </ClientOnly>
         </div>
-        <span className="footer-parallax-copyright">©Dare to Dream 2026. All rights reserved.</span>
+        <span className="footer-parallax-copyright">©Dare to Dream 2026</span>
         <div className="footer-parallax-badges">
           <img src="/app/assets/icons/apple-pay-badge-1.svg" alt="Apple Pay" />
           <img src="/app/assets/icons/shop-pay-badge.svg" alt="Shop Pay" />
