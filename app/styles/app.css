@@ -2642,6 +2642,124 @@ button.is-loading {
   left: 1.5em;
 }
 
+/* ===========================================
+   Product Markers - Shop the Look
+   =========================================== */
+.product-markers-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.product-marker {
+  position: absolute;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+}
+
+.product-marker-pin {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.product-marker-pin:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.product-marker.active .product-marker-pin {
+  transform: scale(1.15);
+}
+
+.product-marker-pin svg {
+  width: 10px;
+  height: 10px;
+  stroke: #000;
+}
+
+/* Animate from + to - when active */
+.product-marker-pin .marker-line-v {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  transform-origin: center;
+}
+
+.product-marker.active .product-marker-pin .marker-line-v {
+  transform: rotate(90deg);
+  opacity: 0;
+}
+
+/* Popup Card */
+.product-marker-popup {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-black);
+  border-radius: 10px;
+  padding: 10px 14px;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: markerPopupIn 0.2s ease-out;
+}
+
+@keyframes markerPopupIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.product-marker-popup-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-white);
+  letter-spacing: 0.04em;
+}
+
+.product-marker-popup-price {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 1px;
+}
+
+.product-marker-popup-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.product-marker-popup:hover .product-marker-popup-arrow {
+  transform: translateX(2px);
+}
+
+.product-marker-popup-arrow svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--color-white);
+}
+
 .new-drop-products {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
