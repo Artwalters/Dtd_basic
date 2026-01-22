@@ -25,7 +25,7 @@ export function CommunitySection() {
         </div>
       </div>
 
-      <div className="community-canvas">
+      <div className="community-canvas" data-cursor="click & drag">
         {CanvasComponent && <CanvasComponent />}
       </div>
       <div className="section-divider section-divider-bottom" />

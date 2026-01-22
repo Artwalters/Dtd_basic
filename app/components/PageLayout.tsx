@@ -1,6 +1,7 @@
 import {Await, Link} from 'react-router';
 import {Suspense, useId, useRef, useEffect} from 'react';
 import gsap from 'gsap';
+import {useCursor} from '~/hooks/useCursor';
 import type {
   CartApiQueryFragment,
   HeaderQuery,
@@ -29,6 +30,8 @@ export function PageLayout({
   isLoggedIn,
   publicStoreDomain,
 }: PageLayoutProps) {
+  const cursorRef = useCursor();
+
   return (
     <Aside.Provider>
       <CartAside cart={cart} />
@@ -47,6 +50,10 @@ export function PageLayout({
       <MainContentArea cart={cart}>
         <PageContent>{children}</PageContent>
       </MainContentArea>
+      {/* Custom cursor tooltip */}
+      <div className="cursor" ref={cursorRef}>
+        <p></p>
+      </div>
     </Aside.Provider>
   );
 }

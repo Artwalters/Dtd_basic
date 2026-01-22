@@ -52,6 +52,7 @@ export function NewArrivals({
       role="region"
       aria-roledescription="carousel"
       className="new-arrivals"
+      data-cursor="click & drag"
     >
       <div className="section-divider" />
       <div className="new-arrivals-header">
@@ -287,6 +288,7 @@ function initBasicGSAPSlider(specificRoot?: HTMLElement | null): (() => void) | 
     onPress() {
       track.setAttribute('data-gsap-slider-list-status', 'grabbing');
       collectionRect = collection.getBoundingClientRect();
+      window.dispatchEvent(new CustomEvent('swiper-drag-start'));
     },
     onDrag() {
       setX(this.x);
@@ -300,11 +302,13 @@ function initBasicGSAPSlider(specificRoot?: HTMLElement | null): (() => void) | 
       setX(this.endX);
       updateStatus(this.endX);
       track.setAttribute('data-gsap-slider-list-status', 'grab');
+      window.dispatchEvent(new CustomEvent('swiper-drag-end'));
     },
     onRelease() {
       setX(this.x);
       updateStatus(this.x);
       track.setAttribute('data-gsap-slider-list-status', 'grab');
+      window.dispatchEvent(new CustomEvent('swiper-drag-end'));
     }
   })[0];
 

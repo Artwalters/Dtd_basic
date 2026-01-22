@@ -84,11 +84,22 @@ export function HeroSlider({ slides }: HeroSliderProps) {
         speed={600}
         spaceBetween={0}
         slidesPerView={1}
-        threshold={5}
-        touchRatio={0.8}
+        threshold={2}
+        touchRatio={1}
         resistanceRatio={0.5}
+        longSwipesRatio={0.1}
+        longSwipesMs={100}
+        shortSwipes={true}
+        followFinger={true}
         loop={true}
+        touchEventsTarget="container"
         onSlideChange={(s: any) => setCurrentSlide(s.realIndex)}
+        onTouchStart={() => {
+          window.dispatchEvent(new CustomEvent('swiper-drag-start'));
+        }}
+        onTouchEnd={() => {
+          window.dispatchEvent(new CustomEvent('swiper-drag-end'));
+        }}
         onProgress={(s: any) => {
           if (progressRef.current && slides.length > 1) {
             const progress = s.realIndex / (slides.length - 1);
@@ -114,6 +125,7 @@ export function HeroSlider({ slides }: HeroSliderProps) {
       role="region"
       aria-roledescription="carousel"
       className="hero-slider"
+      data-cursor="click & drag"
     >
       {renderSlider()}
       <div className="hero-slide-gradient" />

@@ -120,6 +120,8 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
       <Link
         to={`/products/${product.handle}`}
         className="new-drop-card"
+        data-cursor="more details"
+        data-cursor-delayed
       >
         {product.featuredImage && (
           <div className="new-drop-image-wrapper">
@@ -141,7 +143,12 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
             {!isMobile && (
               <div
                 className="quick-add-zone"
-                onMouseEnter={() => !isOpen && !showSuccess && fetcher.state === 'idle' && onToggle?.()}
+                onMouseEnter={() => {
+                  window.dispatchEvent(new CustomEvent('quickadd-open'));
+                  if (!isOpen && !showSuccess && fetcher.state === 'idle') {
+                    onToggle?.();
+                  }
+                }}
                 onMouseLeave={() => isOpen && onToggle?.()}
               >
                 {/* Loading State */}
