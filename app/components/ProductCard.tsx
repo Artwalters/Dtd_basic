@@ -15,6 +15,7 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   const fetcher = useFetcher();
   const {open: openAside} = useAside();
   const [isMobile, setIsMobile] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Detect mobile
   useEffect(() => {
@@ -25,6 +26,15 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Show success message when cart is updated
+  useEffect(() => {
+    if (fetcher.state === 'idle' && fetcher.data) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => setShowSuccess(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [fetcher.state, fetcher.data]);
 
   // Get tags for display (cast to any to access fields not in generated types)
   const productData = product as any;
@@ -122,11 +132,25 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
             {!isMobile && (
               <div
                 className="quick-add-zone"
-                onMouseEnter={() => !isOpen && onToggle?.()}
+                onMouseEnter={() => !isOpen && !showSuccess && fetcher.state === 'idle' && onToggle?.()}
                 onMouseLeave={() => isOpen && onToggle?.()}
               >
+                {/* Loading State */}
+                {fetcher.state !== 'idle' && (
+                  <div className="quick-add-status">
+                    <span className="quick-add-loader" />
+                  </div>
+                )}
+
+                {/* Success Message */}
+                {showSuccess && fetcher.state === 'idle' && (
+                  <div className="quick-add-status quick-add-status--success">
+                    Added to cart
+                  </div>
+                )}
+
                 {/* Desktop Size Selector Popup */}
-                {isOpen && (
+                {isOpen && !showSuccess && fetcher.state === 'idle' && (
                   <div
                     className="size-selector size-selector-open"
                     onClick={(e) => {
@@ -159,14 +183,16 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
                   </div>
                 )}
 
-                {/* Plus Button */}
-                <button
-                  className="product-plus-btn"
-                  onClick={handlePlusClick}
-                  aria-label="Quick add"
-                >
-                  <span className={`plus-icon ${isOpen ? 'plus-icon-rotated' : ''}`} />
-                </button>
+                {/* Plus Button - hide during loading/success */}
+                {fetcher.state === 'idle' && !showSuccess && (
+                  <button
+                    className="product-plus-btn"
+                    onClick={handlePlusClick}
+                    aria-label="Quick add"
+                  >
+                    <span className={`plus-icon ${isOpen ? 'plus-icon-rotated' : ''}`} />
+                  </button>
+                )}
               </div>
             )}
 
