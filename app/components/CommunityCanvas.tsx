@@ -122,9 +122,9 @@ void main() {
   vec4 color = vec4(0.0);
   float total = 0.0;
 
-  // Radial blur sampling voor godray effect
-  for(float i = 0.0; i < 8.0; i++) {
-    float lerp = (i + rand(vec2(gl_FragCoord.x, gl_FragCoord.y))) / 8.0;
+  // Radial blur sampling voor godray effect (reduced samples for performance)
+  for(float i = 0.0; i < 5.0; i++) {
+    float lerp = (i + rand(vec2(gl_FragCoord.x, gl_FragCoord.y))) / 5.0;
     float weight = sin(lerp * PI);
     vec4 mysample = texture2D(uMap, vUv + toCenter * lerp * 0.95);
     color += mysample * weight;
@@ -160,13 +160,13 @@ function GodrayEffect({children, isTouchDevice}: {children: React.ReactNode; isT
 
   // Create render target with correct color space
   // Use actual pixel dimensions for sharp rendering on all devices
-  // Lower samples on mobile for better performance
+  // Lower samples for better performance
   const renderTarget = useFBO(drawingBufferSize.x, drawingBufferSize.y, {
     minFilter: THREE.LinearFilter,
     magFilter: THREE.LinearFilter,
     format: THREE.RGBAFormat,
     colorSpace: THREE.SRGBColorSpace,
-    samples: isTouchDevice ? 4 : 8,
+    samples: isTouchDevice ? 2 : 4,
   });
 
   // Post-processing scene and camera
@@ -418,13 +418,14 @@ function Scene({hdriRotation, isTouchDevice}: {hdriRotation: [number, number, nu
 export default function CommunityCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [dpr, setDpr] = useState(2);
+  const [dpr, setDpr] = useState(1.5);
   const isTouchDevice = useIsTouchDevice();
 
   useEffect(() => {
-    // Set DPR on client side - cap at 2 on mobile for better performance
+    // Set DPR on client side - lower for better performance
     const deviceDpr = window.devicePixelRatio || 2;
-    setDpr(isTouchDevice ? Math.min(deviceDpr, 2) : deviceDpr);
+    // Cap DPR at 1.5 for better performance (was 2)
+    setDpr(Math.min(deviceDpr, 1.5));
   }, [isTouchDevice]);
 
   useEffect(() => {
@@ -438,7 +439,7 @@ export default function CommunityCanvas() {
     return () => observer.disconnect();
   }, []);
 
-  // Drag gesture for carousel control
+  // Drag gesture for carousel control (horizontal only, allows vertical scroll)
   const bind = useDrag(
     ({movement: [mx], direction: [dx], down}) => {
       const handler = (window as any).__carouselDrag;
@@ -448,6 +449,8 @@ export default function CommunityCanvas() {
     },
     {
       pointer: {touch: true},
+      axis: 'x',
+      filterTaps: true,
     }
   );
 
@@ -459,7 +462,7 @@ export default function CommunityCanvas() {
         width: '100%',
         height: '100%',
         cursor: 'grab',
-        touchAction: 'none',
+        touchAction: 'pan-y',
       }}
     >
       <Canvas
