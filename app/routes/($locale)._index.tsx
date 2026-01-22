@@ -16,8 +16,8 @@ const heroSlides = [
     backgroundVideo: '/dtd-bts-dropday.mp4',
     subtitle: 'our first collection',
     title: 'BE PART OF THE START',
-    buttonText: 'Shop now',
-    buttonLink: '/collections/all'
+    buttonText: 'About us',
+    buttonLink: '/about'
   },
   {
     id: '2',
