@@ -119,6 +119,9 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
           </button>
         </div>
 
+        {/* Divider with brackets */}
+        <div className="mobile-quick-add__divider-bracket" />
+
         {/* Product Info */}
         <div className="mobile-quick-add__product">
           {product.featuredImage && (
@@ -131,14 +134,16 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
             </div>
           )}
           <div className="mobile-quick-add__info">
-            <h3 className="mobile-quick-add__product-title">{product.title}</h3>
+            <div className="mobile-quick-add__info-row">
+              <h3 className="mobile-quick-add__product-title">{product.title}</h3>
+              <Money
+                data={product.priceRange.minVariantPrice}
+                className="mobile-quick-add__price"
+              />
+            </div>
             {firstColor && (
               <span className="mobile-quick-add__color">{firstColor}</span>
             )}
-            <Money
-              data={product.priceRange.minVariantPrice}
-              className="mobile-quick-add__price"
-            />
           </div>
         </div>
 
@@ -160,6 +165,9 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
             ))}
           </div>
         </div>
+
+        {/* Bottom divider with brackets */}
+        <div className="mobile-quick-add__divider-bracket divider-bottom" />
 
         {/* Footer */}
         <div className="mobile-quick-add__footer">
