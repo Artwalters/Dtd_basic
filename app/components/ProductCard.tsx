@@ -118,50 +118,68 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
               </div>
             )}
 
-            {/* Desktop Size Selector Popup - only render when open */}
-            {!isMobile && isOpen && (
+            {/* Quick Add Hover Zone */}
+            {!isMobile && (
               <div
-                className="size-selector size-selector-open"
-                onClick={(e) => {
-                  // Only stop propagation when selector is open
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
+                className="quick-add-zone"
+                onMouseEnter={() => !isOpen && onToggle?.()}
+                onMouseLeave={() => isOpen && onToggle?.()}
               >
-                <div
-                  className="size-selector-content size-selector-content-open"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                >
-                  {sizeOptions.map((size) => (
-                    <button
-                      key={size.id}
-                      className="size-option"
-                      disabled={!size.available}
+                {/* Desktop Size Selector Popup */}
+                {isOpen && (
+                  <div
+                    className="size-selector size-selector-open"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    <div
+                      className="size-selector-content size-selector-content-open"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        handleAddToCart(size.id);
                       }}
                     >
-                      {size.name}
-                      {!size.available && ' (Sold out)'}
-                    </button>
-                  ))}
-                </div>
+                      {sizeOptions.map((size) => (
+                        <button
+                          key={size.id}
+                          className="size-option"
+                          disabled={!size.available}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleAddToCart(size.id);
+                          }}
+                        >
+                          {size.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Plus Button */}
+                <button
+                  className="product-plus-btn"
+                  onClick={handlePlusClick}
+                  aria-label="Quick add"
+                >
+                  <span className={`plus-icon ${isOpen ? 'plus-icon-rotated' : ''}`} />
+                </button>
               </div>
             )}
 
-            {/* Plus Button */}
-            <button
-              className="product-plus-btn"
-              onClick={handlePlusClick}
-              aria-label="Quick add"
-            >
-              <span className={`plus-icon ${!isMobile && isOpen ? 'plus-icon-rotated' : ''}`} />
-            </button>
+            {/* Mobile Plus Button */}
+            {isMobile && (
+              <button
+                className="product-plus-btn"
+                onClick={handlePlusClick}
+                aria-label="Quick add"
+              >
+                <span className="plus-icon" />
+              </button>
+            )}
           </div>
         )}
         <div className="new-drop-info">

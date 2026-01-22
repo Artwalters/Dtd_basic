@@ -2949,10 +2949,19 @@ button.is-loading {
 * Product Card - Plus Button & Size Selector
 * --------------------------------------------------
 */
+.quick-add-zone {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4em;
+  z-index: 5;
+}
+
 .product-plus-btn {
   position: absolute;
-  bottom: 0.75em;
-  right: 0.75em;
+  bottom: 0.5em;
+  right: 0.5em;
   background: none;
   border: none;
   cursor: pointer;
@@ -2960,7 +2969,7 @@ button.is-loading {
   align-items: center;
   justify-content: center;
   z-index: 2;
-  padding: 0;
+  padding: 0.5em;
   transition: opacity 0.2s ease;
 }
 
@@ -2971,8 +2980,8 @@ button.is-loading {
 .plus-icon {
   position: relative;
   display: block;
-  width: 0.75em;
-  height: 0.75em;
+  width: 1em;
+  height: 1em;
   transition: transform 0.3s ease;
 }
 
@@ -3007,7 +3016,7 @@ button.is-loading {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: 10;
   pointer-events: none;
 }
 
@@ -3016,15 +3025,11 @@ button.is-loading {
 }
 
 .size-selector-content {
-  background: var(--color-black);
-  border: 1px solid var(--white-subtle);
-  padding: 1.5em;
-  margin: 0.75em;
-  border-radius: 0.5em;
+  background: var(--color-light-gray, #f5f5f5);
+  border-top: 1px solid var(--black-muted);
   display: flex;
-  flex-direction: column;
-  gap: 1em;
-  transform: translateY(calc(100% + 2em));
+  flex-direction: row;
+  transform: translateY(100%);
   transition: transform 0.3s ease;
 }
 
@@ -3033,19 +3038,30 @@ button.is-loading {
 }
 
 .size-option {
+  flex: 1;
   background: none;
   border: none;
-  color: var(--color-white);
+  border-right: 1px solid var(--black-muted);
+  color: var(--color-black);
   font-size: var(--font-sm);
   font-family: inherit;
-  text-align: left;
-  padding: 0.25em 0;
+  text-align: center;
+  padding: 1.25em 0.5em;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: background 0.2s ease;
 }
 
-.size-option:hover {
-  opacity: 0.7;
+.size-option:last-child {
+  border-right: none;
+}
+
+.size-option:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.size-option:disabled {
+  color: var(--black-muted);
+  cursor: not-allowed;
 }
 
 .size-option-selected {
