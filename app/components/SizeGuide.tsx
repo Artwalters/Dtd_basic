@@ -245,12 +245,7 @@ export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
                         className={`fit-option ${measurements.fit === fit ? 'active' : ''}`}
                         onClick={() => setMeasurements({...measurements, fit})}
                       >
-                        <span className="fit-label">{fit.charAt(0).toUpperCase() + fit.slice(1)}</span>
-                        <span className="fit-desc">
-                          {fit === 'fitted' && 'Shows physique'}
-                          {fit === 'regular' && 'True to size'}
-                          {fit === 'oversized' && 'Relaxed fit'}
-                        </span>
+                        {fit.charAt(0).toUpperCase() + fit.slice(1)}
                       </button>
                     ))}
                   </div>

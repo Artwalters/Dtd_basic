@@ -4077,7 +4077,7 @@ button.is-loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2em 1em;
+  padding: 10em 1em 2em;
   overflow-y: auto;
 }
 
@@ -4433,14 +4433,14 @@ button.is-loading {
 
 .fit-option {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.15em;
-  padding: 0.6em 0.4em;
+  justify-content: center;
+  padding: 0.75em 0.5em;
   background: var(--white-subtle);
   border: 1px solid var(--white-light);
   border-radius: 0.25em;
   color: var(--white-strong);
+  font-size: var(--font-xs);
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
