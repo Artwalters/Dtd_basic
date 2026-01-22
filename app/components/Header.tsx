@@ -178,7 +178,7 @@ export function Header({
             <Await resolve={cart}>
               {(cartData) => {
                 const count = cartData?.totalQuantity || 0;
-                return `Your cart (${count})`;
+                return count > 0 ? `${count} ${count === 1 ? 'item' : 'items'}` : 'Your cart';
               }}
             </Await>
           </Suspense>

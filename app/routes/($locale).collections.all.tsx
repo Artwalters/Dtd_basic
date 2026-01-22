@@ -126,7 +126,7 @@ export default function Collection() {
           <span className="shop-page-title">
             {filterOptions.find(f => f.id === activeFilter)?.label || 'All Products'}
           </span>
-          <span className="shop-page-count">Products {getCircledNumber(totalProducts)}</span>
+          <span className="shop-page-count">{totalProducts} {totalProducts === 1 ? 'product' : 'products'}</span>
         </div>
 
         {activeFilter === 'all' ? (

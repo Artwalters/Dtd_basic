@@ -80,7 +80,7 @@ function MainContentArea({children, cart}: {children: React.ReactNode, cart: Pag
               <Await resolve={cart}>
                 {(cart) => {
                   const count = cart?.totalQuantity || 0;
-                  return `Your cart${count > 0 ? ` (${count})` : ''}`;
+                  return count > 0 ? `${count} ${count === 1 ? 'item' : 'items'}` : 'Your cart';
                 }}
               </Await>
             </Suspense>
@@ -218,7 +218,7 @@ function CartAside({cart}: {cart: PageLayoutProps['cart']}) {
         <Await resolve={cart}>
           {(cart) => {
             const count = cart?.totalQuantity || 0;
-            return `Your cart${count > 0 ? ` (${count})` : ''}`;
+            return count > 0 ? `${count} ${count === 1 ? 'item' : 'items'}` : 'Your cart';
           }}
         </Await>
       </Suspense>
