@@ -5343,12 +5343,12 @@ button.is-loading {
 */
 .footer-links {
   background: var(--color-black);
-  padding: 6em 1em 10em;
+  padding: 4em 1em 6em;
   position: relative;
 }
 
 .footer-links > .footer-divider-top {
-  margin: 0 0 10em;
+  margin: 0 0 5em;
 }
 
 .footer-links-grid {
