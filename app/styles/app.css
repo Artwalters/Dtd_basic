@@ -469,6 +469,21 @@ aside li {
   /* No padding needed - header is positioned over the content, pages handle their own top spacing */
 }
 
+/* Blocking overlay when menu/cart is open */
+.sliding-wrapper-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 9999;
+}
+
 /* Mobile menu: slide page to right */
 @media (max-width: 47.99em) {
   /* Cream background behind everything when menu open, prevent all scrolling */
