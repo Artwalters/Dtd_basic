@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import type {Route} from './+types/collections.all';
 import {useLoaderData} from 'react-router';
 import {getPaginationVariables} from '@shopify/hydrogen';
@@ -38,6 +38,15 @@ export default function Collection() {
   const handleToggle = (productId: string) => {
     setOpenProductId(openProductId === productId ? null : productId);
   };
+
+  // Listen for closeQuickAdd event from header nav clicks
+  useEffect(() => {
+    const handleCloseQuickAdd = () => {
+      setOpenProductId(null);
+    };
+    window.addEventListener('closeQuickAdd', handleCloseQuickAdd);
+    return () => window.removeEventListener('closeQuickAdd', handleCloseQuickAdd);
+  }, []);
 
   const totalProducts = products.nodes?.length || 0;
 

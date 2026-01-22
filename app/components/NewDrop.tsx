@@ -153,6 +153,15 @@ export function NewDrop({
   const [activeMarkerId, setActiveMarkerId] = useState<string | null>(null);
   const featuredRef = useRef<HTMLDivElement>(null);
 
+  // Listen for closeQuickAdd event from header nav clicks
+  useEffect(() => {
+    const handleCloseQuickAdd = () => {
+      setOpenProductId(null);
+    };
+    window.addEventListener('closeQuickAdd', handleCloseQuickAdd);
+    return () => window.removeEventListener('closeQuickAdd', handleCloseQuickAdd);
+  }, []);
+
   // Close popup when clicking outside (with delay to prevent immediate close)
   useEffect(() => {
     if (!activeMarkerId) return;

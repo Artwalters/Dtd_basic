@@ -27,6 +27,15 @@ export function NewArrivals({
     setOpenProductId(openProductId === productId ? null : productId);
   };
 
+  // Listen for closeQuickAdd event from header nav clicks
+  useEffect(() => {
+    const handleCloseQuickAdd = () => {
+      setOpenProductId(null);
+    };
+    window.addEventListener('closeQuickAdd', handleCloseQuickAdd);
+    return () => window.removeEventListener('closeQuickAdd', handleCloseQuickAdd);
+  }, []);
+
   useEffect(() => {
     if (typeof window === 'undefined' || !sliderRef.current) return;
 

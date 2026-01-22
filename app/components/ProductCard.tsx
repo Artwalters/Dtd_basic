@@ -16,6 +16,7 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   const {open: openAside} = useAside();
   const [isMobile, setIsMobile] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Detect mobile
   useEffect(() => {
@@ -27,14 +28,21 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Show success message when cart is updated
+  // Show success message when cart is updated (only if we submitted)
   useEffect(() => {
-    if (fetcher.state === 'idle' && fetcher.data) {
+    if (isSubmitting && fetcher.state === 'idle') {
+      setIsSubmitting(false);
       setShowSuccess(true);
+    }
+  }, [fetcher.state, isSubmitting]);
+
+  // Auto-hide success message after 2 seconds
+  useEffect(() => {
+    if (showSuccess) {
       const timer = setTimeout(() => setShowSuccess(false), 2000);
       return () => clearTimeout(timer);
     }
-  }, [fetcher.state, fetcher.data]);
+  }, [showSuccess]);
 
   // Get tags for display (cast to any to access fields not in generated types)
   const productData = product as any;
@@ -90,6 +98,7 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   const handleAddToCart = (variantId: string) => {
     // Close panel
     onToggle?.();
+    setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append(

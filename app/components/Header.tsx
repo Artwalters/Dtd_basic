@@ -134,10 +134,20 @@ function MobileMenuToggle() {
   const {type, open, close} = useAside();
   const isMenuOpen = type === 'mobile';
 
+  const handleClick = () => {
+    // Always close quick add when interacting with menu
+    window.dispatchEvent(new CustomEvent('closeQuickAdd'));
+    if (isMenuOpen) {
+      close();
+    } else {
+      open('mobile');
+    }
+  };
+
   return (
     <button
       className={`mobile-menu-toggle header-nav-item btn-glass--icon ${isMenuOpen ? 'menu-open' : ''}`}
-      onClick={() => isMenuOpen ? close() : open('mobile')}
+      onClick={handleClick}
       aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
     >
       {isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
@@ -180,10 +190,10 @@ export function Header({
 
       {/* Desktop: Left navigation */}
       <nav className="header-nav-left">
-        <NavLink to="/about" className="header-nav-item">
+        <NavLink to="/about" className="header-nav-item" onClick={() => window.dispatchEvent(new CustomEvent('closeQuickAdd'))}>
           About
         </NavLink>
-        <NavLink to="/collections/all" className="header-nav-item">
+        <NavLink to="/collections/all" className="header-nav-item" onClick={() => window.dispatchEvent(new CustomEvent('closeQuickAdd'))}>
           Shop
         </NavLink>
       </nav>
@@ -192,6 +202,7 @@ export function Header({
         to="/"
         className="header-logo"
         onClick={(e) => {
+          window.dispatchEvent(new CustomEvent('closeQuickAdd'));
           if (isAsideOpen) {
             e.preventDefault();
             close();
@@ -208,10 +219,10 @@ export function Header({
       {/* Desktop: Right navigation */}
       <nav className="header-nav-right">
         <SearchToggle />
-        <Suspense fallback={<NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account"><UserIcon /></NavLink>}>
-          <Await resolve={isLoggedIn} errorElement={<NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account"><UserIcon /></NavLink>}>
+        <Suspense fallback={<NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account" onClick={() => window.dispatchEvent(new CustomEvent('closeQuickAdd'))}><UserIcon /></NavLink>}>
+          <Await resolve={isLoggedIn} errorElement={<NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account" onClick={() => window.dispatchEvent(new CustomEvent('closeQuickAdd'))}><UserIcon /></NavLink>}>
             {(isLoggedIn) => (
-              <NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account">
+              <NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account" onClick={() => window.dispatchEvent(new CustomEvent('closeQuickAdd'))}>
                 <UserIcon />
               </NavLink>
             )}
@@ -234,7 +245,10 @@ export function Header({
           <NavLink
             to="/account"
             className="header-nav-item btn-glass--icon mobile-account-button"
-            onClick={close}
+            onClick={() => {
+              close();
+              window.dispatchEvent(new CustomEvent('closeQuickAdd'));
+            }}
             aria-label="Account"
           >
             <UserIcon />
@@ -267,7 +281,14 @@ function SearchIcon() {
 function SearchToggle() {
   const {open} = useAside();
   return (
-    <button className="header-nav-item btn-glass--icon reset" onClick={() => open('search')} aria-label="Search">
+    <button
+      className="header-nav-item btn-glass--icon reset"
+      onClick={() => {
+        window.dispatchEvent(new CustomEvent('closeQuickAdd'));
+        open('search');
+      }}
+      aria-label="Search"
+    >
       <SearchIcon />
     </button>
   );
@@ -358,6 +379,8 @@ function CartBadge({count}: {count: number | null}) {
 
   const handleCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    // Close quick add when interacting with cart
+    window.dispatchEvent(new CustomEvent('closeQuickAdd'));
     if (isCartOpen) {
       close();
     } else {
@@ -434,6 +457,8 @@ function CartBadgeMobile({count}: {count: number | null}) {
       className={`header-nav-item ${buttonClass} mobile-cart-btn`}
       onClick={(e) => {
         e.preventDefault();
+        // Close quick add when opening cart
+        window.dispatchEvent(new CustomEvent('closeQuickAdd'));
         open('cart');
         publish('cart_viewed', {
           cart,
@@ -545,12 +570,18 @@ export function HeaderMenu({
   const className = `header-menu-${viewport}`;
   const {close} = useAside();
 
+  const handleNavClick = () => {
+    close();
+    // Dispatch custom event to close any open quick add panels
+    window.dispatchEvent(new CustomEvent('closeQuickAdd'));
+  };
+
   return (
     <nav className={className} role="navigation">
       <div className="mobile-menu-divider" />
       <NavLink
         className="header-menu-item"
-        onClick={close}
+        onClick={handleNavClick}
         prefetch="intent"
         to="/"
         end
@@ -560,7 +591,7 @@ export function HeaderMenu({
       </NavLink>
       <NavLink
         className="header-menu-item"
-        onClick={close}
+        onClick={handleNavClick}
         prefetch="intent"
         to="/collections/all"
       >
@@ -569,7 +600,7 @@ export function HeaderMenu({
       </NavLink>
       <NavLink
         className="header-menu-item"
-        onClick={close}
+        onClick={handleNavClick}
         prefetch="intent"
         to="/community"
       >
@@ -578,7 +609,7 @@ export function HeaderMenu({
       </NavLink>
       <NavLink
         className="header-menu-item"
-        onClick={close}
+        onClick={handleNavClick}
         prefetch="intent"
         to="/lookbook"
       >
@@ -587,7 +618,7 @@ export function HeaderMenu({
       </NavLink>
       <NavLink
         className="header-menu-item"
-        onClick={close}
+        onClick={handleNavClick}
         prefetch="intent"
         to="/about"
       >

@@ -16,11 +16,36 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
   const fetcher = useFetcher();
   const {open: openAside} = useAside();
   const [mounted, setMounted] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<{id: string; name: string} | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Wait for client-side mount for portal
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Reset selection when opening
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedSize(null);
+      setShowSuccess(false);
+      setIsSubmitting(false);
+    }
+  }, [isOpen]);
+
+  // Show success message when cart is updated (only if we submitted)
+  useEffect(() => {
+    if (isSubmitting && fetcher.state === 'idle') {
+      setIsSubmitting(false);
+      setShowSuccess(true);
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+        onClose();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [fetcher.state, isSubmitting, onClose]);
 
   // Get variants and sizes
   const variants = product.variants?.nodes || [];
@@ -74,8 +99,10 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
     };
   }, [isOpen]);
 
-  const handleAddToCart = (variantId: string) => {
-    onClose();
+  const handleAddToCart = () => {
+    if (!selectedSize) return;
+
+    setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append(
@@ -83,7 +110,7 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
       JSON.stringify({
         action: CartForm.ACTIONS.LinesAdd,
         inputs: {
-          lines: [{merchandiseId: variantId, quantity: 1}],
+          lines: [{merchandiseId: selectedSize.id, quantity: 1}],
         },
       }),
     );
@@ -150,15 +177,15 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
         {/* Size Selector */}
         <div className="mobile-quick-add__sizes">
           <span className="mobile-quick-add__sizes-label">
-            Size: {hasAvailableSizes ? 'Select' : 'Sold Out'}
+            Size: {selectedSize ? selectedSize.name : (hasAvailableSizes ? 'Select' : 'Sold Out')}
           </span>
           <div className="mobile-quick-add__sizes-grid">
             {sizeOptions.map((size) => (
               <button
                 key={size.id}
-                className={`mobile-quick-add__size-btn ${!size.available ? 'mobile-quick-add__size-btn--disabled' : ''}`}
-                disabled={!size.available}
-                onClick={() => handleAddToCart(size.id)}
+                className={`mobile-quick-add__size-btn ${!size.available ? 'mobile-quick-add__size-btn--disabled' : ''} ${selectedSize?.id === size.id ? 'mobile-quick-add__size-btn--selected' : ''}`}
+                disabled={!size.available || fetcher.state !== 'idle'}
+                onClick={() => setSelectedSize({id: size.id, name: size.name})}
               >
                 {size.name}
               </button>
@@ -171,8 +198,22 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
 
         {/* Footer */}
         <div className="mobile-quick-add__footer">
-          {hasAvailableSizes ? (
-            <p className="mobile-quick-add__hint">Select a size to add to cart</p>
+          {showSuccess ? (
+            <div className="mobile-quick-add__success">
+              Added to cart
+            </div>
+          ) : fetcher.state !== 'idle' ? (
+            <div className="mobile-quick-add__loading">
+              <span className="mobile-quick-add__loader" />
+            </div>
+          ) : hasAvailableSizes ? (
+            <button
+              className={`btn mobile-quick-add__add-btn ${!selectedSize ? 'mobile-quick-add__add-btn--disabled' : ''}`}
+              disabled={!selectedSize}
+              onClick={handleAddToCart}
+            >
+              {selectedSize ? 'ADD TO CART' : 'SELECT A SIZE'}
+            </button>
           ) : (
             <button className="btn mobile-quick-add__notify-btn">
               NOTIFY ME

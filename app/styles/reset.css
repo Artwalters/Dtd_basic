@@ -123,7 +123,7 @@ small {
 /* Labels and captions - Extra small, thin */
 .caption,
 .label {
-  font-size: var(--font-xs);
+  font-size: var(--font-sm);
   font-weight: 300;
   font-variation-settings: 'wght' 300, 'ital' 0, 'MONO' 0, 'XHGT' 0;
   letter-spacing: 0.04em;
@@ -252,7 +252,7 @@ code {
 }
 
 /* Utility classes for font sizes */
-.text-xs { font-size: var(--font-xs); }
+.text-xs { font-size: var(--font-sm); }
 .text-sm { font-size: var(--font-sm); }
 .text-base { font-size: var(--font-base); }
 .text-md { font-size: var(--font-md); }
