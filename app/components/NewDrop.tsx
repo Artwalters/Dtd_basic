@@ -1,5 +1,6 @@
 import {useState, useEffect, useRef} from 'react';
 import {Link} from 'react-router';
+import {gsap} from 'gsap';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {ProductCard} from './ProductCard';
 
@@ -53,34 +54,73 @@ interface NewDropProps {
 function ProductMarkerPin({
   marker,
   isActive,
-  onToggle,
+  onActivate,
+  onDeactivate,
 }: {
   marker: ProductMarker;
   isActive: boolean;
-  onToggle: () => void;
+  onActivate: () => void;
+  onDeactivate: () => void;
 }) {
   const markerRef = useRef<HTMLDivElement>(null);
+  const pulseRef = useRef<HTMLSpanElement>(null);
+  const pulseTimeline = useRef<gsap.core.Timeline | null>(null);
+
+  useEffect(() => {
+    if (!pulseRef.current) return;
+
+    // Create pulse animation timeline
+    pulseTimeline.current = gsap.timeline({repeat: -1, yoyo: true})
+      .to(pulseRef.current, {
+        scale: 1.5,
+        duration: 1,
+        ease: 'sine.inOut',
+      });
+
+    return () => {
+      pulseTimeline.current?.kill();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!pulseRef.current || !pulseTimeline.current) return;
+
+    if (isActive) {
+      // Smoothly animate to scale 1 when hovering
+      pulseTimeline.current.pause();
+      gsap.to(pulseRef.current, {
+        scale: 1,
+        duration: 0.3,
+        ease: 'power2.out',
+      });
+    } else {
+      // Resume pulse animation
+      gsap.to(pulseRef.current, {
+        scale: 1,
+        duration: 0.3,
+        ease: 'power2.out',
+        onComplete: () => {
+          pulseTimeline.current?.restart();
+        },
+      });
+    }
+  }, [isActive]);
 
   return (
     <div
       ref={markerRef}
       className={`product-marker ${isActive ? 'active' : ''}`}
       style={{left: `${marker.x}%`, top: `${marker.y}%`}}
+      onMouseEnter={onActivate}
+      onMouseLeave={onDeactivate}
     >
       <button
         type="button"
         className="product-marker-pin"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onToggle();
-        }}
         aria-label={`View ${marker.product.title}`}
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <line className="marker-line-h" x1="6" y1="12" x2="18" y2="12" />
-          <line className="marker-line-v" x1="12" y1="6" x2="12" y2="18" />
-        </svg>
+        <span ref={pulseRef} className="marker-pulse-ring" />
+        <span className={`marker-plus-icon ${isActive ? 'marker-plus-rotated' : ''}`} />
       </button>
 
       {isActive && (
@@ -165,9 +205,8 @@ export function NewDrop({
                   key={marker.id}
                   marker={marker}
                   isActive={activeMarkerId === marker.id}
-                  onToggle={() =>
-                    setActiveMarkerId(activeMarkerId === marker.id ? null : marker.id)
-                  }
+                  onActivate={() => setActiveMarkerId(marker.id)}
+                  onDeactivate={() => setActiveMarkerId(null)}
                 />
               ))}
             </div>

@@ -160,7 +160,7 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
               onClick={handlePlusClick}
               aria-label="Quick add"
             >
-              <span className={`plus-icon ${!isMobile && isOpen ? 'plus-icon-rotated' : ''}`}>+</span>
+              <span className={`plus-icon ${!isMobile && isOpen ? 'plus-icon-rotated' : ''}`} />
             </button>
           </div>
         )}
