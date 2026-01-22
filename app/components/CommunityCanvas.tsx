@@ -232,6 +232,10 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchD
   const targetTimeScaleRef = useRef(1);
   const {pointer} = useThree();
 
+  // Drag sensitivity - higher on mobile for more responsive feel
+  const dragSensitivity = isTouchDevice ? 0.08 : 0.03;
+  const inertiaSmoothness = isTouchDevice ? 0.1 : 0.05;
+
   // Load all images from the Img directory
   const textures = useTexture([
     '/Img/6503d875-bea9-44d4-a82b-0bbf235b80bf.webp',
@@ -263,7 +267,7 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchD
     if (!groupRef.current) return;
 
     // Lerp timeScale toward target for smooth inertia
-    timeScaleRef.current += (targetTimeScaleRef.current - timeScaleRef.current) * 0.05;
+    timeScaleRef.current += (targetTimeScaleRef.current - timeScaleRef.current) * inertiaSmoothness;
 
     // Apply rotation
     groupRef.current.rotation.y += delta * baseSpeed * timeScaleRef.current;
@@ -287,16 +291,16 @@ function ImageCarousel({radius = 2.2, baseSpeed = 0.3, panelCount = 10, isTouchD
   const handleDrag = useCallback((deltaX: number, isDragging: boolean, directionX: number) => {
     if (isDragging) {
       // Direct control while dragging - movement controls speed and direction
-      timeScaleRef.current = deltaX * 0.03; // Removed minus sign to reverse direction
+      timeScaleRef.current = deltaX * dragSensitivity;
       // Track direction for release
       if (Math.abs(deltaX) > 5) {
-        targetTimeScaleRef.current = deltaX > 0 ? 1 : -1; // Reversed comparison
+        targetTimeScaleRef.current = deltaX > 0 ? 1 : -1;
       }
     } else {
       // On release: continue in the direction you were dragging
       // targetTimeScaleRef is already set from dragging
     }
-  }, []);
+  }, [dragSensitivity]);
 
   // Expose handler to parent
   useEffect(() => {
