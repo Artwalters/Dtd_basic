@@ -6718,8 +6718,8 @@ button.is-loading {
     display: flex;
     flex-direction: column;
     gap: 0;
-    padding: 0 1em 4em;
-    padding-bottom: calc(7em + env(safe-area-inset-bottom, 0));
+    padding: 0 1em;
+    padding-bottom: calc(6em + env(safe-area-inset-bottom, 0));
   }
 
   /* Hide desktop nav on mobile */
@@ -6740,6 +6740,14 @@ button.is-loading {
     padding: 0 1em;
     padding-bottom: env(safe-area-inset-bottom, 0);
     border-top: 1px solid var(--white-light);
+    transform: translateY(100%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .policies-quick-nav-trigger.visible {
+    transform: translateY(0);
+    opacity: 1;
   }
 
   .policies-quick-nav-btn {

@@ -1,5 +1,4 @@
-import {useEffect, useState} from 'react';
-import {createPortal} from 'react-dom';
+import {useEffect, useRef, useState} from 'react';
 import type {Route} from './+types/policies._index';
 import {Footer} from '~/components/Footer';
 import {FooterParallax} from '~/components/FooterReveal';
@@ -20,11 +19,40 @@ const policyNavItems = [
 export default function PoliciesPage() {
   const [activeSection, setActiveSection] = useState('privacy');
   const [isQuickNavOpen, setIsQuickNavOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [showQuickNav, setShowQuickNav] = useState(true);
+  const sectionRef = useRef<HTMLElement>(null);
 
-  // Wait for client-side mount for portal
+  // Track if we're in the policies section
   useEffect(() => {
-    setMounted(true);
+    const checkVisibility = () => {
+      const section = sectionRef.current;
+      if (!section) return;
+
+      const rect = section.getBoundingClientRect();
+      // Hide when section bottom is near the Quick Nav (bottom of viewport minus nav height ~80px)
+      const navHeight = 80;
+      const isVisible = rect.bottom > window.innerHeight - navHeight + 50;
+      setShowQuickNav(isVisible);
+    };
+
+    // Check on mount
+    checkVisibility();
+
+    // Listen to Lenis scroll
+    const lenis = getLenis();
+    if (lenis) {
+      lenis.on('scroll', checkVisibility);
+    }
+
+    // Fallback to native scroll
+    window.addEventListener('scroll', checkVisibility, { passive: true });
+
+    return () => {
+      if (lenis) {
+        lenis.off('scroll', checkVisibility);
+      }
+      window.removeEventListener('scroll', checkVisibility);
+    };
   }, []);
 
   useEffect(() => {
@@ -93,7 +121,7 @@ export default function PoliciesPage() {
 
   return (
     <>
-      <section className="policies-page">
+      <section className="policies-page" ref={sectionRef}>
         <div className="policies-container">
           {/* Left Navigation */}
           <nav className="policies-nav">
@@ -431,14 +459,9 @@ export default function PoliciesPage() {
               <div className="policy-divider divider-bottom" />
             </article>
           </div>
-        </div>
-      </section>
 
-      {/* Mobile Quick Nav */}
-      {mounted && createPortal(
-        <>
-          {/* Sticky Button */}
-          <div className="policies-quick-nav-trigger">
+          {/* Mobile Quick Nav - Sticky Button */}
+          <div className={`policies-quick-nav-trigger ${showQuickNav ? 'visible' : ''}`}>
             <button
               className="policies-quick-nav-btn"
               onClick={() => setIsQuickNavOpen(true)}
@@ -459,42 +482,41 @@ export default function PoliciesPage() {
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Backdrop */}
-          <div
-            className={`policies-quick-nav-backdrop ${isQuickNavOpen ? 'open' : ''}`}
-            onClick={() => setIsQuickNavOpen(false)}
-          />
+        {/* Mobile Quick Nav - Backdrop */}
+        <div
+          className={`policies-quick-nav-backdrop ${isQuickNavOpen ? 'open' : ''}`}
+          onClick={() => setIsQuickNavOpen(false)}
+        />
 
-          {/* Popup */}
-          <div className={`policies-quick-nav-popup ${isQuickNavOpen ? 'open' : ''}`}>
-            <div className="policies-quick-nav-popup__header">
-              <h2 className="policies-quick-nav-popup__title">Quick Nav</h2>
-              <button
-                className="policies-quick-nav-popup__close"
-                onClick={() => setIsQuickNavOpen(false)}
-              >
-                CLOSE
-              </button>
-            </div>
-            <div className="mobile-quick-add__divider-bracket" />
-            <ul className="policies-quick-nav-popup__list">
-              {policyNavItems.map((item) => (
-                <li key={item.id}>
-                  <button
-                    onClick={() => handleNavClick(item.id)}
-                    className={`policies-quick-nav-popup__link ${activeSection === item.id ? 'active' : ''}`}
-                  >
-                    {item.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <div className="mobile-quick-add__divider-bracket divider-bottom" />
+        {/* Mobile Quick Nav - Popup */}
+        <div className={`policies-quick-nav-popup ${isQuickNavOpen ? 'open' : ''}`}>
+          <div className="policies-quick-nav-popup__header">
+            <h2 className="policies-quick-nav-popup__title">Quick Nav</h2>
+            <button
+              className="policies-quick-nav-popup__close"
+              onClick={() => setIsQuickNavOpen(false)}
+            >
+              CLOSE
+            </button>
           </div>
-        </>,
-        document.body
-      )}
+          <div className="mobile-quick-add__divider-bracket" />
+          <ul className="policies-quick-nav-popup__list">
+            {policyNavItems.map((item) => (
+              <li key={item.id}>
+                <button
+                  onClick={() => handleNavClick(item.id)}
+                  className={`policies-quick-nav-popup__link ${activeSection === item.id ? 'active' : ''}`}
+                >
+                  {item.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="mobile-quick-add__divider-bracket divider-bottom" />
+        </div>
+      </section>
 
       <Footer />
       <FooterParallax />
