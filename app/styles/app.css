@@ -476,12 +476,26 @@ aside li {
   left: 0;
   right: 0;
   bottom: 0;
-  width: 100%;
-  height: 100%;
   background: transparent;
   border: none;
   cursor: pointer;
-  z-index: 9999;
+  z-index: 51;
+  display: none;
+  pointer-events: none;
+}
+
+/* Show overlay when menu or cart is open */
+.main-content-area[data-menu-open="true"] .sliding-wrapper-overlay,
+.main-content-area[data-cart-open="true"] .sliding-wrapper-overlay {
+  display: block;
+  pointer-events: auto;
+}
+
+/* On desktop, don't cover the cart panel */
+@media (min-width: 48em) {
+  .main-content-area[data-cart-open="true"] .sliding-wrapper-overlay {
+    right: 34em;
+  }
 }
 
 /* Mobile menu: slide page to right */

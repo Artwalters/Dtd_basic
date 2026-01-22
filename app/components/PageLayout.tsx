@@ -62,19 +62,16 @@ function MainContentArea({children, cart}: {children: React.ReactNode, cart: Pag
   const {type, close} = useAside();
   const isCartOpen = type === 'cart';
   const isMobileMenuOpen = type === 'mobile';
-  const isOpen = isCartOpen || isMobileMenuOpen;
 
   return (
-    <div className="main-content-area" data-cart-open={isCartOpen}>
-      {/* Blocking overlay - closes menu/cart when clicked */}
-      {isOpen && (
-        <button
-          className="sliding-wrapper-overlay"
-          onClick={close}
-          aria-label="Close menu"
-        />
-      )}
+    <div className="main-content-area" data-cart-open={isCartOpen} data-menu-open={isMobileMenuOpen}>
       <SlidingWrapper>{children}</SlidingWrapper>
+      {/* Blocking overlay - closes menu/cart when clicked */}
+      <button
+        className="sliding-wrapper-overlay"
+        onClick={close}
+        aria-label="Close menu"
+      />
       {/* Desktop cart - rendered next to the page, not as overlay */}
       <div className="desktop-cart-panel">
         <header className="desktop-cart-header">
