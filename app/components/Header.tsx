@@ -3,7 +3,6 @@ import {Await, NavLink, useAsyncValue} from 'react-router';
 import {
   type CartViewPayload,
   useAnalytics,
-  useOptimisticCart,
 } from '@shopify/hydrogen';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
@@ -438,8 +437,7 @@ function CartToggle({cart}: Pick<HeaderProps, 'cart'>) {
 }
 
 function CartBanner() {
-  const originalCart = useAsyncValue() as CartApiQueryFragment | null;
-  const cart = useOptimisticCart(originalCart);
+  const cart = useAsyncValue() as CartApiQueryFragment | null;
   return <CartBadge count={cart?.totalQuantity ?? 0} />;
 }
 
@@ -490,8 +488,7 @@ function CartToggleMobile({cart}: Pick<HeaderProps, 'cart'>) {
 }
 
 function CartBannerMobile() {
-  const originalCart = useAsyncValue() as CartApiQueryFragment | null;
-  const cart = useOptimisticCart(originalCart);
+  const cart = useAsyncValue() as CartApiQueryFragment | null;
   return <CartBadgeMobile count={cart?.totalQuantity ?? 0} />;
 }
 

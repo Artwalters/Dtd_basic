@@ -10,6 +10,7 @@ import {
   ScrollRestoration,
   useRouteLoaderData,
 } from 'react-router';
+import {lazy, Suspense, Component, type ReactNode} from 'react';
 import type {Route} from './+types/root';
 import favicon from '~/assets/favicon.svg';
 import {HEADER_QUERY} from '~/lib/fragments';
@@ -210,25 +211,74 @@ export default function App() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  let errorMessage = 'Unknown error';
   let errorStatus = 500;
 
   if (isRouteErrorResponse(error)) {
-    errorMessage = error?.data?.message ?? error.data;
     errorStatus = error.status;
-  } else if (error instanceof Error) {
-    errorMessage = error.message;
   }
 
+  const is404 = errorStatus === 404;
+
   return (
-    <div className="route-error">
-      <h1>Oops</h1>
-      <h2>{errorStatus}</h2>
-      {errorMessage && (
-        <fieldset>
-          <pre>{errorMessage}</pre>
-        </fieldset>
-      )}
-    </div>
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>{is404 ? 'Page Not Found' : 'Error'} | Dare to Dream</title>
+        <link rel="stylesheet" href={resetStyles} />
+        <link rel="stylesheet" href={appStyles} />
+        <link rel="stylesheet" href={fontStyles} />
+        <link rel="icon" type="image/svg+xml" href={favicon} />
+      </head>
+      <body>
+        <div className="error-page">
+          <div className="error-page-logo">
+            <NotFoundLogo3D />
+          </div>
+          <div className="error-page-content">
+            <h1 className="error-page-code">{errorStatus}</h1>
+            <p className="error-page-message">
+              {is404 ? "This page doesn't exist" : 'Something went wrong'}
+            </p>
+            <a href="/" className="btn btn-glass error-page-btn">
+              Back to Shop
+            </a>
+          </div>
+        </div>
+        <Scripts />
+      </body>
+    </html>
   );
+}
+
+// Lazy load the 404 logo component
+const NotFoundLogo3DLazy = lazy(() => import('~/components/NotFoundLogo3D'));
+
+function NotFoundLogo3D() {
+  return (
+    <ErrorBoundarySimple>
+      <Suspense fallback={<div className="error-page-logo-fallback" />}>
+        <NotFoundLogo3DLazy />
+      </Suspense>
+    </ErrorBoundarySimple>
+  );
+}
+
+// Simple error boundary for 3D component
+class ErrorBoundarySimple extends Component<{children: ReactNode}, {hasError: boolean}> {
+  constructor(props: {children: ReactNode}) {
+    super(props);
+    this.state = {hasError: false};
+  }
+
+  static getDerivedStateFromError() {
+    return {hasError: true};
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div className="error-page-logo-fallback" />;
+    }
+    return this.props.children;
+  }
 }

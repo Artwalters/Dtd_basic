@@ -6808,3 +6808,88 @@ button.is-loading {
   }
 }
 
+
+/*
+* --------------------------------------------------
+* Error / 404 Page
+* --------------------------------------------------
+*/
+.error-page {
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-black);
+  color: var(--color-white);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.error-page-logo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.error-page-logo-fallback {
+  width: 100%;
+  height: 100%;
+}
+
+.not-found-logo-3d {
+  width: 100%;
+  height: 100%;
+}
+
+.error-page-content {
+  position: absolute;
+  bottom: 3em;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1em;
+  padding: 2em;
+}
+
+.error-page-code {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-6xl);
+  font-weight: var(--weight-light);
+  letter-spacing: var(--tracking-tight);
+  line-height: 1;
+  margin: 0;
+}
+
+.error-page-message {
+  font-size: var(--font-md);
+  font-weight: var(--weight-normal);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--white-strong);
+  margin: 0;
+}
+
+.error-page-btn {
+  margin-top: 1em;
+}
+
+@media (max-width: 767px) {
+  .error-page-code {
+    font-size: var(--font-5xl);
+  }
+
+  .error-page-message {
+    font-size: var(--font-sm);
+  }
+}
