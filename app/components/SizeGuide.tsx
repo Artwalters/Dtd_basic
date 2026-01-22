@@ -323,16 +323,14 @@ export function SizeGuide({isOpen, onClose}: SizeGuideProps) {
         onClick={handleBackdropClick}
       >
         <div className={`size-guide-mobile ${isOpen ? 'size-guide-mobile--open' : ''}`}>
-          <div className="size-guide-mobile__header">
-            {step !== 'intro' ? (
+          <div className={`size-guide-mobile__header ${step === 'intro' ? 'size-guide-mobile__header--intro' : ''}`}>
+            {step !== 'intro' && (
               <button
                 className="size-guide-mobile__back"
                 onClick={() => step === 'result' ? resetGuide() : setStep('intro')}
               >
                 BACK
               </button>
-            ) : (
-              <span className="size-guide-mobile__spacer" />
             )}
             <h2 className="size-guide-mobile__title">Size Guide</h2>
             <button

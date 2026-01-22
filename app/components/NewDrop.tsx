@@ -197,9 +197,8 @@ export function NewDrop({
       <div className="new-drop-section-header">
         <h2 className="new-drop-section-title">{title}</h2>
         <Link to="/collections/all" className="btn btn-glass new-drop-shop-all">
-          Shop all
+          View all
         </Link>
-        <span className="new-drop-item-count">{gridProducts.length} Items</span>
       </div>
 
       <div className="new-drop-grid">
@@ -219,10 +218,6 @@ export function NewDrop({
                 />
               ))}
             </div>
-
-            <Link to="/collections/all" className="btn btn-glass new-drop-featured-btn">
-              VIEW PRODUCTS
-            </Link>
           </div>
         </div>
 
