@@ -5801,6 +5801,17 @@ button.is-loading {
   }
 }
 
+/* Large screens (2300px+) - footer-links */
+@media (min-width: 2300px) {
+  .footer-links {
+    padding: 6em 1em 6em;
+  }
+
+  .footer-3d {
+    height: 60vh;
+  }
+}
+
 /*
 * --------------------------------------------------
 * Footer 3D Logo (Simple version)
@@ -6027,6 +6038,14 @@ button.is-loading {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+/* Large screens (2300px+) - footer parallax */
+@media (min-width: 2300px) {
+  .footer-parallax-wrapper,
+  .footer-parallax {
+    height: 50vh;
+  }
 }
 
 /*
