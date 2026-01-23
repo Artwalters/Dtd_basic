@@ -1,5 +1,5 @@
 import {Canvas, useFrame, useThree} from '@react-three/fiber';
-import {useGLTF} from '@react-three/drei';
+import {useGLTF, Environment} from '@react-three/drei';
 import {Suspense, useMemo, useState, useEffect, useRef} from 'react';
 import * as THREE from 'three';
 
@@ -16,16 +16,25 @@ function useIsTouchDevice() {
   return isTouch;
 }
 
-function FullLogoModel({isTouchDevice, logoScale = 1}: {isTouchDevice: boolean; logoScale?: number}) {
+interface ModelProps {
+  isTouchDevice: boolean;
+  logoScale?: number;
+}
+
+function FullLogoModel({isTouchDevice, logoScale = 1}: ModelProps) {
   const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
+  const materialRef = useRef<THREE.MeshBasicMaterial | null>(null);
   const {pointer} = useThree();
 
   const clonedScene = useMemo(() => {
     const clone = scene.clone();
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
+      transparent: true,
+      opacity: 1,
     });
+    materialRef.current = material;
     clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;
@@ -34,18 +43,18 @@ function FullLogoModel({isTouchDevice, logoScale = 1}: {isTouchDevice: boolean; 
     return clone;
   }, [scene]);
 
-  // Subtle mouse interaction
   useFrame(() => {
     if (groupRef.current) {
+      const scale = 2.8 * logoScale;
+      groupRef.current.scale.setScalar(scale);
+
+      // Mouse interaction
       if (isTouchDevice) {
-        // On touch devices, maintain base rotation
         groupRef.current.rotation.y += ((Math.PI / 2) - groupRef.current.rotation.y) * 0.02;
         groupRef.current.rotation.x += (0 - groupRef.current.rotation.x) * 0.02;
       } else {
-        // Desktop: subtle tilt based on mouse position
         const targetRotY = (Math.PI / 2) + pointer.x * 0.15;
         const targetRotX = pointer.y * 0.08;
-
         groupRef.current.rotation.y += (targetRotY - groupRef.current.rotation.y) * 0.03;
         groupRef.current.rotation.x += (targetRotX - groupRef.current.rotation.x) * 0.03;
       }
@@ -53,7 +62,7 @@ function FullLogoModel({isTouchDevice, logoScale = 1}: {isTouchDevice: boolean; 
   });
 
   return (
-    <group ref={groupRef} scale={2.8 * logoScale}>
+    <group ref={groupRef}>
       <primitive object={clonedScene} rotation={[0, 0, 0]} />
     </group>
   );
@@ -96,11 +105,12 @@ export default function FooterLogo3D() {
         gl={{antialias: true, alpha: true}}
       >
         <Suspense fallback={null}>
-          <FullLogoModel isTouchDevice={isTouchDevice} logoScale={logoScale} />
+          <FullLogoModel
+            isTouchDevice={isTouchDevice}
+            logoScale={logoScale}
+          />
+          <Environment files="/3D/studio_small_09_1k.hdr" />
         </Suspense>
-        <ambientLight intensity={1} />
-        <directionalLight position={[5, 5, 5]} intensity={2} />
-        <directionalLight position={[-5, 3, -5]} intensity={1.5} />
       </Canvas>
     </div>
   );

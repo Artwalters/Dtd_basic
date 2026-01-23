@@ -1564,6 +1564,16 @@ button.is-loading {
   z-index: 1;
 }
 
+.navbar-logo-hitbox {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 60%;
+  cursor: pointer;
+  z-index: 2;
+}
 
 .header-logo-image {
   height: 4em;
@@ -5865,11 +5875,22 @@ button.is-loading {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .footer-logo-3d canvas {
   width: 100% !important;
   height: 100% !important;
+}
+
+.footer-logo-hitbox {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40%;
+  height: 30%;
+  cursor: pointer;
 }
 
 .footer-parallax-bar {

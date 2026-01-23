@@ -23,9 +23,10 @@ interface ModelProps {
   isActive: boolean;
   isMenuOpen?: boolean;
   logoScale?: number;
+  isHovered?: boolean;
 }
 
-function FullLogoModel({isActive, isMenuOpen, logoScale = 1}: ModelProps) {
+function FullLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered}: ModelProps) {
   const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
@@ -57,7 +58,7 @@ function FullLogoModel({isActive, isMenuOpen, logoScale = 1}: ModelProps) {
       // Footer becomes visible in the last 10% of scroll
       footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.98;
 
-      // When menu is open, always show full logo
+      // When menu is open or at top - show full logo
       const target = (isMenuOpen || isActive) && !footerVisibleRef.current ? 1 : 0;
       animProgress.current += (target - animProgress.current) * 0.08;
 
@@ -83,13 +84,18 @@ function FullLogoModel({isActive, isMenuOpen, logoScale = 1}: ModelProps) {
   );
 }
 
-function SmallLogoModel({isActive, isMenuOpen, logoScale = 1}: ModelProps) {
+function SmallLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered = false}: ModelProps) {
   const {scene, animations} = useGLTF('/3D/dtd_logo7_nav.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
-  const rotationInitialized = useRef(false);
   const footerVisibleRef = useRef(false);
   const materialRef = useRef<THREE.MeshStandardMaterial | null>(null);
+
+  // Rotation tracking
+  const rotationRef = useRef(0);
+  const rotationVelocityRef = useRef(0.005); // Base auto-rotation speed
+  const lastScrollRef = useRef(0);
+  const rotationDirectionRef = useRef(1); // 1 or -1, flips based on scroll direction
 
   // Clone scene and apply metallic material to avoid conflicts with other Canvas instances
   const clonedScene = useMemo(() => {
@@ -126,7 +132,7 @@ function SmallLogoModel({isActive, isMenuOpen, logoScale = 1}: ModelProps) {
     };
   }, [actions, names]);
 
-  // Animate in/out + rotate based on scroll
+  // Animate in/out + rotate based on scroll direction
   useFrame(() => {
     if (groupRef.current && typeof window !== 'undefined') {
       // Check if user has scrolled to the bottom (where sticky footer becomes visible)
@@ -149,17 +155,41 @@ function SmallLogoModel({isActive, isMenuOpen, logoScale = 1}: ModelProps) {
         materialRef.current.opacity = Math.pow(progress, 2);
       }
 
-      // Scroll-based rotation (base rotation is on primitive, scroll adds to group)
-      const scrollProgress = maxScroll > 0 ? scrollY / maxScroll : 0;
-      const targetY = scrollProgress * Math.PI * 2;
+      // Calculate scroll delta for direction
+      const scrollDelta = scrollY - lastScrollRef.current;
+      lastScrollRef.current = scrollY;
 
-      // Initialize rotation immediately on first frame
-      if (!rotationInitialized.current) {
-        groupRef.current.rotation.y = targetY;
-        rotationInitialized.current = true;
-      } else {
-        groupRef.current.rotation.y += (targetY - groupRef.current.rotation.y) * 0.05;
+      // Flip rotation direction based on scroll direction
+      if (scrollDelta > 2) {
+        rotationDirectionRef.current = 1; // Scroll down
+      } else if (scrollDelta < -2) {
+        rotationDirectionRef.current = -1; // Scroll up
       }
+
+      if (isHovered) {
+        // On hover, smoothly rotate to nearest forward-facing position
+        // Logo is symmetric, so 0 and Math.PI (180°) both look the same
+        rotationVelocityRef.current *= 0.9; // Slow down
+
+        // Find nearest multiple of Math.PI (0, π, 2π, -π, etc.)
+        const nearestMultiple = Math.round(rotationRef.current / Math.PI) * Math.PI;
+        rotationRef.current += (nearestMultiple - rotationRef.current) * 0.08;
+      } else {
+        // Base auto-rotation speed, direction flips based on last scroll
+        const baseSpeed = 0.003 * rotationDirectionRef.current;
+
+        // Add scroll speed boost - faster scroll = faster rotation
+        const scrollBoost = Math.abs(scrollDelta) * 0.0012 * rotationDirectionRef.current;
+        const targetSpeed = baseSpeed + scrollBoost;
+
+        // Smoothly blend velocity towards target
+        rotationVelocityRef.current += (targetSpeed - rotationVelocityRef.current) * 0.03;
+
+        // Apply rotation
+        rotationRef.current += rotationVelocityRef.current;
+      }
+
+      groupRef.current.rotation.y = rotationRef.current;
     }
   });
 
@@ -173,6 +203,7 @@ function SmallLogoModel({isActive, isMenuOpen, logoScale = 1}: ModelProps) {
 export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps) {
   const [isClient, setIsClient] = useState(false);
   const [logoScale, setLogoScale] = useState(1);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -207,10 +238,16 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
       >
         <Suspense fallback={null}>
           <FullLogoModel isActive={!isScrolled} isMenuOpen={isMenuOpen} logoScale={logoScale} />
-          <SmallLogoModel isActive={isScrolled} isMenuOpen={isMenuOpen} logoScale={logoScale} />
+          <SmallLogoModel isActive={isScrolled} isMenuOpen={isMenuOpen} logoScale={logoScale} isHovered={isHovered} />
           <Environment files="/3D/studio_small_09_1k.hdr" />
         </Suspense>
       </Canvas>
+      {/* Hitbox for hover detection */}
+      <div
+        className="navbar-logo-hitbox"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      />
     </div>
   );
 }
