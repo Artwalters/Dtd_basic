@@ -59,8 +59,8 @@ function FullLogoModel({isActive, logoScale = 1, menuAnimationPhase = 'idle'}: M
         // Hide full logo while small logo is spinning (both opening and closing)
         target = 0;
       } else if (menuAnimationPhase === 'full-logo-black') {
-        // Show full logo (black)
-        target = footerVisibleRef.current ? 0 : 1;
+        // Show full logo (black) - always show in menu, ignore footer visibility
+        target = 1;
       } else {
         // Normal behavior: show when at top (not scrolled) and footer not visible
         target = isActive && !footerVisibleRef.current ? 1 : 0;
