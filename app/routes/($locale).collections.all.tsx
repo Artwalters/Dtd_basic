@@ -12,11 +12,11 @@ import {getLenis} from '~/hooks/useLenis';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 
 const filterOptions = [
-  {id: 'all', label: 'All Products'},
-  {id: 'hoodie', label: 'Hoodie'},
-  {id: 'pants', label: 'Pants'},
-  {id: 't-shirt', label: 'T-Shirt'},
-  {id: 'jacket', label: 'Jacket'},
+  {id: 'all', label: 'All Products', terms: []},
+  {id: 'tee', label: 'T-Shirts', terms: ['tee', 't-shirt', 'shirt']},
+  {id: 'hoodie', label: 'Hoodies', terms: ['hoodie', 'hoody']},
+  {id: 'pants', label: 'Pants', terms: ['pants', 'jogger', 'joggers', 'sweats', 'sweatpants']},
+  {id: 'jacket', label: 'Jackets', terms: ['jacket', 'coat']},
 ];
 
 export const meta: Route.MetaFunction = () => {
@@ -94,14 +94,22 @@ export default function Collection() {
   }, [activeFilter]);
 
   // Filter products based on active filter
+  const activeFilterOption = filterOptions.find(f => f.id === activeFilter);
+  const filterTerms = activeFilterOption?.terms || [];
+
   const filteredProducts = activeFilter === 'all'
     ? products.nodes
     : products.nodes?.filter((product) => {
         const title = product.title.toLowerCase();
         const tags = product.tags?.map((tag: string) => tag.toLowerCase()) || [];
-        const filterTerm = activeFilter.toLowerCase();
+        const productType = (product as any).productType?.toLowerCase() || '';
 
-        return title.includes(filterTerm) || tags.some((tag: string) => tag.includes(filterTerm));
+        // Check if any filter term matches title, tags, or productType
+        return filterTerms.some(term =>
+          title.includes(term) ||
+          tags.some((tag: string) => tag.includes(term)) ||
+          productType.includes(term)
+        );
       });
 
   const totalProducts = filteredProducts?.length || 0;
@@ -191,6 +199,7 @@ const COLLECTION_ITEM_FRAGMENT = `#graphql
     handle
     title
     tags
+    productType
     featuredImage {
       id
       altText
