@@ -7,8 +7,11 @@ import {useCursor} from '~/hooks/useCursor';
 // Register GSAP plugins
 gsap.registerPlugin(CustomEase);
 
-// Create custom ease
+// Create custom eases
+// Original ease - smooth S-curve
 CustomEase.create("menuEase", "M0,0 C0.126,0.382 0.29,0.669 0.44,0.822 0.613,0.998 0.818,1.001 1,1");
+// Fast start, slow end (ease-out style)
+CustomEase.create("menuEaseOut", "M0,0 C0.25,0.46 0.45,0.94 0.65,0.98 0.85,1 1,1 1,1");
 import type {
   CartApiQueryFragment,
   HeaderQuery,
@@ -230,7 +233,7 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
 
       animationRef.current = gsap.to(wrapper, {
         y: '100vh', scale: 0.95, borderRadius: '12px',
-        duration: 3.5, ease: 'menuEase',
+        duration: 1.5, ease: 'menuEaseOut',
         onComplete: () => setIsAnimating(false),
       });
     } else if (isCartOpen) {

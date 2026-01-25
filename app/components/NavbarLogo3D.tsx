@@ -13,7 +13,7 @@ interface NavbarLogo3DProps {
 type MenuAnimationPhase = 'idle' | 'small-logo-spinning' | 'full-logo-black' | 'closing-spinning';
 
 // Animation timing constants (ms)
-const SPIN_DURATION = 2800;
+const SPIN_DURATION = 1000;
 const CLOSE_SPIN_DURATION = 2000;
 
 interface ModelProps {
