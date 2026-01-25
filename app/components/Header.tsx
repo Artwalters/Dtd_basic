@@ -64,43 +64,31 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
     }
 
     if (isMenuOpen && !wasMenuOpenRef.current) {
-      // Menu is opening - wait for buttons to fade out, then animate bar
+      // Menu is opening - quickly hide the bar at the start
       wasMenuOpenRef.current = true;
 
       animationRef.current = gsap.to(bar, {
         y: -100,
-        duration: 0.3,
-        delay: 0.25,
+        duration: 0.25,
         ease: 'sine.inOut',
         onComplete: () => {
-          // Switch color while fully out of view (buttons are hidden)
+          // Switch color while hidden
           setVisualDarkMode(true);
-          // Animate back down
-          animationRef.current = gsap.to(bar, {
-            y: 0,
-            duration: 0.4,
-            ease: 'sine.inOut',
-          });
         },
       });
     } else if (!isMenuOpen && wasMenuOpenRef.current) {
-      // Menu is closing - wait for buttons to fade out, then animate bar
+      // Menu is closing - wait for website animation to complete (2.5s), then animate bar back
       wasMenuOpenRef.current = false;
 
+      // Delay until website close animation is done, then animate back
       animationRef.current = gsap.to(bar, {
-        y: -100,
-        duration: 0.3,
-        delay: 0.25,
+        y: 0,
+        duration: 0.4,
+        delay: 2.5,
         ease: 'sine.inOut',
-        onComplete: () => {
-          // Switch color while fully out of view (buttons are hidden)
+        onStart: () => {
+          // Switch color back just before animating in
           setVisualDarkMode(false);
-          // Animate back down
-          animationRef.current = gsap.to(bar, {
-            y: 0,
-            duration: 0.4,
-            ease: 'sine.inOut',
-          });
         },
       });
     }
