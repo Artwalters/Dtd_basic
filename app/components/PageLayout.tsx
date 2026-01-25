@@ -182,6 +182,14 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
       // Only animate close if cart was previously open
       wasCartOpenRef.current = false;
 
+      // Check if we navigated BEFORE the animation starts
+      const navigated = window.location.pathname !== pathnameRef.current;
+
+      // If navigated, scroll the wrapper to top immediately so new page shows from top
+      if (navigated) {
+        wrapper.scrollTop = 0;
+      }
+
       // Keep styles during close animation
       document.body.style.background = 'var(--color-cream)';
 
@@ -221,8 +229,7 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
           if (header) {
             header.style.color = '';
           }
-          // Only restore scroll if we're still on the same page
-          const navigated = window.location.pathname !== pathnameRef.current;
+          // Restore scroll position or ensure we're at top
           window.scrollTo(0, navigated ? 0 : scrollPosRef.current);
         },
       });
@@ -330,6 +337,14 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
       wasMobileMenuOpenRef.current = false;
       wasCartOpenRef.current = false;
 
+      // Check if we navigated BEFORE the animation starts
+      const navigated = window.location.pathname !== pathnameRef.current;
+
+      // If navigated, scroll the wrapper to top immediately so new page shows from top
+      if (navigated) {
+        wrapper.scrollTop = 0;
+      }
+
       // Keep background cream during close animation
       document.body.style.background = 'var(--color-cream)';
 
@@ -372,11 +387,8 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
             menuOverlay.style.opacity = '';
             menuOverlay.style.visibility = '';
           }
-          // Only restore scroll if we're still on the same page, otherwise scroll to top
-          if (wasMenu || wasCart) {
-            const navigated = window.location.pathname !== pathnameRef.current;
-            window.scrollTo(0, navigated ? 0 : scrollPosRef.current);
-          }
+          // Restore scroll position or ensure we're at top
+          window.scrollTo(0, navigated ? 0 : scrollPosRef.current);
         },
       });
     }
