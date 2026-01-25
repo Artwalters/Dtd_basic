@@ -1,4 +1,4 @@
-import {Await, Link, useLocation} from 'react-router';
+import {Await, Link} from 'react-router';
 import {Suspense, useId, useRef, useEffect} from 'react';
 import gsap from 'gsap';
 import {CustomEase} from 'gsap/CustomEase';
@@ -110,15 +110,23 @@ function MainContentArea({children, cart}: {children: React.ReactNode, cart: Pag
 
 function SlidingWrapper({children}: {children: React.ReactNode}) {
   const {type, setIsAnimating} = useAside();
-  const location = useLocation();
   const isMobileMenuOpen = type === 'mobile';
   const isCartOpen = type === 'cart';
   const wrapperRef = useRef<HTMLDivElement>(null);
   const scrollPosRef = useRef(0);
-  const pathnameRef = useRef(location.pathname);
   const animationRef = useRef<gsap.core.Tween | null>(null);
   const wasCartOpenRef = useRef(false);
   const wasMobileMenuOpenRef = useRef(false);
+  const isNavigatingRef = useRef(false);
+
+  // Listen for menu navigation event
+  useEffect(() => {
+    const handleMenuNavigation = () => {
+      isNavigatingRef.current = true;
+    };
+    window.addEventListener('menuNavigation', handleMenuNavigation);
+    return () => window.removeEventListener('menuNavigation', handleMenuNavigation);
+  }, []);
 
   // Desktop cart animation
   useEffect(() => {
@@ -138,10 +146,9 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
     }
 
     if (isCartOpen) {
-      // Only save scroll position and pathname on fresh open
+      // Only save scroll position on fresh open
       if (!wasCartOpenRef.current) {
         scrollPosRef.current = window.scrollY;
-        pathnameRef.current = location.pathname;
       }
 
       // Set up the wrapper as a fixed viewport-sized frame
@@ -182,11 +189,12 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
       // Only animate close if cart was previously open
       wasCartOpenRef.current = false;
 
-      // Check if we navigated BEFORE the animation starts
-      const navigated = window.location.pathname !== pathnameRef.current;
+      // Check if we're navigating (set by menuNavigation event)
+      const navigating = isNavigatingRef.current;
+      isNavigatingRef.current = false; // Reset for next time
 
-      // If navigated, scroll the wrapper to top immediately so new page shows from top
-      if (navigated) {
+      // If navigating, scroll the wrapper to top immediately so new page shows from top
+      if (navigating) {
         wrapper.scrollTop = 0;
       }
 
@@ -230,12 +238,10 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
             header.style.color = '';
           }
           // Restore scroll position or ensure we're at top
-          window.scrollTo(0, navigated ? 0 : scrollPosRef.current);
+          window.scrollTo(0, navigating ? 0 : scrollPosRef.current);
         },
       });
     }
-  // Note: location.pathname is intentionally NOT in deps - we only read it once when cart opens
-  // Including it would cause the effect to re-run during navigation, conflicting with animations
   }, [isCartOpen, setIsAnimating]);
 
   // Mobile menu and cart animation
@@ -256,10 +262,9 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
     }
 
     if (isMobileMenuOpen) {
-      // Only save scroll position and pathname on fresh open
+      // Only save scroll position on fresh open
       if (!wasMobileMenuOpenRef.current) {
         scrollPosRef.current = window.scrollY;
-        pathnameRef.current = location.pathname;
       }
 
       // Set up the wrapper as a fixed viewport-sized frame (same approach as desktop cart)
@@ -295,10 +300,9 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         },
       });
     } else if (isCartOpen) {
-      // Only save scroll position and pathname on fresh open
+      // Only save scroll position on fresh open
       if (!wasCartOpenRef.current) {
         scrollPosRef.current = window.scrollY;
-        pathnameRef.current = location.pathname;
       }
 
       // Set up the wrapper as a fixed viewport-sized frame
@@ -337,11 +341,12 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
       wasMobileMenuOpenRef.current = false;
       wasCartOpenRef.current = false;
 
-      // Check if we navigated BEFORE the animation starts
-      const navigated = window.location.pathname !== pathnameRef.current;
+      // Check if we're navigating (set by menuNavigation event)
+      const navigating = isNavigatingRef.current;
+      isNavigatingRef.current = false; // Reset for next time
 
-      // If navigated, scroll the wrapper to top immediately so new page shows from top
-      if (navigated) {
+      // If navigating, scroll the wrapper to top immediately so new page shows from top
+      if (navigating) {
         wrapper.scrollTop = 0;
       }
 
@@ -388,12 +393,10 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
             menuOverlay.style.visibility = '';
           }
           // Restore scroll position or ensure we're at top
-          window.scrollTo(0, navigated ? 0 : scrollPosRef.current);
+          window.scrollTo(0, navigating ? 0 : scrollPosRef.current);
         },
       });
     }
-  // Note: location.pathname is intentionally NOT in deps - we only read it once when menu opens
-  // Including it would cause the effect to re-run during navigation, conflicting with animations
   }, [isMobileMenuOpen, isCartOpen, setIsAnimating]);
 
   return (

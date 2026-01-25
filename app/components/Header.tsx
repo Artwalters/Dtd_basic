@@ -666,6 +666,8 @@ export function HeaderMenu({
   const {close} = useAside();
 
   const handleNavClick = () => {
+    // Dispatch event BEFORE closing so PageLayout knows we're navigating
+    window.dispatchEvent(new CustomEvent('menuNavigation'));
     close();
     // Dispatch custom event to close any open quick add panels
     window.dispatchEvent(new CustomEvent('closeQuickAdd'));
