@@ -509,91 +509,27 @@ aside li {
     overflow: hidden;
   }
 
-  /* Mobile menu overlay - transparent, only for positioning menu */
-  .overlay[data-aside-type="mobile"] {
-    background: transparent;
-    top: 0;
-    z-index: 40;
-    pointer-events: none;
-  }
-
-  .overlay[data-aside-type="mobile"].expanded {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  /* Close button covers entire screen to close on tap anywhere */
-  .overlay[data-aside-type="mobile"] .close-outside {
-    position: fixed;
-    right: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 60;
-    pointer-events: auto;
-  }
-
-  /* Mobile menu aside - full width, below the fixed nav */
-  .overlay[data-aside-type="mobile"] aside {
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-width: 100vw;
-    transform: none;
-    box-shadow: none;
-    padding-top: calc(var(--header-height) + 4em); /* Below fixed nav */
-    padding-bottom: 1em;
-    background: transparent;
-    color: var(--color-black);
-    pointer-events: auto;
-    height: 100vh;
-    height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-    box-sizing: border-box;
-    z-index: 70; /* Above close-outside (60) so menu links are clickable */
-  }
-
-  /* Hide the aside header (MENU title and close button) - we use our own */
-  .overlay[data-aside-type="mobile"] aside header {
-    display: none;
-  }
-
-  .overlay[data-aside-type="mobile"] aside main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: 0;
-  }
-
   /* ===========================================
-     Mobile Cart Aside - Same style as mobile menu
+     Mobile Menu & Cart Overlays - Shared Base Styles
      =========================================== */
-
-  /* Cream background behind everything when cart open */
-  html:has(.overlay[data-aside-type="cart"].expanded),
-  body:has(.overlay[data-aside-type="cart"].expanded) {
-    background: var(--color-cream);
-    overflow: hidden;
-  }
-
+  .overlay[data-aside-type="mobile"],
   .overlay[data-aside-type="cart"] {
     background: transparent;
     top: 0;
     z-index: 40;
   }
 
+  .overlay[data-aside-type="mobile"].expanded,
   .overlay[data-aside-type="cart"].expanded {
     opacity: 1;
     visibility: visible;
   }
 
-  /* Close button covers left side of screen */
+  .overlay[data-aside-type="mobile"] .close-outside,
   .overlay[data-aside-type="cart"] .close-outside {
     position: fixed;
     left: 0;
+    right: 0;
     top: 0;
     width: 100%;
     height: 100%;
@@ -601,17 +537,15 @@ aside li {
     pointer-events: auto;
   }
 
-  /* Mobile cart aside - full width, light background */
+  .overlay[data-aside-type="mobile"] aside,
   .overlay[data-aside-type="cart"] aside {
     left: 0;
     right: 0;
     width: 100%;
     max-width: 100vw;
-    transform: none !important;
+    transform: none;
     box-shadow: none;
-    padding-top: calc(var(--header-height) + 4em); /* Below fixed nav, same as mobile menu */
-    padding-bottom: 0;
-    background: var(--color-cream);
+    padding-top: calc(var(--header-height) + 4em);
     color: var(--color-black);
     pointer-events: auto;
     height: 100vh;
@@ -623,17 +557,37 @@ aside li {
     z-index: 70;
   }
 
-  /* Hide the aside header - we use dividers instead */
+  .overlay[data-aside-type="mobile"] aside header,
   .overlay[data-aside-type="cart"] aside header {
     display: none;
   }
 
+  .overlay[data-aside-type="mobile"] aside main,
   .overlay[data-aside-type="cart"] aside main {
     flex: 1;
     display: flex;
     flex-direction: column;
     height: 100%;
     padding: 0;
+  }
+
+  /* Menu-specific: transparent background, no pointer-events on overlay */
+  .overlay[data-aside-type="mobile"] {
+    pointer-events: none;
+  }
+
+  .overlay[data-aside-type="mobile"] aside {
+    background: transparent;
+    padding-bottom: 1em;
+  }
+
+  /* Cart-specific: cream background, overflow hidden on main */
+  .overlay[data-aside-type="cart"] aside {
+    background: var(--color-cream);
+    padding-bottom: 0;
+  }
+
+  .overlay[data-aside-type="cart"] aside main {
     overflow: hidden;
   }
 }
