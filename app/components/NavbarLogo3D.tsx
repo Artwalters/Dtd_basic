@@ -19,19 +19,24 @@ interface NavbarLogo3DProps {
   isMenuOpen?: boolean;
 }
 
+// Menu animation phases for mobile
+type MenuAnimationPhase = 'idle' | 'small-logo-spinning' | 'full-logo-black';
+
 interface ModelProps {
   isActive: boolean;
   isMenuOpen?: boolean;
   logoScale?: number;
   isHovered?: boolean;
+  menuAnimationPhase?: MenuAnimationPhase;
 }
 
-function FullLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered}: ModelProps) {
+function FullLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered, menuAnimationPhase = 'idle'}: ModelProps) {
   const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
   const footerVisibleRef = useRef(false);
   const materialRef = useRef<THREE.MeshBasicMaterial | null>(null);
+  const colorProgress = useRef(0); // 0 = white, 1 = black
 
   const clonedScene = useMemo(() => {
     const clone = scene.clone();
@@ -58,8 +63,20 @@ function FullLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered}: ModelPr
       // Footer becomes visible in the last 10% of scroll
       footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.98;
 
-      // When menu is open or at top - show full logo
-      const target = (isMenuOpen || isActive) && !footerVisibleRef.current ? 1 : 0;
+      // On mobile during menu animation: hide during spinning phase, show during full-logo-black phase
+      // On desktop: show when menu is open or at top
+      let target: number;
+      if (menuAnimationPhase === 'small-logo-spinning') {
+        // Hide full logo while small logo is spinning
+        target = 0;
+      } else if (menuAnimationPhase === 'full-logo-black') {
+        // Show full logo in black
+        target = footerVisibleRef.current ? 0 : 1;
+      } else {
+        // Normal behavior: show when at top (not scrolled) and footer not visible
+        target = isActive && !footerVisibleRef.current ? 1 : 0;
+      }
+
       animProgress.current += (target - animProgress.current) * 0.08;
 
       const progress = animProgress.current;
@@ -70,9 +87,14 @@ function FullLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered}: ModelPr
       // Fade opacity faster as it zooms out
       if (materialRef.current) {
         materialRef.current.opacity = Math.pow(progress, 2);
-        // Change color to black when menu is open, white otherwise
-        const targetColor = isMenuOpen ? 0x000000 : 0xffffff;
-        materialRef.current.color.setHex(targetColor);
+
+        // Smoothly transition color: black when menu animation is in full-logo-black phase
+        const targetColor = menuAnimationPhase === 'full-logo-black' ? 1 : 0;
+        colorProgress.current += (targetColor - colorProgress.current) * 0.08;
+
+        // Interpolate between white (0xffffff) and black (0x000000)
+        const colorValue = Math.round(255 * (1 - colorProgress.current));
+        materialRef.current.color.setRGB(colorValue / 255, colorValue / 255, colorValue / 255);
       }
     }
   });
@@ -84,7 +106,7 @@ function FullLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered}: ModelPr
   );
 }
 
-function SmallLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered = false}: ModelProps) {
+function SmallLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered = false, menuAnimationPhase = 'idle'}: ModelProps) {
   const {scene, animations} = useGLTF('/3D/dtd_logo7_nav.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
@@ -96,6 +118,10 @@ function SmallLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered = false}
   const rotationVelocityRef = useRef(0.005); // Base auto-rotation speed
   const lastScrollRef = useRef(0);
   const rotationDirectionRef = useRef(1); // 1 or -1, flips based on scroll direction
+
+  // Menu spin animation tracking
+  const menuSpinStartRef = useRef(0);
+  const wasSpinningRef = useRef(false);
 
   // Clone scene and apply metallic material to avoid conflicts with other Canvas instances
   const clonedScene = useMemo(() => {
@@ -141,8 +167,25 @@ function SmallLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered = false}
       // Footer becomes visible in the last 10% of scroll
       footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.98;
 
-      // Scale animation - hide when menu is open
-      const target = isActive && !isMenuOpen && !footerVisibleRef.current ? 1 : 0;
+      // Scale animation - show during menu spinning phase or when scrolled (normal behavior)
+      let target: number;
+      if (menuAnimationPhase === 'small-logo-spinning') {
+        // Show small logo during spinning phase
+        target = 1;
+
+        // Track spin start position
+        if (!wasSpinningRef.current) {
+          wasSpinningRef.current = true;
+          menuSpinStartRef.current = rotationRef.current;
+        }
+      } else {
+        // Reset spin tracking when not spinning
+        wasSpinningRef.current = false;
+
+        // Normal behavior: show when scrolled (isActive) and not in menu animation
+        target = isActive && menuAnimationPhase === 'idle' && !footerVisibleRef.current ? 1 : 0;
+      }
+
       animProgress.current += (target - animProgress.current) * 0.08;
 
       const progress = animProgress.current;
@@ -166,7 +209,16 @@ function SmallLogoModel({isActive, isMenuOpen, logoScale = 1, isHovered = false}
         rotationDirectionRef.current = -1; // Scroll up
       }
 
-      if (isHovered) {
+      // Menu spin animation - 2 rotations, ending at forward-facing position
+      if (menuAnimationPhase === 'small-logo-spinning') {
+        // Calculate target that makes ~2 rotations AND ends at forward-facing position (multiple of π)
+        const minRotation = menuSpinStartRef.current + Math.PI * 4; // At least 2 full rotations
+        // Round up to nearest multiple of Math.PI so logo ends facing forward
+        const targetRotation = Math.ceil(minRotation / Math.PI) * Math.PI;
+        const spinSpeed = 0.08; // Fast easing
+        rotationRef.current += (targetRotation - rotationRef.current) * spinSpeed;
+        rotationVelocityRef.current = 0; // Reset velocity for smooth transition back
+      } else if (isHovered) {
         // On hover, smoothly rotate to nearest forward-facing position
         // Logo is symmetric, so 0 and Math.PI (180°) both look the same
         rotationVelocityRef.current *= 0.9; // Slow down
@@ -204,6 +256,9 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
   const [isClient, setIsClient] = useState(false);
   const [logoScale, setLogoScale] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
+  const [menuAnimationPhase, setMenuAnimationPhase] = useState<MenuAnimationPhase>('idle');
+  const [isMobile, setIsMobile] = useState(false);
+  const wasMenuOpenRef = useRef(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -211,6 +266,7 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
     // Responsive scale based on viewport width
     const updateScale = () => {
       const width = window.innerWidth;
+      setIsMobile(width < 768); // 48em = 768px
       if (width < 480) {
         setLogoScale(0.85); // Larger on phones
       } else if (width < 1400) {
@@ -227,6 +283,33 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
     return () => window.removeEventListener('resize', updateScale);
   }, []);
 
+  // Handle menu animation phases on mobile
+  useEffect(() => {
+    if (!isMobile) {
+      // Reset to idle on desktop
+      setMenuAnimationPhase('idle');
+      return;
+    }
+
+    if (isMenuOpen && !wasMenuOpenRef.current) {
+      // Menu is opening on mobile - start spinning phase
+      wasMenuOpenRef.current = true;
+      setMenuAnimationPhase('small-logo-spinning');
+
+      // Switch to full logo black phase just before buttons fade in (~3.25s)
+      // Buttons fade in at 3.25s delay, so full logo should appear around 2.8s
+      const spinTimer = setTimeout(() => {
+        setMenuAnimationPhase('full-logo-black');
+      }, 2800);
+
+      return () => clearTimeout(spinTimer);
+    } else if (!isMenuOpen && wasMenuOpenRef.current) {
+      // Menu is closing - reset to idle
+      wasMenuOpenRef.current = false;
+      setMenuAnimationPhase('idle');
+    }
+  }, [isMenuOpen, isMobile]);
+
   if (!isClient) return null;
 
   return (
@@ -237,8 +320,19 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
         gl={{antialias: true, alpha: true}}
       >
         <Suspense fallback={null}>
-          <FullLogoModel isActive={!isScrolled} isMenuOpen={isMenuOpen} logoScale={logoScale} />
-          <SmallLogoModel isActive={isScrolled} isMenuOpen={isMenuOpen} logoScale={logoScale} isHovered={isHovered} />
+          <FullLogoModel
+            isActive={!isScrolled}
+            isMenuOpen={isMenuOpen}
+            logoScale={logoScale}
+            menuAnimationPhase={menuAnimationPhase}
+          />
+          <SmallLogoModel
+            isActive={isScrolled}
+            isMenuOpen={isMenuOpen}
+            logoScale={logoScale}
+            isHovered={isHovered}
+            menuAnimationPhase={menuAnimationPhase}
+          />
           <Environment files="/3D/studio_small_09_1k.hdr" />
         </Suspense>
       </Canvas>
