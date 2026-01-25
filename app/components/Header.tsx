@@ -277,11 +277,11 @@ export function Header({
           // Switch visual states while buttons are hidden
           setHeaderDarkMode(true);
           setVisualMenuOpen(true);
-          // Fade back in after full logo appears (1s)
+          // Fade back in after full logo appears
           gsap.to([menuToggle, cartToggle], {
             opacity: 1,
-            duration: 0.3,
-            delay: 1.0,
+            duration: 0.25,
+            delay: 0.7,
             ease: 'sine.inOut',
           });
         },
@@ -742,16 +742,16 @@ function MenuItemWithReveal({
       wasOpenRef.current = true;
 
       // Start while website is sliding, finish last
-      const baseDelay = 0.3;
-      const itemDelay = index * 0.12; // Stagger between menu items
+      const baseDelay = 0.2;
+      const itemDelay = index * 0.08; // Stagger between menu items
 
       const tl = gsap.timeline({ delay: baseDelay + itemDelay });
 
       // Animate words - snappy reveal
       tl.to(words, {
         yPercent: 0,
-        duration: 0.4,
-        stagger: 0.03,
+        duration: 0.35,
+        stagger: 0.025,
         ease: 'expo.out',
       });
 

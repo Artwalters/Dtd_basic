@@ -115,6 +115,7 @@ function SmallLogoModel({isActive, logoScale = 1, isHovered = false, menuAnimati
   // Menu spin animation tracking
   const menuSpinStartRef = useRef(0);
   const wasSpinningRef = useRef(false);
+  const hasReachedTargetRef = useRef(false);
 
   // Clone scene and apply metallic material to avoid conflicts with other Canvas instances
   const clonedScene = useMemo(() => {
@@ -209,10 +210,23 @@ function SmallLogoModel({isActive, logoScale = 1, isHovered = false, menuAnimati
         const minRotation = menuSpinStartRef.current + Math.PI * 4; // At least 2 full rotations
         // Round up to nearest multiple of Math.PI so logo ends facing forward
         const targetRotation = Math.ceil(minRotation / Math.PI) * Math.PI;
-        const spinSpeed = 0.08; // Fast easing
+        // Fast start, slow end - higher value = faster overall with more ease-out feel
+        const spinSpeed = 0.15;
         rotationRef.current += (targetRotation - rotationRef.current) * spinSpeed;
         rotationVelocityRef.current = 0; // Reset velocity for smooth transition back
-      } else if (isHovered) {
+
+        // When close to target (facing forward), dispatch event to switch to full logo
+        const distanceToTarget = Math.abs(targetRotation - rotationRef.current);
+        if (distanceToTarget < 0.1 && !hasReachedTargetRef.current && menuAnimationPhase === 'small-logo-spinning') {
+          hasReachedTargetRef.current = true;
+          window.dispatchEvent(new CustomEvent('logoFacingForward'));
+        }
+      } else {
+        // Reset the target reached flag when not spinning
+        hasReachedTargetRef.current = false;
+      }
+
+      if (isHovered && !isSpinning) {
         // On hover, smoothly rotate to nearest forward-facing position
         // Logo is symmetric, so 0 and Math.PI (180°) both look the same
         rotationVelocityRef.current *= 0.9; // Slow down
@@ -285,6 +299,19 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
     };
   }, []);
 
+  // Listen for logo facing forward event to switch to full logo immediately
+  useEffect(() => {
+    const handleLogoFacingForward = () => {
+      if (menuAnimationPhase === 'small-logo-spinning') {
+        setMenuAnimationPhase('full-logo-black');
+        menuOpenTimeRef.current = null; // Stop the timer-based check
+      }
+    };
+
+    window.addEventListener('logoFacingForward', handleLogoFacingForward);
+    return () => window.removeEventListener('logoFacingForward', handleLogoFacingForward);
+  }, [menuAnimationPhase]);
+
   // Handle menu animation phases on mobile using interval-based timing
   useEffect(() => {
     if (!isMobile) {
@@ -306,10 +333,11 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
       menuOpenTimeRef.current = null;
     }
 
-    // Update phase based on elapsed time
+    // Update phase based on elapsed time (only for closing animation now)
     const updatePhase = () => {
       const now = performance.now();
 
+      // Opening: still use timer as fallback, but logoFacingForward event should trigger first
       if (menuOpenTimeRef.current !== null) {
         const elapsed = now - menuOpenTimeRef.current;
         const newPhase = elapsed < SPIN_DURATION ? 'small-logo-spinning' : 'full-logo-black';
