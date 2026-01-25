@@ -12,6 +12,10 @@ interface NavbarLogo3DProps {
 // Menu animation phases for mobile
 type MenuAnimationPhase = 'idle' | 'small-logo-spinning' | 'full-logo-black' | 'closing-spinning';
 
+// Animation timing constants (ms)
+const SPIN_DURATION = 2800;
+const CLOSE_SPIN_DURATION = 2000;
+
 interface ModelProps {
   isActive: boolean;
   logoScale?: number;
@@ -281,8 +285,7 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
     };
   }, []);
 
-  // Handle menu animation phases on mobile
-  // Track when menu opened/closed and calculate phase based on elapsed time
+  // Handle menu animation phases on mobile using interval-based timing
   useEffect(() => {
     if (!isMobile) {
       setMenuAnimationPhase('idle');
@@ -292,62 +295,39 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
       return;
     }
 
+    // Track menu open/close transitions
     if (isMenuOpen && !wasMenuOpenRef.current) {
-      // Menu is opening on mobile
       wasMenuOpenRef.current = true;
       menuOpenTimeRef.current = performance.now();
       menuCloseTimeRef.current = null;
     } else if (!isMenuOpen && wasMenuOpenRef.current) {
-      // Menu is closing
       wasMenuOpenRef.current = false;
       menuCloseTimeRef.current = performance.now();
       menuOpenTimeRef.current = null;
     }
-  }, [isMenuOpen, isMobile]);
 
-  // Calculate the current phase based on timing - runs every frame via interval
-  useEffect(() => {
-    if (!isMobile) return;
-
+    // Update phase based on elapsed time
     const updatePhase = () => {
       const now = performance.now();
 
       if (menuOpenTimeRef.current !== null) {
-        // Menu is open or opening
         const elapsed = now - menuOpenTimeRef.current;
-        if (elapsed < 2800) {
-          if (menuAnimationPhase !== 'small-logo-spinning') {
-            setMenuAnimationPhase('small-logo-spinning');
-          }
-        } else {
-          if (menuAnimationPhase !== 'full-logo-black') {
-            setMenuAnimationPhase('full-logo-black');
-          }
-        }
+        const newPhase = elapsed < SPIN_DURATION ? 'small-logo-spinning' : 'full-logo-black';
+        if (menuAnimationPhase !== newPhase) setMenuAnimationPhase(newPhase);
       } else if (menuCloseTimeRef.current !== null) {
-        // Menu is closing
         const elapsed = now - menuCloseTimeRef.current;
-        if (elapsed < 2000) {
-          if (menuAnimationPhase !== 'closing-spinning') {
-            setMenuAnimationPhase('closing-spinning');
-          }
-        } else {
-          if (menuAnimationPhase !== 'idle') {
-            setMenuAnimationPhase('idle');
-            menuCloseTimeRef.current = null; // Clear after reaching idle
-          }
+        if (elapsed < CLOSE_SPIN_DURATION) {
+          if (menuAnimationPhase !== 'closing-spinning') setMenuAnimationPhase('closing-spinning');
+        } else if (menuAnimationPhase !== 'idle') {
+          setMenuAnimationPhase('idle');
+          menuCloseTimeRef.current = null;
         }
       }
     };
 
-    // Run phase check frequently (60fps)
     const intervalId = setInterval(updatePhase, 16);
-
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [isMobile, menuAnimationPhase]);
-
+    return () => clearInterval(intervalId);
+  }, [isMenuOpen, isMobile, menuAnimationPhase]);
 
   if (!isClient) return null;
 
