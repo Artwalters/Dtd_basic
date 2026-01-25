@@ -107,8 +107,8 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
       // Wait for website close animation, then slide bar back in
       animationRef.current = gsap.to(bar, {
         y: 0,
-        duration: 0.4,
-        delay: 2.0, // Website close animation is 2.5s
+        duration: 0.3,
+        delay: 1.0,
         ease: 'sine.inOut',
         onStart: () => {
           // Switch color back before animating in
@@ -301,8 +301,8 @@ export function Header({
           // Fade back in after website close animation completes
           gsap.to([menuToggle, cartToggle], {
             opacity: 1,
-            duration: 0.4,
-            delay: 2.0, // Website close animation is 2.5s, start fading in near the end
+            duration: 0.25,
+            delay: 0.7,
             ease: 'sine.inOut',
           });
         },
@@ -742,16 +742,16 @@ function MenuItemWithReveal({
       wasOpenRef.current = true;
 
       // Start while website is sliding, finish last
-      const baseDelay = 0.2;
-      const itemDelay = index * 0.08; // Stagger between menu items
+      const baseDelay = 0.35;
+      const itemDelay = index * 0.1; // Stagger between menu items
 
       const tl = gsap.timeline({ delay: baseDelay + itemDelay });
 
-      // Animate words - snappy reveal
+      // Animate words - smooth reveal
       tl.to(words, {
         yPercent: 0,
-        duration: 0.35,
-        stagger: 0.025,
+        duration: 0.45,
+        stagger: 0.035,
         ease: 'expo.out',
       });
 
@@ -765,26 +765,29 @@ function MenuItemWithReveal({
 
       animationRef.current = tl;
     } else if (!isMenuOpen && wasOpenRef.current) {
-      // Menu closing - animate chevron first, then words down
+      // Menu closing - reversed stagger (last item first)
       wasOpenRef.current = false;
 
-      const tl = gsap.timeline();
+      // Reverse stagger: last item (index 4) starts first, first item (index 0) starts last
+      const totalItems = 5;
+      const reverseDelay = (totalItems - 1 - index) * 0.06;
 
-      // Fade out chevron first
+      const tl = gsap.timeline({ delay: reverseDelay });
+
+      // Animate chevron and words together
       tl.to(chevron, {
         opacity: 0,
         x: -10,
-        duration: 0.2,
+        duration: 0.15,
         ease: 'power2.in',
-      });
+      }, 0);
 
-      // Animate words down
       tl.to(words, {
-        yPercent: 110,
-        duration: 0.4,
-        stagger: 0.02,
-        ease: 'expo.in',
-      }, '-=0.1');
+        yPercent: -110,
+        duration: 0.2,
+        stagger: 0.015,
+        ease: 'power3.in',
+      }, 0);
 
       animationRef.current = tl;
     }

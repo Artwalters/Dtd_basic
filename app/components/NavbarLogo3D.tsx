@@ -14,7 +14,7 @@ type MenuAnimationPhase = 'idle' | 'small-logo-spinning' | 'full-logo-black' | '
 
 // Animation timing constants (ms)
 const SPIN_DURATION = 1000;
-const CLOSE_SPIN_DURATION = 2000;
+const CLOSE_SPIN_DURATION = 1200;
 
 interface ModelProps {
   isActive: boolean;
@@ -211,7 +211,7 @@ function SmallLogoModel({isActive, logoScale = 1, isHovered = false, menuAnimati
         // Round up to nearest multiple of Math.PI so logo ends facing forward
         const targetRotation = Math.ceil(minRotation / Math.PI) * Math.PI;
         // Fast start, slow end - higher value = faster overall with more ease-out feel
-        const spinSpeed = 0.15;
+        const spinSpeed = 0.10;
         rotationRef.current += (targetRotation - rotationRef.current) * spinSpeed;
         rotationVelocityRef.current = 0; // Reset velocity for smooth transition back
 

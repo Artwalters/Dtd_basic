@@ -233,7 +233,7 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
 
       animationRef.current = gsap.to(wrapper, {
         y: '100vh', scale: 0.95, borderRadius: '12px',
-        duration: 1.5, ease: 'menuEaseOut',
+        duration: 1.5, ease: 'power3.out',
         onComplete: () => setIsAnimating(false),
       });
     } else if (isCartOpen) {
@@ -272,7 +272,7 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         : { x: '0%' };
 
       animationRef.current = gsap.to(wrapper, {
-        ...animationProps, duration: 2.5, ease: 'menuEase',
+        ...animationProps, duration: 1.5, ease: 'power3.out',
         onComplete: () => {
           setIsAnimating(false);
           gsap.set(wrapper, { clearProps: 'all' });
