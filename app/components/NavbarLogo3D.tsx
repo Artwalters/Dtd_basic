@@ -250,6 +250,8 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
   const [isMobile, setIsMobile] = useState(false);
   const wasMenuOpenRef = useRef(false);
   const isMountedRef = useRef(true);
+  const menuOpenTimeRef = useRef<number | null>(null);
+  const menuCloseTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -280,45 +282,71 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
   }, []);
 
   // Handle menu animation phases on mobile
+  // Track when menu opened/closed and calculate phase based on elapsed time
   useEffect(() => {
     if (!isMobile) {
       setMenuAnimationPhase('idle');
       wasMenuOpenRef.current = false;
+      menuOpenTimeRef.current = null;
+      menuCloseTimeRef.current = null;
       return;
     }
 
-    let spinTimer: ReturnType<typeof setTimeout> | undefined;
-    let isCancelled = false;
-
     if (isMenuOpen && !wasMenuOpenRef.current) {
-      // Menu is opening on mobile - start spinning phase
+      // Menu is opening on mobile
       wasMenuOpenRef.current = true;
-      setMenuAnimationPhase('small-logo-spinning');
-
-      // Switch to full logo black phase after spin animation
-      spinTimer = setTimeout(() => {
-        if (!isCancelled && isMountedRef.current) {
-          setMenuAnimationPhase('full-logo-black');
-        }
-      }, 2800);
+      menuOpenTimeRef.current = performance.now();
+      menuCloseTimeRef.current = null;
     } else if (!isMenuOpen && wasMenuOpenRef.current) {
-      // Menu is closing - start closing spin animation
+      // Menu is closing
       wasMenuOpenRef.current = false;
-      setMenuAnimationPhase('closing-spinning');
-
-      // Switch back to idle after spin animation completes
-      spinTimer = setTimeout(() => {
-        if (!isCancelled && isMountedRef.current) {
-          setMenuAnimationPhase('idle');
-        }
-      }, 2000); // Shorter duration for closing (matches website close animation)
+      menuCloseTimeRef.current = performance.now();
+      menuOpenTimeRef.current = null;
     }
+  }, [isMenuOpen, isMobile]);
+
+  // Calculate the current phase based on timing - runs every frame via interval
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const updatePhase = () => {
+      const now = performance.now();
+
+      if (menuOpenTimeRef.current !== null) {
+        // Menu is open or opening
+        const elapsed = now - menuOpenTimeRef.current;
+        if (elapsed < 2800) {
+          if (menuAnimationPhase !== 'small-logo-spinning') {
+            setMenuAnimationPhase('small-logo-spinning');
+          }
+        } else {
+          if (menuAnimationPhase !== 'full-logo-black') {
+            setMenuAnimationPhase('full-logo-black');
+          }
+        }
+      } else if (menuCloseTimeRef.current !== null) {
+        // Menu is closing
+        const elapsed = now - menuCloseTimeRef.current;
+        if (elapsed < 2000) {
+          if (menuAnimationPhase !== 'closing-spinning') {
+            setMenuAnimationPhase('closing-spinning');
+          }
+        } else {
+          if (menuAnimationPhase !== 'idle') {
+            setMenuAnimationPhase('idle');
+            menuCloseTimeRef.current = null; // Clear after reaching idle
+          }
+        }
+      }
+    };
+
+    // Run phase check frequently (60fps)
+    const intervalId = setInterval(updatePhase, 16);
 
     return () => {
-      isCancelled = true;
-      if (spinTimer) clearTimeout(spinTimer);
+      clearInterval(intervalId);
     };
-  }, [isMenuOpen, isMobile]);
+  }, [isMobile, menuAnimationPhase]);
 
 
   if (!isClient) return null;
