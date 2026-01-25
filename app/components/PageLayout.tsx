@@ -269,6 +269,7 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
       });
     } else if (wasMobileMenuOpenRef.current || wasCartOpenRef.current) {
       const wasCart = wasCartOpenRef.current;
+      const wasMenu = wasMobileMenuOpenRef.current;
       wasMobileMenuOpenRef.current = false;
       wasCartOpenRef.current = false;
 
@@ -280,6 +281,13 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
       if (wasCart && cartOverlay) {
         cartOverlay.style.opacity = '1';
         cartOverlay.style.visibility = 'visible';
+      }
+
+      // Keep mobile menu overlay visible during close animation
+      const menuOverlay = document.querySelector('.overlay[data-aside-type="mobile"]') as HTMLElement;
+      if (wasMenu && menuOverlay) {
+        menuOverlay.style.opacity = '1';
+        menuOverlay.style.visibility = 'visible';
       }
 
       // Block buttons during animation
@@ -297,6 +305,10 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
           if (cartOverlay) {
             cartOverlay.style.opacity = '';
             cartOverlay.style.visibility = '';
+          }
+          if (menuOverlay) {
+            menuOverlay.style.opacity = '';
+            menuOverlay.style.visibility = '';
           }
         },
       });

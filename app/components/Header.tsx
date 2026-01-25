@@ -4,6 +4,7 @@ import {
   type CartViewPayload,
   useAnalytics,
 } from '@shopify/hydrogen';
+import gsap from 'gsap';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {useHeaderScroll} from '~/hooks/useHeaderScroll';
@@ -28,6 +29,10 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
   const [isVisible, setIsVisible] = useState(true);
   const [activeLanguage, setActiveLanguage] = useState('en');
   const [isClosing, setIsClosing] = useState(false);
+  const [visualDarkMode, setVisualDarkMode] = useState(false);
+  const barRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<gsap.core.Tween | null>(null);
+  const wasMenuOpenRef = useRef(false);
 
   useEffect(() => {
     if (isCartOpen) return; // Don't rotate when cart is open
@@ -43,6 +48,62 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
     return () => clearInterval(interval);
   }, [isCartOpen]);
 
+  // Animate announcement bar when mobile menu opens/closes
+  useEffect(() => {
+    if (!barRef.current || typeof window === 'undefined') return;
+
+    // Only apply on mobile
+    const mediaQuery = window.matchMedia('(max-width: 47.99em)');
+    if (!mediaQuery.matches) return;
+
+    const bar = barRef.current;
+
+    // Kill any running animation
+    if (animationRef.current) {
+      animationRef.current.kill();
+    }
+
+    if (isMenuOpen && !wasMenuOpenRef.current) {
+      // Menu is opening - animate bar up (fully out of view), then back down
+      wasMenuOpenRef.current = true;
+
+      animationRef.current = gsap.to(bar, {
+        y: -100,
+        duration: 0.3,
+        ease: 'sine.inOut',
+        onComplete: () => {
+          // Switch color while fully out of view
+          setVisualDarkMode(true);
+          // Animate back down
+          animationRef.current = gsap.to(bar, {
+            y: 0,
+            duration: 0.4,
+            ease: 'sine.inOut',
+          });
+        },
+      });
+    } else if (!isMenuOpen && wasMenuOpenRef.current) {
+      // Menu is closing - animate up (fully out of view), switch color, then back
+      wasMenuOpenRef.current = false;
+
+      animationRef.current = gsap.to(bar, {
+        y: -100,
+        duration: 0.3,
+        ease: 'sine.inOut',
+        onComplete: () => {
+          // Switch color while fully out of view
+          setVisualDarkMode(false);
+          // Animate back down
+          animationRef.current = gsap.to(bar, {
+            y: 0,
+            duration: 0.4,
+            ease: 'sine.inOut',
+          });
+        },
+      });
+    }
+  }, [isMenuOpen]);
+
   const handleClose = () => {
     setIsClosing(true);
     setTimeout(() => {
@@ -54,7 +115,7 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
   const cartMessage = 'Free delivery on orders over €160 • Use athlete codes for extra discount';
 
   return (
-    <div className={`announcement-bar ${isClosing ? 'closing' : ''} ${isCartOpen ? 'cart-mode' : ''} ${isMenuOpen ? 'dark-mode' : ''}`}>
+    <div ref={barRef} className={`announcement-bar ${isClosing ? 'closing' : ''} ${isCartOpen ? 'cart-mode' : ''} ${visualDarkMode ? 'dark-mode' : ''}`}>
       <div className="announcement-spacer" />
       <div className="announcement-center">
         <p className={`announcement-text ${isVisible ? 'visible' : ''}`}>
