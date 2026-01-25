@@ -125,8 +125,7 @@ Aside.Provider = function AsideProvider({children}: {children: ReactNode}) {
           setType(mode);
         },
         close: () => {
-          // Block during animation
-          if (isAnimating) return;
+          // Allow closing even during animation (for navigation)
           setType('closed');
         },
         isAnimating,

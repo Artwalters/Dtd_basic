@@ -133,6 +133,8 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
     // Kill any running animation to prevent conflicts
     if (animationRef.current) {
       animationRef.current.kill();
+      // Reset isAnimating in case animation was interrupted
+      setIsAnimating(false);
     }
 
     if (isCartOpen) {
@@ -225,7 +227,9 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         },
       });
     }
-  }, [isCartOpen, setIsAnimating, location.pathname]);
+  // Note: location.pathname is intentionally NOT in deps - we only read it once when cart opens
+  // Including it would cause the effect to re-run during navigation, conflicting with animations
+  }, [isCartOpen, setIsAnimating]);
 
   // Mobile menu and cart animation
   useEffect(() => {
@@ -240,6 +244,8 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
     // Kill any running animation to prevent conflicts
     if (animationRef.current) {
       animationRef.current.kill();
+      // Reset isAnimating in case animation was interrupted
+      setIsAnimating(false);
     }
 
     if (isMobileMenuOpen) {
@@ -374,7 +380,9 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         },
       });
     }
-  }, [isMobileMenuOpen, isCartOpen, setIsAnimating, location.pathname]);
+  // Note: location.pathname is intentionally NOT in deps - we only read it once when menu opens
+  // Including it would cause the effect to re-run during navigation, conflicting with animations
+  }, [isMobileMenuOpen, isCartOpen, setIsAnimating]);
 
   return (
     <div

@@ -77,20 +77,10 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
         },
       });
     } else if (!isMenuOpen && wasMenuOpenRef.current) {
-      // Menu is closing - wait for website animation to complete (2.5s), then animate bar back
+      // Menu is closing - reset immediately to avoid issues with navigation
       wasMenuOpenRef.current = false;
-
-      // Delay until website close animation is done, then animate back
-      animationRef.current = gsap.to(bar, {
-        y: 0,
-        duration: 0.4,
-        delay: 2.5,
-        ease: 'sine.inOut',
-        onStart: () => {
-          // Switch color back just before animating in
-          setVisualDarkMode(false);
-        },
-      });
+      setVisualDarkMode(false);
+      gsap.set(bar, { y: 0 });
     }
   }, [isMenuOpen]);
 
@@ -238,6 +228,9 @@ export function Header({
     const menuToggle = menuToggleRef.current;
     const cartToggle = cartToggleRef.current;
 
+    // Kill any existing animations on these elements
+    gsap.killTweensOf([menuToggle, cartToggle]);
+
     if (isMobileMenuOpen && !wasMenuOpenRef.current) {
       // Menu is opening - fade out icons quickly, then fade in after website animation (3.5s)
       wasMenuOpenRef.current = true;
@@ -263,23 +256,12 @@ export function Header({
       // Menu is closing - fade out, then fade in after website animation completes (2.5s)
       wasMenuOpenRef.current = false;
 
-      gsap.to([menuToggle, cartToggle], {
-        opacity: 0,
-        duration: 0.25,
-        ease: 'sine.inOut',
-        onComplete: () => {
-          // Switch visual states while buttons are hidden
-          setHeaderDarkMode(false);
-          setVisualMenuOpen(false);
-          // Fade back in after website close animation completes
-          gsap.to([menuToggle, cartToggle], {
-            opacity: 1,
-            duration: 0.4,
-            delay: 2.25,
-            ease: 'sine.inOut',
-          });
-        },
-      });
+      // Reset states immediately when closing
+      setHeaderDarkMode(false);
+      setVisualMenuOpen(false);
+
+      // Reset button opacity
+      gsap.set([menuToggle, cartToggle], { opacity: 1 });
     }
   }, [isMobileMenuOpen]);
 
