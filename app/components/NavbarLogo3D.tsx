@@ -9,8 +9,8 @@ interface NavbarLogo3DProps {
   isMenuOpen?: boolean;
 }
 
-// Menu animation phases for mobile (simplified to opening only)
-type MenuAnimationPhase = 'idle' | 'small-logo-spinning' | 'full-logo-black';
+// Menu animation phases for mobile
+type MenuAnimationPhase = 'idle' | 'small-logo-spinning' | 'full-logo-black' | 'closing-spinning';
 
 interface ModelProps {
   isActive: boolean;
@@ -52,14 +52,14 @@ function FullLogoModel({isActive, logoScale = 1, menuAnimationPhase = 'idle'}: M
       // Footer becomes visible in the last 10% of scroll
       footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.98;
 
-      // On mobile during menu animation: hide during spinning phase, show during full-logo phase
+      // On mobile during menu animation: hide during spinning phases, show during full-logo phase
       // On desktop: show when at top (not scrolled)
       let target: number;
-      if (menuAnimationPhase === 'small-logo-spinning') {
-        // Hide full logo while small logo is spinning
+      if (menuAnimationPhase === 'small-logo-spinning' || menuAnimationPhase === 'closing-spinning') {
+        // Hide full logo while small logo is spinning (both opening and closing)
         target = 0;
       } else if (menuAnimationPhase === 'full-logo-black') {
-        // Show full logo
+        // Show full logo (black)
         target = footerVisibleRef.current ? 0 : 1;
       } else {
         // Normal behavior: show when at top (not scrolled) and footer not visible
@@ -156,11 +156,11 @@ function SmallLogoModel({isActive, logoScale = 1, isHovered = false, menuAnimati
       // Footer becomes visible in the last 10% of scroll
       footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.98;
 
-      // Scale animation - show during menu spinning phase or when scrolled (normal behavior)
+      // Scale animation - show during menu spinning phases or when scrolled (normal behavior)
       let target: number;
-      const isSpinning = menuAnimationPhase === 'small-logo-spinning';
+      const isSpinning = menuAnimationPhase === 'small-logo-spinning' || menuAnimationPhase === 'closing-spinning';
       if (isSpinning) {
-        // Show small logo during spinning phase
+        // Show small logo during spinning phase (both opening and closing)
         target = 1;
 
         // Track spin start position
@@ -302,9 +302,16 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
         }
       }, 2800);
     } else if (!isMenuOpen && wasMenuOpenRef.current) {
-      // Menu is closing - reset to idle immediately
+      // Menu is closing - start closing spin animation
       wasMenuOpenRef.current = false;
-      setMenuAnimationPhase('idle');
+      setMenuAnimationPhase('closing-spinning');
+
+      // Switch back to idle after spin animation completes
+      spinTimer = setTimeout(() => {
+        if (!isCancelled && isMountedRef.current) {
+          setMenuAnimationPhase('idle');
+        }
+      }, 2000); // Shorter duration for closing (matches website close animation)
     }
 
     return () => {

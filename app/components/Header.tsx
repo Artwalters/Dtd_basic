@@ -77,10 +77,20 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
         },
       });
     } else if (!isMenuOpen && wasMenuOpenRef.current) {
-      // Menu is closing - reset immediately to avoid issues with navigation
+      // Menu is closing - animate bar back in after website close animation
       wasMenuOpenRef.current = false;
-      setVisualDarkMode(false);
-      gsap.set(bar, { y: 0 });
+
+      // Wait for website close animation, then slide bar back in
+      animationRef.current = gsap.to(bar, {
+        y: 0,
+        duration: 0.4,
+        delay: 2.0, // Website close animation is 2.5s
+        ease: 'sine.inOut',
+        onStart: () => {
+          // Switch color back before animating in
+          setVisualDarkMode(false);
+        },
+      });
     }
   }, [isMenuOpen]);
 
@@ -253,15 +263,26 @@ export function Header({
         },
       });
     } else if (!isMobileMenuOpen && wasMenuOpenRef.current) {
-      // Menu is closing - fade out, then fade in after website animation completes (2.5s)
+      // Menu is closing - fade out, switch states, then fade in after website animation
       wasMenuOpenRef.current = false;
 
-      // Reset states immediately when closing
-      setHeaderDarkMode(false);
-      setVisualMenuOpen(false);
-
-      // Reset button opacity
-      gsap.set([menuToggle, cartToggle], { opacity: 1 });
+      gsap.to([menuToggle, cartToggle], {
+        opacity: 0,
+        duration: 0.25,
+        ease: 'sine.inOut',
+        onComplete: () => {
+          // Switch visual states while buttons are hidden
+          setHeaderDarkMode(false);
+          setVisualMenuOpen(false);
+          // Fade back in after website close animation completes
+          gsap.to([menuToggle, cartToggle], {
+            opacity: 1,
+            duration: 0.4,
+            delay: 2.0, // Website close animation is 2.5s, start fading in near the end
+            ease: 'sine.inOut',
+          });
+        },
+      });
     }
   }, [isMobileMenuOpen]);
 
