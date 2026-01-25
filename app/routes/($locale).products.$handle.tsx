@@ -116,11 +116,19 @@ export default function Product() {
     });
   };
 
+  // Calculate total images from product media
+  const totalImages = React.useMemo(() => {
+    const mediaImages = product.media?.nodes?.filter(
+      (media) => media.__typename === 'MediaImage'
+    ).length || 0;
+    return mediaImages > 0 ? mediaImages : 1;
+  }, [product.media?.nodes]);
+
   return (
     <>
       <div className="product-view-container">
-        <ProductGallery 
-          product={product} 
+        <ProductGallery
+          product={product}
           selectedVariant={selectedVariant}
           onImageIndexChange={setCurrentImageIndex}
         />
@@ -130,7 +138,7 @@ export default function Product() {
           productOptions={productOptions}
           onVariantChange={handleVariantChange}
           currentImageIndex={currentImageIndex}
-          totalImages={15}
+          totalImages={totalImages}
         />
         <Analytics.ProductView
           data={{

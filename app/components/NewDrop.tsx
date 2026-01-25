@@ -24,10 +24,10 @@ const DEFAULT_MARKERS: ProductMarker[] = [
     x: 28,
     y: 38,
     product: {
-      title: 'Fragment Tee',
-      price: '65€',
+      title: 'Envision Oversized Tee',
+      price: '40€',
       image: '/Img/DSC04304.webp',
-      handle: 'fragment-tee',
+      handle: 'envision-oversized-tee',
     },
   },
   {

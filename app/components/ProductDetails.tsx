@@ -86,13 +86,13 @@ export function ProductDetails({
       isOpen: false,
       content: (
         <div className="product-details-content">
-          <p>Premium oversized tee crafted from 100% cotton. Designed for comfort with a relaxed fit.</p>
-          <ul>
-            <li>100% Cotton</li>
-            <li>Oversized fit</li>
-            <li>Model: 185cm, 105kg, wears XL</li>
-            <li>Made in Portugal</li>
-          </ul>
+          {product.descriptionHtml ? (
+            <div dangerouslySetInnerHTML={{__html: product.descriptionHtml}} />
+          ) : product.description ? (
+            <p>{product.description}</p>
+          ) : (
+            <p>No description available.</p>
+          )}
         </div>
       ),
     },

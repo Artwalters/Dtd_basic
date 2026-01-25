@@ -13,19 +13,26 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
 
-  // Create image array - many copies to simulate a long product gallery
+  // Get all product images from media
   const allImages = React.useMemo(() => {
-    if (selectedVariant?.image) {
-      // Create many copies of the image to simulate a long product gallery
-      return Array.from({length: 15}, (_, index) => ({
-        image: {
-          ...selectedVariant.image,
-          id: `${selectedVariant.image.id}-${index}`,
+    const images: Array<{image: {id: string; url: string; altText?: string | null; width?: number; height?: number}}> = [];
+
+    // First, add all media images from the product
+    if (product.media?.nodes) {
+      product.media.nodes.forEach((media) => {
+        if (media.__typename === 'MediaImage' && media.image) {
+          images.push({image: media.image});
         }
-      }));
+      });
     }
-    return [];
-  }, [selectedVariant?.image]);
+
+    // Fallback to selected variant image if no media found
+    if (images.length === 0 && selectedVariant?.image) {
+      images.push({image: selectedVariant.image});
+    }
+
+    return images;
+  }, [product.media?.nodes, selectedVariant?.image]);
 
   // Update scroll position when current image changes (removed automatic scrolling)
   useEffect(() => {
