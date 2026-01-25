@@ -223,29 +223,18 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
     const wrapper = wrapperRef.current;
     killAnimation();
 
-    if (isMobileMenuOpen) {
-      // Mobile menu opening
-      saveScrollOnFreshOpen(wasMobileMenuOpenRef);
+    if (isMobileMenuOpen || isCartOpen) {
+      // Mobile menu or cart opening - same animation for both
+      const wasOpenRef = isMobileMenuOpen ? wasMobileMenuOpenRef : wasCartOpenRef;
+      saveScrollOnFreshOpen(wasOpenRef);
       setFixedViewport(wrapper, 'center top');
-      if (!wasMobileMenuOpenRef.current) wrapper.scrollTop = scrollPosRef.current;
-      wasMobileMenuOpenRef.current = true;
+      if (!wasOpenRef.current) wrapper.scrollTop = scrollPosRef.current;
+      wasOpenRef.current = true;
       setIsAnimating(true);
 
       animationRef.current = gsap.to(wrapper, {
         y: '100vh', scale: 0.95, borderRadius: '12px',
         duration: 1.5, ease: 'power3.out',
-        onComplete: () => setIsAnimating(false),
-      });
-    } else if (isCartOpen) {
-      // Mobile cart opening
-      saveScrollOnFreshOpen(wasCartOpenRef);
-      setFixedViewport(wrapper, 'right center');
-      if (!wasCartOpenRef.current) wrapper.scrollTop = scrollPosRef.current;
-      wasCartOpenRef.current = true;
-      setIsAnimating(true);
-
-      animationRef.current = gsap.to(wrapper, {
-        x: '-100%', duration: 2.5, ease: 'menuEase',
         onComplete: () => setIsAnimating(false),
       });
     } else if (wasMobileMenuOpenRef.current || wasCartOpenRef.current) {
@@ -267,12 +256,9 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
       if (wasMenu && menuOverlay) { menuOverlay.style.opacity = '1'; menuOverlay.style.visibility = 'visible'; }
 
       setIsAnimating(true);
-      const animationProps = wasMenu
-        ? { y: '0%', scale: 1, borderRadius: '0px' }
-        : { x: '0%' };
-
+      // Both menu and cart use the same animation
       animationRef.current = gsap.to(wrapper, {
-        ...animationProps, duration: 1.5, ease: 'power3.out',
+        y: '0%', scale: 1, borderRadius: '0px', duration: 1.5, ease: 'power3.out',
         onComplete: () => {
           setIsAnimating(false);
           gsap.set(wrapper, { clearProps: 'all' });

@@ -1121,7 +1121,8 @@ button.reset:hover:not(:has(> *)) {
   }
 
   /* Cart close button - always black with white icon (no dependency on body:has) */
-  .mobile-cart-toggle .cart-close-button {
+  .mobile-cart-toggle .cart-close-button,
+  .mobile-right-toggle .cart-close-button {
     background: var(--color-black) !important;
     border-radius: 4px;
     padding: 0.75em;
@@ -1129,7 +1130,8 @@ button.reset:hover:not(:has(> *)) {
     cursor: pointer;
   }
 
-  .mobile-cart-toggle .cart-close-button svg {
+  .mobile-cart-toggle .cart-close-button svg,
+  .mobile-right-toggle .cart-close-button svg {
     stroke: var(--color-white) !important;
   }
 }
@@ -1752,7 +1754,9 @@ button.is-loading {
 
 /* Hide mobile elements on desktop */
 .mobile-menu-toggle,
-.mobile-cart-toggle {
+.mobile-cart-toggle,
+.mobile-left-toggle,
+.mobile-right-toggle {
   display: none;
 }
 
@@ -1781,6 +1785,16 @@ button.is-loading {
   .mobile-menu-toggle {
     display: flex;
     order: 1;
+  }
+
+  .mobile-left-toggle {
+    display: flex;
+    order: 1;
+  }
+
+  .mobile-right-toggle {
+    display: flex;
+    order: 3;
   }
 
   /* X button in black square when menu open */
@@ -1820,29 +1834,35 @@ button.is-loading {
   }
 
   /* Mobile cart button - white only when cart has items (btn-white--icon class) */
-  .mobile-cart-toggle .header-nav-item.btn-white--icon {
+  .mobile-cart-toggle .header-nav-item.btn-white--icon,
+  .mobile-right-toggle .header-nav-item.btn-white--icon {
     background: var(--color-white);
     color: var(--color-black);
     border-color: var(--color-white);
   }
 
-  .mobile-cart-toggle .header-nav-item.btn-white--icon svg {
+  .mobile-cart-toggle .header-nav-item.btn-white--icon svg,
+  .mobile-right-toggle .header-nav-item.btn-white--icon svg {
     stroke: var(--color-black);
   }
 
   /* Mobile cart button - glass when cart is empty (btn-glass--icon class) */
-  .mobile-cart-toggle .header-nav-item.btn-glass--icon {
+  .mobile-cart-toggle .header-nav-item.btn-glass--icon,
+  .mobile-right-toggle .header-nav-item.btn-glass--icon {
     background: var(--white-subtle);
     border: 1px solid var(--white-light);
   }
 
-  .mobile-cart-toggle .header-nav-item.btn-glass--icon svg {
+  .mobile-cart-toggle .header-nav-item.btn-glass--icon svg,
+  .mobile-right-toggle .header-nav-item.btn-glass--icon svg {
     stroke: var(--color-white);
   }
 
   /* Remove hover wipe effect from mobile toggle buttons - not suitable for small icon buttons */
   .mobile-menu-toggle.header-nav-item::before,
-  .mobile-cart-toggle .header-nav-item::before {
+  .mobile-cart-toggle .header-nav-item::before,
+  .mobile-left-toggle .header-nav-item::before,
+  .mobile-right-toggle .header-nav-item::before {
     display: none;
   }
 

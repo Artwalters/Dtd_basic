@@ -56,10 +56,10 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
   const [visualDarkMode, setVisualDarkMode] = useState(false);
   const barRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<gsap.core.Tween | null>(null);
-  const wasMenuOpenRef = useRef(false);
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
-    if (isCartOpen) return; // Don't rotate when cart is open
+    if (isCartOpen || isMenuOpen) return; // Don't rotate when cart or menu is open
 
     const interval = setInterval(() => {
       setIsVisible(false);
@@ -70,9 +70,9 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [isCartOpen]);
+  }, [isCartOpen, isMenuOpen]);
 
-  // Animate announcement bar when mobile menu opens/closes
+  // Animate announcement bar when mobile menu or cart opens/closes
   useEffect(() => {
     if (!barRef.current || typeof window === 'undefined') return;
 
@@ -81,15 +81,16 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
     if (!mediaQuery.matches) return;
 
     const bar = barRef.current;
+    const isOpen = isMenuOpen || isCartOpen;
 
     // Kill any running animation
     if (animationRef.current) {
       animationRef.current.kill();
     }
 
-    if (isMenuOpen && !wasMenuOpenRef.current) {
-      // Menu is opening - quickly hide the bar at the start
-      wasMenuOpenRef.current = true;
+    if (isOpen && !wasOpenRef.current) {
+      // Menu or cart is opening - quickly hide the bar at the start
+      wasOpenRef.current = true;
 
       animationRef.current = gsap.to(bar, {
         y: -100,
@@ -100,9 +101,9 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
           setVisualDarkMode(true);
         },
       });
-    } else if (!isMenuOpen && wasMenuOpenRef.current) {
-      // Menu is closing - animate bar back in after website close animation
-      wasMenuOpenRef.current = false;
+    } else if (!isOpen && wasOpenRef.current) {
+      // Menu or cart is closing - animate bar back in after website close animation
+      wasOpenRef.current = false;
 
       // Wait for website close animation, then slide bar back in
       animationRef.current = gsap.to(bar, {
@@ -116,7 +117,7 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
         },
       });
     }
-  }, [isMenuOpen]);
+  }, [isMenuOpen, isCartOpen]);
 
   const handleClose = () => {
     setIsClosing(true);
@@ -245,13 +246,14 @@ export function Header({
   const isMobileMenuOpen = type === 'mobile';
   const isCartOpen = type === 'cart';
   const isAsideOpen = type !== 'closed';
-  const menuToggleRef = useRef<HTMLButtonElement>(null);
-  const cartToggleRef = useRef<HTMLDivElement>(null);
-  const wasMenuOpenRef = useRef(false);
+  const leftSideRef = useRef<HTMLDivElement>(null);
+  const rightSideRef = useRef<HTMLDivElement>(null);
+  const wasOpenRef = useRef(false);
   const [headerDarkMode, setHeaderDarkMode] = useState(false);
   const [visualMenuOpen, setVisualMenuOpen] = useState(false);
+  const [visualCartOpen, setVisualCartOpen] = useState(false);
 
-  // Fade animation for mobile header icons when menu opens/closes
+  // Fade animation for mobile header icons when menu or cart opens/closes
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -259,26 +261,33 @@ export function Header({
     const mediaQuery = window.matchMedia('(max-width: 47.99em)');
     if (!mediaQuery.matches) return;
 
-    const menuToggle = menuToggleRef.current;
-    const cartToggle = cartToggleRef.current;
+    const leftSide = leftSideRef.current;
+    const rightSide = rightSideRef.current;
+    const isOpen = isMobileMenuOpen || isCartOpen;
 
-    // Kill any existing animations on these elements
-    gsap.killTweensOf([menuToggle, cartToggle]);
+    const elements = [leftSide, rightSide].filter(Boolean);
+    if (elements.length === 0) return;
 
-    if (isMobileMenuOpen && !wasMenuOpenRef.current) {
-      // Menu is opening - fade out icons quickly, then fade in after website animation (3.5s)
-      wasMenuOpenRef.current = true;
+    // Kill any existing animations
+    gsap.killTweensOf(elements);
 
-      gsap.to([menuToggle, cartToggle], {
+    if (isOpen && !wasOpenRef.current) {
+      // Opening - fade out, switch, fade in
+      wasOpenRef.current = true;
+      const isMenuOpening = isMobileMenuOpen;
+      const isCartOpening = isCartOpen;
+
+      gsap.to(elements, {
         opacity: 0,
         duration: 0.25,
         ease: 'sine.inOut',
         onComplete: () => {
-          // Switch visual states while buttons are hidden
+          // Switch visual states while hidden
           setHeaderDarkMode(true);
-          setVisualMenuOpen(true);
-          // Fade back in after full logo appears
-          gsap.to([menuToggle, cartToggle], {
+          if (isMenuOpening) setVisualMenuOpen(true);
+          if (isCartOpening) setVisualCartOpen(true);
+          // Fade back in
+          gsap.to(elements, {
             opacity: 1,
             duration: 0.25,
             delay: 0.7,
@@ -286,20 +295,21 @@ export function Header({
           });
         },
       });
-    } else if (!isMobileMenuOpen && wasMenuOpenRef.current) {
-      // Menu is closing - fade out, switch states, then fade in after website animation
-      wasMenuOpenRef.current = false;
+    } else if (!isOpen && wasOpenRef.current) {
+      // Closing - fade out, switch, fade in
+      wasOpenRef.current = false;
 
-      gsap.to([menuToggle, cartToggle], {
+      gsap.to(elements, {
         opacity: 0,
         duration: 0.25,
         ease: 'sine.inOut',
         onComplete: () => {
-          // Switch visual states while buttons are hidden
+          // Switch visual states while hidden
           setHeaderDarkMode(false);
           setVisualMenuOpen(false);
-          // Fade back in after website close animation completes
-          gsap.to([menuToggle, cartToggle], {
+          setVisualCartOpen(false);
+          // Fade back in
+          gsap.to(elements, {
             opacity: 1,
             duration: 0.25,
             delay: 0.7,
@@ -308,27 +318,30 @@ export function Header({
         },
       });
     }
-  }, [isMobileMenuOpen]);
+  }, [isMobileMenuOpen, isCartOpen]);
 
   return (
-    <div className={`header-wrapper ${isMobileMenuOpen ? 'menu-open' : ''} ${headerDarkMode ? 'header-dark' : ''}`}>
+    <div className={`header-wrapper ${isMobileMenuOpen ? 'menu-open' : ''} ${visualCartOpen ? 'cart-open' : ''} ${headerDarkMode ? 'header-dark' : ''}`}>
       {!announcementClosed && <AnnouncementBar onClose={() => setAnnouncementClosed(true)} isCartOpen={isCartOpen} isMenuOpen={isMobileMenuOpen} />}
       <header ref={headerRef} className="header">
-      {/* Mobile: Hamburger menu toggle or cart title */}
-      {isCartOpen ? (
-        <div className="mobile-cart-title">
-          <Suspense fallback="Your cart">
-            <Await resolve={cart}>
-              {(cartData) => {
-                const count = cartData?.totalQuantity || 0;
-                return count > 0 ? `${count} ${count === 1 ? 'item' : 'items'}` : 'Your cart';
-              }}
-            </Await>
-          </Suspense>
-        </div>
-      ) : (
-        <MobileMenuToggle buttonRef={menuToggleRef} visualMenuOpen={visualMenuOpen} />
-      )}
+      {/* Mobile left side: Menu toggle or account button (cart open) */}
+      <div className="mobile-left-toggle" ref={leftSideRef}>
+        {visualCartOpen ? (
+          <NavLink
+            to="/account"
+            className="header-nav-item btn-glass--icon mobile-account-button"
+            onClick={() => {
+              close();
+              window.dispatchEvent(new CustomEvent('closeQuickAdd'));
+            }}
+            aria-label="Account"
+          >
+            <UserIcon />
+          </NavLink>
+        ) : (
+          <MobileMenuToggle visualMenuOpen={visualMenuOpen} />
+        )}
+      </div>
 
       {/* Desktop: Left navigation */}
       <nav className="header-nav-left">
@@ -373,9 +386,9 @@ export function Header({
         <CartToggle cart={cart} />
       </nav>
 
-      {/* Mobile: Cart toggle, close button, or account icon */}
-      <div className="mobile-cart-toggle" ref={cartToggleRef}>
-        {type === 'cart' ? (
+      {/* Mobile right side: Cart toggle, close button, or account icon */}
+      <div className="mobile-right-toggle" ref={rightSideRef}>
+        {visualCartOpen ? (
           <button
             className="header-nav-item btn-glass--icon cart-close-button"
             onClick={close}
