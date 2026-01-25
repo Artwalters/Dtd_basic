@@ -58,11 +58,20 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   const variants = product.variants?.nodes || [];
   const uniqueSizes = new Map<string, {id: string; name: string; available: boolean}>();
 
+  // Extract just the size (S, M, L, XL, etc.) from values like "Boxy Fit S"
+  const extractSize = (value: string): string => {
+    // Match sizes including numeric prefixes (2XL, 3XL) and standard sizes
+    const sizePattern = /\b(3XL|2XL|XXXL|XXL|XL|XXS|XS|S|M|L|\d+)\b/i;
+    const match = value.match(sizePattern);
+    return match ? match[1].toUpperCase() : value;
+  };
+
   variants.forEach((variant) => {
     const sizeOption = variant.selectedOptions?.find(
       (opt) => opt.name.toLowerCase() === 'size'
     );
-    const sizeName = sizeOption?.value || variant.title;
+    const rawSize = sizeOption?.value || variant.title;
+    const sizeName = extractSize(rawSize);
 
     // Only add if we haven't seen this size yet, or if this one is available
     if (!uniqueSizes.has(sizeName) || (variant.availableForSale && !uniqueSizes.get(sizeName)?.available)) {
@@ -80,7 +89,7 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   const uniqueColors = new Set<string>();
   variants.forEach((variant) => {
     const colorOption = variant.selectedOptions?.find(
-      (opt) => opt.name.toLowerCase() === 'color' || opt.name.toLowerCase() === 'colour'
+      (opt) => opt.name.toLowerCase() === 'color' || opt.name.toLowerCase() === 'colour' || opt.name.toLowerCase() === 'kleur'
     );
     if (colorOption?.value) {
       uniqueColors.add(colorOption.value);
@@ -88,6 +97,23 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   });
   const colorCount = uniqueColors.size;
   const firstColor = uniqueColors.values().next().value || '';
+
+  // Get clothing characteristics from variants or metafields
+  const clothingFeatures = new Set<string>();
+  variants.forEach((variant) => {
+    const featureOption = variant.selectedOptions?.find(
+      (opt) => {
+        const name = opt.name.toLowerCase();
+        return name === 'kenmerken kleding' || name === 'pasvorm' || name === 'fit';
+      }
+    );
+    if (featureOption?.value) {
+      clothingFeatures.add(featureOption.value);
+    }
+  });
+  // Also check for pasvorm metafield (from Shopify category metafields)
+  const pasvormMetafield = (product as any).pasvorm?.value || (product as any).pasvormShopify?.value;
+  const clothingFeature = clothingFeatures.values().next().value || pasvormMetafield || '';
 
   const handlePlusClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -132,10 +158,10 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
             />
 
             {/* Product Tags */}
-            {(isNew || productTypeTag) && (
+            {(isNew || clothingFeature) && (
               <div className="product-item-tags">
                 {isNew && <span className="product-item-tag btn btn-glass">New</span>}
-                {productTypeTag && <span className="product-item-tag btn btn-glass">{productTypeTag}</span>}
+                {clothingFeature && <span className="product-item-tag btn btn-glass">{clothingFeature}</span>}
               </div>
             )}
 

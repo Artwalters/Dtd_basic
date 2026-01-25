@@ -35,10 +35,10 @@ const DEFAULT_MARKERS: ProductMarker[] = [
     x: 72,
     y: 68,
     product: {
-      title: 'Genesis Pants',
+      title: 'Resist Sweats',
       price: '95€',
       image: '/Img/DSC04329.webp',
-      handle: 'genesis-pants',
+      handle: 'resist-sweats',
     },
   },
 ];

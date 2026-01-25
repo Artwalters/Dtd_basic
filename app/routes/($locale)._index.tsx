@@ -113,6 +113,12 @@ const COLLECTION_ITEM_FRAGMENT = `#graphql
         ...MoneyCollectionItem
       }
     }
+    pasvorm: metafield(namespace: "custom", key: "pasvorm") {
+      value
+    }
+    pasvormShopify: metafield(namespace: "shopify", key: "pasvorm") {
+      value
+    }
     variants(first: 10) {
       nodes {
         id

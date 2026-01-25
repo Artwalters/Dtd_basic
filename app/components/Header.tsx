@@ -72,14 +72,11 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
     return () => clearInterval(interval);
   }, [isCartOpen, isMenuOpen]);
 
-  // Animate announcement bar when mobile menu or cart opens/closes
+  // Animate announcement bar when menu or cart opens/closes
   useEffect(() => {
     if (!barRef.current || typeof window === 'undefined') return;
 
-    // Only apply on mobile
-    const mediaQuery = window.matchMedia('(max-width: 47.99em)');
-    if (!mediaQuery.matches) return;
-
+    const isMobile = window.matchMedia('(max-width: 47.99em)').matches;
     const bar = barRef.current;
     const isOpen = isMenuOpen || isCartOpen;
 
@@ -94,7 +91,7 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
 
       animationRef.current = gsap.to(bar, {
         y: -100,
-        duration: 0.25,
+        duration: isMobile ? 0.25 : 0.3,
         ease: 'sine.inOut',
         onComplete: () => {
           // Switch color while hidden
@@ -108,8 +105,8 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
       // Wait for website close animation, then slide bar back in
       animationRef.current = gsap.to(bar, {
         y: 0,
-        duration: 0.3,
-        delay: 1.0,
+        duration: isMobile ? 0.3 : 0.35,
+        delay: isMobile ? 1.0 : 0.7,
         ease: 'sine.inOut',
         onStart: () => {
           // Switch color back before animating in
@@ -252,6 +249,10 @@ export function Header({
   const [headerDarkMode, setHeaderDarkMode] = useState(false);
   const [visualMenuOpen, setVisualMenuOpen] = useState(false);
   const [visualCartOpen, setVisualCartOpen] = useState(false);
+  // Desktop nav animation refs
+  const leftNavRef = useRef<HTMLElement>(null);
+  const rightNavRef = useRef<HTMLElement>(null);
+  const wasDesktopCartOpenRef = useRef(false);
 
   // Fade animation for mobile header icons when menu or cart opens/closes
   useEffect(() => {
@@ -320,6 +321,45 @@ export function Header({
     }
   }, [isMobileMenuOpen, isCartOpen]);
 
+  // Desktop nav button stagger animation
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!window.matchMedia('(min-width: 48em)').matches) return;
+
+    const leftNav = leftNavRef.current;
+    const rightNav = rightNavRef.current;
+    if (!leftNav || !rightNav) return;
+
+    const leftItems = leftNav.querySelectorAll('.header-nav-item');
+    const rightItems = rightNav.querySelectorAll('.btn-glass--icon:not(.cart-close-icon)');
+    const allItems = [...leftItems, ...rightItems];
+
+    if (isCartOpen && !wasDesktopCartOpenRef.current) {
+      wasDesktopCartOpenRef.current = true;
+
+      // Stagger fade out + slide up
+      gsap.to(allItems, {
+        opacity: 0,
+        y: -10,
+        duration: 0.25,
+        stagger: 0.04,
+        ease: 'power2.in',
+      });
+    } else if (!isCartOpen && wasDesktopCartOpenRef.current) {
+      wasDesktopCartOpenRef.current = false;
+
+      // Reverse stagger fade in
+      gsap.to(allItems, {
+        opacity: 1,
+        y: 0,
+        duration: 0.3,
+        stagger: { each: 0.04, from: 'end' },
+        delay: 0.7,
+        ease: 'power2.out',
+      });
+    }
+  }, [isCartOpen]);
+
   return (
     <div className={`header-wrapper ${isMobileMenuOpen ? 'menu-open' : ''} ${visualCartOpen ? 'cart-open' : ''} ${headerDarkMode ? 'header-dark' : ''}`}>
       {!announcementClosed && <AnnouncementBar onClose={() => setAnnouncementClosed(true)} isCartOpen={isCartOpen} isMenuOpen={isMobileMenuOpen} />}
@@ -344,7 +384,7 @@ export function Header({
       </div>
 
       {/* Desktop: Left navigation */}
-      <nav className="header-nav-left">
+      <nav className="header-nav-left" ref={leftNavRef}>
         <NavLink to="/about" className="header-nav-item" onClick={() => window.dispatchEvent(new CustomEvent('closeQuickAdd'))}>
           About
         </NavLink>
@@ -372,7 +412,7 @@ export function Header({
       </NavLink>
 
       {/* Desktop: Right navigation */}
-      <nav className="header-nav-right">
+      <nav className="header-nav-right" ref={rightNavRef}>
         <SearchToggle />
         <Suspense fallback={<NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account" onClick={() => window.dispatchEvent(new CustomEvent('closeQuickAdd'))}><UserIcon /></NavLink>}>
           <Await resolve={isLoggedIn} errorElement={<NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account" onClick={() => window.dispatchEvent(new CustomEvent('closeQuickAdd'))}><UserIcon /></NavLink>}>

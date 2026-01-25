@@ -776,11 +776,7 @@ aside li {
                 border-color 0.5s var(--ease-smooth);
   }
 
-  .header-nav-left,
-  .header-nav-right .btn-glass--icon {
-    transition: visibility 0.5s var(--ease-smooth),
-                opacity 0.5s var(--ease-smooth);
-  }
+  /* Nav element animations handled by GSAP, no CSS transitions needed */
 
   /* Fix header layout to prevent jumping when cart opens */
   .header {
@@ -825,10 +821,8 @@ aside li {
     color: var(--color-black);
   }
 
-  /* Hide left nav (Community, Shop) when cart is open on desktop */
-  /* Keep items in place, just fade out without color changes */
+  /* Left nav interaction disabled when cart is open (animation handled by GSAP) */
   body:has(.sliding-wrapper[data-cart-open="true"]) .header-nav-left {
-    opacity: 0;
     pointer-events: none;
   }
 
@@ -838,11 +832,9 @@ aside li {
     border-color: transparent;
   }
 
-  /* Hide search and profile when cart is open on desktop (visibility to keep layout) */
+  /* Right nav buttons interaction disabled when cart is open (animation handled by GSAP) */
   body:has(.sliding-wrapper[data-cart-open="true"]) .header-nav-right .btn-glass--icon:not(.cart-close-icon),
   body:has(.sliding-wrapper[data-cart-open="true"]) .header-nav-right .btn-white--icon:not(.cart-close-icon) {
-    visibility: hidden;
-    opacity: 0;
     pointer-events: none;
   }
 
@@ -3067,7 +3059,7 @@ button.is-loading {
 .plus-icon::after {
   content: '';
   position: absolute;
-  background: var(--color-black);
+  background: var(--color-white);
   top: 50%;
   left: 50%;
 }

@@ -312,16 +312,9 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
     return () => window.removeEventListener('logoFacingForward', handleLogoFacingForward);
   }, [menuAnimationPhase]);
 
-  // Handle menu animation phases on mobile using interval-based timing
+  // Handle menu animation phases using interval-based timing
+  // Works for both mobile menu and desktop cart
   useEffect(() => {
-    if (!isMobile) {
-      setMenuAnimationPhase('idle');
-      wasMenuOpenRef.current = false;
-      menuOpenTimeRef.current = null;
-      menuCloseTimeRef.current = null;
-      return;
-    }
-
     // Track menu open/close transitions
     if (isMenuOpen && !wasMenuOpenRef.current) {
       wasMenuOpenRef.current = true;

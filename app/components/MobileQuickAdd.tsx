@@ -51,11 +51,20 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
   const variants = product.variants?.nodes || [];
   const uniqueSizes = new Map<string, {id: string; name: string; available: boolean}>();
 
+  // Extract just the size (S, M, L, XL, etc.) from values like "Boxy Fit S"
+  const extractSize = (value: string): string => {
+    // Match sizes including numeric prefixes (2XL, 3XL) and standard sizes
+    const sizePattern = /\b(3XL|2XL|XXXL|XXL|XL|XXS|XS|S|M|L|\d+)\b/i;
+    const match = value.match(sizePattern);
+    return match ? match[1].toUpperCase() : value;
+  };
+
   variants.forEach((variant) => {
     const sizeOption = variant.selectedOptions?.find(
       (opt) => opt.name.toLowerCase() === 'size'
     );
-    const sizeName = sizeOption?.value || variant.title;
+    const rawSize = sizeOption?.value || variant.title;
+    const sizeName = extractSize(rawSize);
 
     if (!uniqueSizes.has(sizeName) || (variant.availableForSale && !uniqueSizes.get(sizeName)?.available)) {
       uniqueSizes.set(sizeName, {
