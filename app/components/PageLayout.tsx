@@ -1,4 +1,4 @@
-import {Await, Link} from 'react-router';
+import {Await, Link, useLocation} from 'react-router';
 import {Suspense, useId, useRef, useEffect} from 'react';
 import gsap from 'gsap';
 import {CustomEase} from 'gsap/CustomEase';
@@ -110,10 +110,12 @@ function MainContentArea({children, cart}: {children: React.ReactNode, cart: Pag
 
 function SlidingWrapper({children}: {children: React.ReactNode}) {
   const {type, setIsAnimating} = useAside();
+  const location = useLocation();
   const isMobileMenuOpen = type === 'mobile';
   const isCartOpen = type === 'cart';
   const wrapperRef = useRef<HTMLDivElement>(null);
   const scrollPosRef = useRef(0);
+  const pathnameRef = useRef(location.pathname);
   const animationRef = useRef<gsap.core.Tween | null>(null);
   const wasCartOpenRef = useRef(false);
   const wasMobileMenuOpenRef = useRef(false);
@@ -134,9 +136,10 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
     }
 
     if (isCartOpen) {
-      // Only save scroll position on fresh open
+      // Only save scroll position and pathname on fresh open
       if (!wasCartOpenRef.current) {
         scrollPosRef.current = window.scrollY;
+        pathnameRef.current = location.pathname;
       }
 
       // Set up the wrapper as a fixed viewport-sized frame
@@ -216,11 +219,13 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
           if (header) {
             header.style.color = '';
           }
-          window.scrollTo(0, scrollPosRef.current);
+          // Only restore scroll if we're still on the same page
+          const navigated = window.location.pathname !== pathnameRef.current;
+          window.scrollTo(0, navigated ? 0 : scrollPosRef.current);
         },
       });
     }
-  }, [isCartOpen, setIsAnimating]);
+  }, [isCartOpen, setIsAnimating, location.pathname]);
 
   // Mobile menu and cart animation
   useEffect(() => {
@@ -238,13 +243,34 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
     }
 
     if (isMobileMenuOpen) {
+      // Only save scroll position and pathname on fresh open
+      if (!wasMobileMenuOpenRef.current) {
+        scrollPosRef.current = window.scrollY;
+        pathnameRef.current = location.pathname;
+      }
+
+      // Set up the wrapper as a fixed viewport-sized frame (same approach as desktop cart)
+      gsap.set(wrapper, {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        transformOrigin: 'center top',
+      });
+
+      // Set scrollTop to maintain the same visible content (only on fresh open)
+      if (!wasMobileMenuOpenRef.current) {
+        wrapper.scrollTop = scrollPosRef.current;
+      }
+
       wasMobileMenuOpenRef.current = true;
 
       // Block buttons during animation
       setIsAnimating(true);
 
       // Animate to open state - slide down, scale, and round corners
-      gsap.set(wrapper, { overflow: 'hidden' });
       animationRef.current = gsap.to(wrapper, {
         y: '100vh',
         scale: 0.95,
@@ -256,6 +282,28 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
         },
       });
     } else if (isCartOpen) {
+      // Only save scroll position and pathname on fresh open
+      if (!wasCartOpenRef.current) {
+        scrollPosRef.current = window.scrollY;
+        pathnameRef.current = location.pathname;
+      }
+
+      // Set up the wrapper as a fixed viewport-sized frame
+      gsap.set(wrapper, {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        transformOrigin: 'right center',
+      });
+
+      // Set scrollTop to maintain the same visible content (only on fresh open)
+      if (!wasCartOpenRef.current) {
+        wrapper.scrollTop = scrollPosRef.current;
+      }
+
       wasCartOpenRef.current = true;
 
       // Block buttons during animation
@@ -318,10 +366,15 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
             menuOverlay.style.opacity = '';
             menuOverlay.style.visibility = '';
           }
+          // Only restore scroll if we're still on the same page, otherwise scroll to top
+          if (wasMenu || wasCart) {
+            const navigated = window.location.pathname !== pathnameRef.current;
+            window.scrollTo(0, navigated ? 0 : scrollPosRef.current);
+          }
         },
       });
     }
-  }, [isMobileMenuOpen, isCartOpen, setIsAnimating]);
+  }, [isMobileMenuOpen, isCartOpen, setIsAnimating, location.pathname]);
 
   return (
     <div
