@@ -108,6 +108,26 @@ function MainContentArea({children, cart}: {children: React.ReactNode, cart: Pag
   );
 }
 
+// Helper to set wrapper as fixed viewport
+function setFixedViewport(wrapper: HTMLElement, transformOrigin: string) {
+  gsap.set(wrapper, {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    overflow: 'hidden',
+    transformOrigin,
+  });
+}
+
+// Helper to reset inline styles after animation
+function resetStyles(elements: {el: HTMLElement | null, props: string[]}[]) {
+  elements.forEach(({el, props}) => {
+    if (el) props.forEach(prop => (el.style as any)[prop] = '');
+  });
+}
+
 function SlidingWrapper({children}: {children: React.ReactNode}) {
   const {type, setIsAnimating} = useAside();
   const isMobileMenuOpen = type === 'mobile';
@@ -119,125 +139,73 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
   const wasMobileMenuOpenRef = useRef(false);
   const isNavigatingRef = useRef(false);
 
-  // Listen for menu navigation event
+  // Listen for menu navigation event (dispatched when clicking menu links)
   useEffect(() => {
-    const handleMenuNavigation = () => {
-      isNavigatingRef.current = true;
-    };
+    const handleMenuNavigation = () => { isNavigatingRef.current = true; };
     window.addEventListener('menuNavigation', handleMenuNavigation);
     return () => window.removeEventListener('menuNavigation', handleMenuNavigation);
   }, []);
 
+  // Kill animation helper
+  const killAnimation = () => {
+    if (animationRef.current) {
+      animationRef.current.kill();
+      setIsAnimating(false);
+    }
+  };
+
+  // Save scroll position on fresh open
+  const saveScrollOnFreshOpen = (wasOpenRef: React.MutableRefObject<boolean>) => {
+    if (!wasOpenRef.current) {
+      scrollPosRef.current = window.scrollY;
+    }
+  };
+
   // Desktop cart animation
   useEffect(() => {
     if (!wrapperRef.current || typeof window === 'undefined') return;
-
-    // Only use GSAP for desktop cart animation
-    const mediaQuery = window.matchMedia('(min-width: 48em)');
-    if (!mediaQuery.matches) return;
+    if (!window.matchMedia('(min-width: 48em)').matches) return;
 
     const wrapper = wrapperRef.current;
-
-    // Kill any running animation to prevent conflicts
-    if (animationRef.current) {
-      animationRef.current.kill();
-      // Reset isAnimating in case animation was interrupted
-      setIsAnimating(false);
-    }
+    killAnimation();
 
     if (isCartOpen) {
-      // Only save scroll position on fresh open
-      if (!wasCartOpenRef.current) {
-        scrollPosRef.current = window.scrollY;
-      }
-
-      // Set up the wrapper as a fixed viewport-sized frame
-      gsap.set(wrapper, {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-        transformOrigin: 'left center',
-      });
-
-      // Set scrollTop to maintain the same visible content (only on fresh open)
-      if (!wasCartOpenRef.current) {
-        wrapper.scrollTop = scrollPosRef.current;
-      }
-
+      saveScrollOnFreshOpen(wasCartOpenRef);
+      setFixedViewport(wrapper, 'left center');
+      if (!wasCartOpenRef.current) wrapper.scrollTop = scrollPosRef.current;
       wasCartOpenRef.current = true;
-
-      // Block buttons during animation
       setIsAnimating(true);
 
-      // Animate to open state
       animationRef.current = gsap.to(wrapper, {
-        scale: 0.65,
-        x: '1em',
-        y: '7.5%',
-        borderRadius: '12px',
-        duration: 2.5,
-        ease: 'menuEase',
-        onComplete: () => {
-          // Re-enable buttons when animation completes
-          setIsAnimating(false);
-        },
+        scale: 0.65, x: '1em', y: '7.5%', borderRadius: '12px',
+        duration: 2.5, ease: 'menuEase',
+        onComplete: () => setIsAnimating(false),
       });
     } else if (wasCartOpenRef.current) {
-      // Only animate close if cart was previously open
       wasCartOpenRef.current = false;
-
-      // Check if we're navigating (set by menuNavigation event)
       const navigating = isNavigatingRef.current;
-      isNavigatingRef.current = false; // Reset for next time
+      isNavigatingRef.current = false;
+      if (navigating) wrapper.scrollTop = 0;
 
-      // If navigating, scroll the wrapper to top immediately so new page shows from top
-      if (navigating) {
-        wrapper.scrollTop = 0;
-      }
-
-      // Keep styles during close animation
+      // Keep elements visible during close
       document.body.style.background = 'var(--color-cream)';
-
-      // Keep cart panel visible
       const cartPanel = document.querySelector('.desktop-cart-panel') as HTMLElement;
-      if (cartPanel) {
-        cartPanel.style.opacity = '1';
-        cartPanel.style.visibility = 'visible';
-      }
-
-      // Keep header styled
       const header = document.querySelector('.header-wrapper') as HTMLElement;
-      if (header) {
-        header.style.color = 'var(--color-black)';
-      }
+      if (cartPanel) { cartPanel.style.opacity = '1'; cartPanel.style.visibility = 'visible'; }
+      if (header) header.style.color = 'var(--color-black)';
 
-      // Block buttons during animation
       setIsAnimating(true);
-
-      // Animate back to closed state
       animationRef.current = gsap.to(wrapper, {
-        scale: 1,
-        x: '0%',
-        y: '0%',
-        borderRadius: '0px',
-        duration: 2.5,
-        ease: 'menuEase',
+        scale: 1, x: '0%', y: '0%', borderRadius: '0px',
+        duration: 2.5, ease: 'menuEase',
         onComplete: () => {
-          // Re-enable buttons and reset
           setIsAnimating(false);
           gsap.set(wrapper, { clearProps: 'all' });
-          document.body.style.background = '';
-          if (cartPanel) {
-            cartPanel.style.opacity = '';
-            cartPanel.style.visibility = '';
-          }
-          if (header) {
-            header.style.color = '';
-          }
-          // Restore scroll position or ensure we're at top
+          resetStyles([
+            {el: document.body, props: ['background']},
+            {el: cartPanel, props: ['opacity', 'visibility']},
+            {el: header, props: ['color']},
+          ]);
           window.scrollTo(0, navigating ? 0 : scrollPosRef.current);
         },
       });
@@ -247,152 +215,69 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
   // Mobile menu and cart animation
   useEffect(() => {
     if (!wrapperRef.current || typeof window === 'undefined') return;
-
-    // Only use GSAP for mobile animations
-    const mediaQuery = window.matchMedia('(max-width: 47.99em)');
-    if (!mediaQuery.matches) return;
+    if (!window.matchMedia('(max-width: 47.99em)').matches) return;
 
     const wrapper = wrapperRef.current;
-
-    // Kill any running animation to prevent conflicts
-    if (animationRef.current) {
-      animationRef.current.kill();
-      // Reset isAnimating in case animation was interrupted
-      setIsAnimating(false);
-    }
+    killAnimation();
 
     if (isMobileMenuOpen) {
-      // Only save scroll position on fresh open
-      if (!wasMobileMenuOpenRef.current) {
-        scrollPosRef.current = window.scrollY;
-      }
-
-      // Set up the wrapper as a fixed viewport-sized frame (same approach as desktop cart)
-      gsap.set(wrapper, {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-        transformOrigin: 'center top',
-      });
-
-      // Set scrollTop to maintain the same visible content (only on fresh open)
-      if (!wasMobileMenuOpenRef.current) {
-        wrapper.scrollTop = scrollPosRef.current;
-      }
-
+      // Mobile menu opening
+      saveScrollOnFreshOpen(wasMobileMenuOpenRef);
+      setFixedViewport(wrapper, 'center top');
+      if (!wasMobileMenuOpenRef.current) wrapper.scrollTop = scrollPosRef.current;
       wasMobileMenuOpenRef.current = true;
-
-      // Block buttons during animation
       setIsAnimating(true);
 
-      // Animate to open state - slide down, scale, and round corners
       animationRef.current = gsap.to(wrapper, {
-        y: '100vh',
-        scale: 0.95,
-        borderRadius: '12px',
-        duration: 3.5,
-        ease: 'menuEase',
-        onComplete: () => {
-          setIsAnimating(false);
-        },
+        y: '100vh', scale: 0.95, borderRadius: '12px',
+        duration: 3.5, ease: 'menuEase',
+        onComplete: () => setIsAnimating(false),
       });
     } else if (isCartOpen) {
-      // Only save scroll position on fresh open
-      if (!wasCartOpenRef.current) {
-        scrollPosRef.current = window.scrollY;
-      }
-
-      // Set up the wrapper as a fixed viewport-sized frame
-      gsap.set(wrapper, {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-        transformOrigin: 'right center',
-      });
-
-      // Set scrollTop to maintain the same visible content (only on fresh open)
-      if (!wasCartOpenRef.current) {
-        wrapper.scrollTop = scrollPosRef.current;
-      }
-
+      // Mobile cart opening
+      saveScrollOnFreshOpen(wasCartOpenRef);
+      setFixedViewport(wrapper, 'right center');
+      if (!wasCartOpenRef.current) wrapper.scrollTop = scrollPosRef.current;
       wasCartOpenRef.current = true;
-
-      // Block buttons during animation
       setIsAnimating(true);
 
-      // Animate to open state - slide left
       animationRef.current = gsap.to(wrapper, {
-        x: '-100%',
-        duration: 2.5,
-        ease: 'menuEase',
-        onComplete: () => {
-          setIsAnimating(false);
-        },
+        x: '-100%', duration: 2.5, ease: 'menuEase',
+        onComplete: () => setIsAnimating(false),
       });
     } else if (wasMobileMenuOpenRef.current || wasCartOpenRef.current) {
+      // Closing menu or cart
       const wasCart = wasCartOpenRef.current;
       const wasMenu = wasMobileMenuOpenRef.current;
       wasMobileMenuOpenRef.current = false;
       wasCartOpenRef.current = false;
 
-      // Check if we're navigating (set by menuNavigation event)
       const navigating = isNavigatingRef.current;
-      isNavigatingRef.current = false; // Reset for next time
+      isNavigatingRef.current = false;
+      if (navigating) wrapper.scrollTop = 0;
 
-      // If navigating, scroll the wrapper to top immediately so new page shows from top
-      if (navigating) {
-        wrapper.scrollTop = 0;
-      }
-
-      // Keep background cream during close animation
+      // Keep overlays visible during close
       document.body.style.background = 'var(--color-cream)';
-
-      // Keep cart overlay visible during close animation
       const cartOverlay = document.querySelector('.overlay[data-aside-type="cart"]') as HTMLElement;
-      if (wasCart && cartOverlay) {
-        cartOverlay.style.opacity = '1';
-        cartOverlay.style.visibility = 'visible';
-      }
-
-      // Keep mobile menu overlay visible during close animation
       const menuOverlay = document.querySelector('.overlay[data-aside-type="mobile"]') as HTMLElement;
-      if (wasMenu && menuOverlay) {
-        menuOverlay.style.opacity = '1';
-        menuOverlay.style.visibility = 'visible';
-      }
+      if (wasCart && cartOverlay) { cartOverlay.style.opacity = '1'; cartOverlay.style.visibility = 'visible'; }
+      if (wasMenu && menuOverlay) { menuOverlay.style.opacity = '1'; menuOverlay.style.visibility = 'visible'; }
 
-      // Block buttons during animation
       setIsAnimating(true);
-
-      // Animate back to closed state
-      // Menu uses y (vertical) + scale + borderRadius, cart uses x (horizontal)
       const animationProps = wasMenu
         ? { y: '0%', scale: 1, borderRadius: '0px' }
         : { x: '0%' };
 
       animationRef.current = gsap.to(wrapper, {
-        ...animationProps,
-        duration: 2.5,
-        ease: 'menuEase',
+        ...animationProps, duration: 2.5, ease: 'menuEase',
         onComplete: () => {
           setIsAnimating(false);
           gsap.set(wrapper, { clearProps: 'all' });
-          document.body.style.background = '';
-          if (cartOverlay) {
-            cartOverlay.style.opacity = '';
-            cartOverlay.style.visibility = '';
-          }
-          if (menuOverlay) {
-            menuOverlay.style.opacity = '';
-            menuOverlay.style.visibility = '';
-          }
-          // Restore scroll position or ensure we're at top
+          resetStyles([
+            {el: document.body, props: ['background']},
+            {el: cartOverlay, props: ['opacity', 'visibility']},
+            {el: menuOverlay, props: ['opacity', 'visibility']},
+          ]);
           window.scrollTo(0, navigating ? 0 : scrollPosRef.current);
         },
       });
