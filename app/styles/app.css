@@ -1620,9 +1620,37 @@ button.is-loading {
   opacity: 1;
 }
 
+/* Text reveal animation for menu items */
+.header-menu-mobile .menu-item-text {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  line-height: 1.2;
+}
+
+.header-menu-mobile .word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  line-height: 1.2;
+}
+
+.header-menu-mobile .word {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Chevron wrapper for animation */
+.header-menu-mobile .menu-item-chevron {
+  display: inline-flex;
+  align-items: center;
+  will-change: transform, opacity;
+}
+
+.header-menu-mobile .menu-item-chevron svg,
 .header-menu-mobile .header-menu-item svg {
   stroke: var(--color-black);
-  opacity: 0.4;
+  opacity: 1; /* Opacity controlled by parent wrapper */
   transition: opacity 0.2s ease;
 }
 

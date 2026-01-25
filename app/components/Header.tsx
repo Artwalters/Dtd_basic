@@ -1,4 +1,4 @@
-import {Suspense, useState, useEffect, useRef, lazy} from 'react';
+import {Suspense, useState, useEffect, useRef, lazy, useMemo} from 'react';
 import {Await, NavLink, useAsyncValue} from 'react-router';
 import {
   type CartViewPayload,
@@ -6,6 +6,30 @@ import {
 } from '@shopify/hydrogen';
 import gsap from 'gsap';
 import type {HeaderQuery, CartApiQueryFragment} from 'storefrontapi.generated';
+
+// Custom text splitting for reveal animation (since SplitText is a premium plugin)
+interface SplitTextResult {
+  words: HTMLSpanElement[];
+  revert: () => void;
+}
+
+function splitTextIntoWords(element: HTMLElement): SplitTextResult {
+  const originalHTML = element.innerHTML;
+  const text = element.textContent || '';
+  const words = text.split(/\s+/).filter(word => word.length > 0);
+
+  // Create wrapped structure: each word in a span, wrapped in overflow:hidden span
+  element.innerHTML = words.map(word =>
+    `<span class="word-mask" style="display:inline-block;overflow:hidden;vertical-align:top;"><span class="word" style="display:inline-block;">${word}</span></span>`
+  ).join(' ');
+
+  const wordElements = Array.from(element.querySelectorAll('.word')) as HTMLSpanElement[];
+
+  return {
+    words: wordElements,
+    revert: () => { element.innerHTML = originalHTML; }
+  };
+}
 import {useAside} from '~/components/Aside';
 import {useHeaderScroll} from '~/hooks/useHeaderScroll';
 import {useTheme} from '~/contexts/ThemeContext';
@@ -671,6 +695,123 @@ function ChevronIcon() {
   );
 }
 
+// Menu item component with text reveal animation
+function MenuItemWithReveal({
+  to,
+  children,
+  onNavClick,
+  isMenuOpen,
+  index,
+  end,
+}: {
+  to: string;
+  children: string;
+  onNavClick: () => void;
+  isMenuOpen: boolean;
+  index: number;
+  end?: boolean;
+}) {
+  const textRef = useRef<HTMLSpanElement>(null);
+  const chevronRef = useRef<HTMLSpanElement>(null);
+  const splitRef = useRef<SplitTextResult | null>(null);
+  const animationRef = useRef<gsap.core.Timeline | null>(null);
+  const wasOpenRef = useRef(false);
+
+  useEffect(() => {
+    if (!textRef.current || !chevronRef.current) return;
+
+    // Split text once on mount
+    if (!splitRef.current) {
+      splitRef.current = splitTextIntoWords(textRef.current);
+      // Set initial state - words hidden below
+      gsap.set(splitRef.current.words, { yPercent: 110 });
+      // Chevron starts hidden
+      gsap.set(chevronRef.current, { opacity: 0, x: -10 });
+    }
+
+    const words = splitRef.current.words;
+    const chevron = chevronRef.current;
+
+    // Kill any running animation
+    if (animationRef.current) {
+      animationRef.current.kill();
+    }
+
+    if (isMenuOpen && !wasOpenRef.current) {
+      // Menu opening - animate words up with stagger, then chevron
+      wasOpenRef.current = true;
+
+      // Delay based on index + base delay for website animation
+      const baseDelay = 2.8; // After website slides down
+      const itemDelay = index * 0.08; // Stagger between menu items
+
+      const tl = gsap.timeline({ delay: baseDelay + itemDelay });
+
+      // Animate words
+      tl.to(words, {
+        yPercent: 0,
+        duration: 0.8,
+        stagger: 0.06,
+        ease: 'expo.out',
+      });
+
+      // Animate chevron after words
+      tl.to(chevron, {
+        opacity: 0.4,
+        x: 0,
+        duration: 0.4,
+        ease: 'power2.out',
+      }, '-=0.3'); // Overlap slightly with last word
+
+      animationRef.current = tl;
+    } else if (!isMenuOpen && wasOpenRef.current) {
+      // Menu closing - animate chevron first, then words down
+      wasOpenRef.current = false;
+
+      const tl = gsap.timeline();
+
+      // Fade out chevron first
+      tl.to(chevron, {
+        opacity: 0,
+        x: -10,
+        duration: 0.2,
+        ease: 'power2.in',
+      });
+
+      // Animate words down
+      tl.to(words, {
+        yPercent: 110,
+        duration: 0.4,
+        stagger: 0.02,
+        ease: 'expo.in',
+      }, '-=0.1');
+
+      animationRef.current = tl;
+    }
+
+    return () => {
+      if (animationRef.current) {
+        animationRef.current.kill();
+      }
+    };
+  }, [isMenuOpen, index]);
+
+  return (
+    <NavLink
+      className="header-menu-item"
+      onClick={onNavClick}
+      prefetch="intent"
+      to={to}
+      end={end}
+    >
+      <span ref={textRef} className="menu-item-text">{children}</span>
+      <span ref={chevronRef} className="menu-item-chevron">
+        <ChevronIcon />
+      </span>
+    </NavLink>
+  );
+}
+
 // Keep HeaderMenu for mobile aside menu
 export function HeaderMenu({
   menu,
@@ -684,7 +825,8 @@ export function HeaderMenu({
   publicStoreDomain: HeaderProps['publicStoreDomain'];
 }) {
   const className = `header-menu-${viewport}`;
-  const {close} = useAside();
+  const {close, type} = useAside();
+  const isMenuOpen = type === 'mobile';
 
   const handleNavClick = () => {
     // Dispatch event BEFORE closing so PageLayout knows we're navigating
@@ -694,55 +836,30 @@ export function HeaderMenu({
     window.dispatchEvent(new CustomEvent('closeQuickAdd'));
   };
 
+  // Menu items data
+  const menuItems = [
+    { to: '/', label: 'Home', end: true },
+    { to: '/collections/all', label: 'Shop' },
+    { to: '/community', label: 'Community' },
+    { to: '/lookbook', label: 'Lookbook' },
+    { to: '/about', label: 'About' },
+  ];
+
   return (
     <nav className={className} role="navigation">
       <div className="mobile-menu-divider" />
-      <NavLink
-        className="header-menu-item"
-        onClick={handleNavClick}
-        prefetch="intent"
-        to="/"
-        end
-      >
-        <span>Home</span>
-        <ChevronIcon />
-      </NavLink>
-      <NavLink
-        className="header-menu-item"
-        onClick={handleNavClick}
-        prefetch="intent"
-        to="/collections/all"
-      >
-        <span>Shop</span>
-        <ChevronIcon />
-      </NavLink>
-      <NavLink
-        className="header-menu-item"
-        onClick={handleNavClick}
-        prefetch="intent"
-        to="/community"
-      >
-        <span>Community</span>
-        <ChevronIcon />
-      </NavLink>
-      <NavLink
-        className="header-menu-item"
-        onClick={handleNavClick}
-        prefetch="intent"
-        to="/lookbook"
-      >
-        <span>Lookbook</span>
-        <ChevronIcon />
-      </NavLink>
-      <NavLink
-        className="header-menu-item"
-        onClick={handleNavClick}
-        prefetch="intent"
-        to="/about"
-      >
-        <span>About</span>
-        <ChevronIcon />
-      </NavLink>
+      {menuItems.map((item, index) => (
+        <MenuItemWithReveal
+          key={item.to}
+          to={item.to}
+          onNavClick={handleNavClick}
+          isMenuOpen={isMenuOpen}
+          index={index}
+          end={item.end}
+        >
+          {item.label}
+        </MenuItemWithReveal>
+      ))}
       <div className="mobile-menu-spacer" />
       <div className="mobile-menu-languages">
         <button className="lang-btn">English</button>
