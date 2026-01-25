@@ -1127,20 +1127,27 @@ button.reset:hover:not(:has(> *)) {
 
 /* Dark icons when mobile menu or cart is open */
 @media (max-width: 47.99em) {
-  body:has(.sliding-wrapper[data-menu-open="true"]) .header-wrapper,
   body:has(.sliding-wrapper[data-cart-open="true"]) .header-wrapper {
     color: var(--color-black);
   }
 
-  body:has(.sliding-wrapper[data-menu-open="true"]) .header-wrapper svg,
   body:has(.sliding-wrapper[data-cart-open="true"]) .header-wrapper svg {
     stroke: var(--color-black);
     fill: none;
   }
 
-  body:has(.sliding-wrapper[data-menu-open="true"]) .header-wrapper .mobile-cart-toggle svg,
   body:has(.sliding-wrapper[data-cart-open="true"]) .header-wrapper .mobile-cart-toggle svg {
     stroke: var(--color-black);
+  }
+
+  /* Menu dark mode - controlled by JS for delayed transition */
+  .header-wrapper.header-dark {
+    color: var(--color-black);
+  }
+
+  .header-wrapper.header-dark svg {
+    stroke: var(--color-black);
+    fill: none;
   }
 
   /* Hide menu button when cart is open */
@@ -1185,9 +1192,8 @@ button.reset:hover:not(:has(> *)) {
 }
 
 
-/* Header with dark text and white background */
+/* Header with dark text (no background - transparent) */
 .header-dark {
-  background-color: var(--color-white);
   color: var(--color-black);
 }
 
@@ -1682,8 +1688,12 @@ button.is-loading {
 
 /* Bottom divider sits at the bottom */
 .mobile-menu-divider.divider-bottom {
-  margin-bottom: 0;
-  margin-top: 0;
+  position: fixed;
+  bottom: 1em;
+  left: 1em;
+  right: 1em;
+  width: calc(100% - 2em);
+  margin: 0;
 }
 
 .mobile-menu-divider::before,

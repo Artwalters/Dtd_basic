@@ -64,15 +64,16 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
     }
 
     if (isMenuOpen && !wasMenuOpenRef.current) {
-      // Menu is opening - animate bar up (fully out of view), then back down
+      // Menu is opening - wait for buttons to fade out, then animate bar
       wasMenuOpenRef.current = true;
 
       animationRef.current = gsap.to(bar, {
         y: -100,
         duration: 0.3,
+        delay: 0.25,
         ease: 'sine.inOut',
         onComplete: () => {
-          // Switch color while fully out of view
+          // Switch color while fully out of view (buttons are hidden)
           setVisualDarkMode(true);
           // Animate back down
           animationRef.current = gsap.to(bar, {
@@ -83,15 +84,16 @@ function AnnouncementBar({ onClose, isCartOpen, isMenuOpen }: { onClose: () => v
         },
       });
     } else if (!isMenuOpen && wasMenuOpenRef.current) {
-      // Menu is closing - animate up (fully out of view), switch color, then back
+      // Menu is closing - wait for buttons to fade out, then animate bar
       wasMenuOpenRef.current = false;
 
       animationRef.current = gsap.to(bar, {
         y: -100,
         duration: 0.3,
+        delay: 0.25,
         ease: 'sine.inOut',
         onComplete: () => {
-          // Switch color while fully out of view
+          // Switch color while fully out of view (buttons are hidden)
           setVisualDarkMode(false);
           // Animate back down
           animationRef.current = gsap.to(bar, {
@@ -190,7 +192,7 @@ function CloseIcon() {
   );
 }
 
-function MobileMenuToggle() {
+function MobileMenuToggle({buttonRef, visualMenuOpen}: {buttonRef?: React.RefObject<HTMLButtonElement>; visualMenuOpen?: boolean}) {
   const {type, open, close} = useAside();
   const isMenuOpen = type === 'mobile';
 
@@ -204,13 +206,17 @@ function MobileMenuToggle() {
     }
   };
 
+  // Use visualMenuOpen for display if provided (for delayed visual switch)
+  const showCloseIcon = visualMenuOpen !== undefined ? visualMenuOpen : isMenuOpen;
+
   return (
     <button
-      className={`mobile-menu-toggle header-nav-item btn-glass--icon ${isMenuOpen ? 'menu-open' : ''}`}
+      ref={buttonRef}
+      className={`mobile-menu-toggle header-nav-item btn-glass--icon ${showCloseIcon ? 'menu-open' : ''}`}
       onClick={handleClick}
       aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
     >
-      {isMenuOpen ? <CloseIcon /> : <HamburgerIcon />}
+      {showCloseIcon ? <CloseIcon /> : <HamburgerIcon />}
     </button>
   );
 }
@@ -227,9 +233,70 @@ export function Header({
   const isMobileMenuOpen = type === 'mobile';
   const isCartOpen = type === 'cart';
   const isAsideOpen = type !== 'closed';
+  const menuToggleRef = useRef<HTMLButtonElement>(null);
+  const cartToggleRef = useRef<HTMLDivElement>(null);
+  const wasMenuOpenRef = useRef(false);
+  const [headerDarkMode, setHeaderDarkMode] = useState(false);
+  const [visualMenuOpen, setVisualMenuOpen] = useState(false);
+
+  // Fade animation for mobile header icons when menu opens/closes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Only apply on mobile
+    const mediaQuery = window.matchMedia('(max-width: 47.99em)');
+    if (!mediaQuery.matches) return;
+
+    const menuToggle = menuToggleRef.current;
+    const cartToggle = cartToggleRef.current;
+
+    if (isMobileMenuOpen && !wasMenuOpenRef.current) {
+      // Menu is opening - fade out icons quickly, then fade in after website animation (3.5s)
+      wasMenuOpenRef.current = true;
+
+      gsap.to([menuToggle, cartToggle], {
+        opacity: 0,
+        duration: 0.25,
+        ease: 'sine.inOut',
+        onComplete: () => {
+          // Switch visual states while buttons are hidden
+          setHeaderDarkMode(true);
+          setVisualMenuOpen(true);
+          // Fade back in after website open animation completes
+          gsap.to([menuToggle, cartToggle], {
+            opacity: 1,
+            duration: 0.4,
+            delay: 3.25,
+            ease: 'sine.inOut',
+          });
+        },
+      });
+    } else if (!isMobileMenuOpen && wasMenuOpenRef.current) {
+      // Menu is closing - fade out, then fade in after website animation completes (2.5s)
+      wasMenuOpenRef.current = false;
+
+      gsap.to([menuToggle, cartToggle], {
+        opacity: 0,
+        duration: 0.25,
+        ease: 'sine.inOut',
+        onComplete: () => {
+          // Switch visual states while buttons are hidden
+          setHeaderDarkMode(false);
+          setVisualMenuOpen(false);
+          // Fade back in after website close animation completes
+          gsap.to([menuToggle, cartToggle], {
+            opacity: 1,
+            duration: 0.4,
+            delay: 2.25,
+            ease: 'sine.inOut',
+          });
+        },
+      });
+    }
+  }, [isMobileMenuOpen]);
 
   return (
-    <div className={`header-wrapper ${isMobileMenuOpen ? 'menu-open' : ''}`}>
+    <div className={`header-wrapper ${isMobileMenuOpen ? 'menu-open' : ''} ${headerDarkMode ? 'header-dark' : ''}`}>
       {!announcementClosed && <AnnouncementBar onClose={() => setAnnouncementClosed(true)} isCartOpen={isCartOpen} isMenuOpen={isMobileMenuOpen} />}
       <header ref={headerRef} className="header">
       {/* Mobile: Hamburger menu toggle or cart title */}
@@ -245,7 +312,7 @@ export function Header({
           </Suspense>
         </div>
       ) : (
-        <MobileMenuToggle />
+        <MobileMenuToggle buttonRef={menuToggleRef} visualMenuOpen={visualMenuOpen} />
       )}
 
       {/* Desktop: Left navigation */}
@@ -292,7 +359,7 @@ export function Header({
       </nav>
 
       {/* Mobile: Cart toggle, close button, or account icon */}
-      <div className="mobile-cart-toggle">
+      <div className="mobile-cart-toggle" ref={cartToggleRef}>
         {type === 'cart' ? (
           <button
             className="header-nav-item btn-glass--icon cart-close-button"
@@ -301,7 +368,7 @@ export function Header({
           >
             <CloseIcon />
           </button>
-        ) : type === 'mobile' ? (
+        ) : visualMenuOpen ? (
           <NavLink
             to="/account"
             className="header-nav-item btn-glass--icon mobile-account-button"

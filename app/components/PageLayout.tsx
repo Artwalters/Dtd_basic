@@ -243,10 +243,13 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
       // Block buttons during animation
       setIsAnimating(true);
 
-      // Animate to open state - slide right
+      // Animate to open state - slide down, scale, and round corners
+      gsap.set(wrapper, { overflow: 'hidden' });
       animationRef.current = gsap.to(wrapper, {
-        x: '100%',
-        duration: 2.5,
+        y: '100vh',
+        scale: 0.95,
+        borderRadius: '12px',
+        duration: 3.5,
         ease: 'menuEase',
         onComplete: () => {
           setIsAnimating(false);
@@ -294,8 +297,13 @@ function SlidingWrapper({children}: {children: React.ReactNode}) {
       setIsAnimating(true);
 
       // Animate back to closed state
+      // Menu uses y (vertical) + scale + borderRadius, cart uses x (horizontal)
+      const animationProps = wasMenu
+        ? { y: '0%', scale: 1, borderRadius: '0px' }
+        : { x: '0%' };
+
       animationRef.current = gsap.to(wrapper, {
-        x: '0%',
+        ...animationProps,
         duration: 2.5,
         ease: 'menuEase',
         onComplete: () => {
