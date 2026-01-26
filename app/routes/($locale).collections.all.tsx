@@ -13,10 +13,8 @@ import type {CollectionItemFragment} from 'storefrontapi.generated';
 
 const filterOptions = [
   {id: 'all', label: 'All Products', terms: []},
-  {id: 'tee', label: 'T-Shirts', terms: ['tee', 't-shirt', 'shirt']},
-  {id: 'hoodie', label: 'Hoodies', terms: ['hoodie', 'hoody']},
-  {id: 'pants', label: 'Pants', terms: ['pants', 'jogger', 'joggers', 'sweats', 'sweatpants']},
-  {id: 'jacket', label: 'Jackets', terms: ['jacket', 'coat']},
+  {id: 'shirts', label: 'Shirts', terms: ['shirt', 'tee', 't-shirt']},
+  {id: 'joggers', label: 'Joggers', terms: ['jogger', 'joggers', 'pants', 'sweatpants']},
 ];
 
 export const meta: Route.MetaFunction = () => {
