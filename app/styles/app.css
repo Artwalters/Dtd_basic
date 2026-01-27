@@ -2967,8 +2967,14 @@ button.is-loading {
 .new-drop-video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   background: transparent;
+  transform: scale(1.06);
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Power1.out - softer */
+}
+
+.new-drop-image-wrapper:hover .new-drop-video {
+  transform: scale(1.08);
 }
 
 .new-drop-info {
@@ -3756,6 +3762,32 @@ button.is-loading {
   object-fit: cover;
   object-position: center;
   border-radius: 0;
+}
+
+.product-gallery--sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #121212;
+}
+
+.product-gallery-sequence-element {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.product-gallery--sticky {
+  user-select: none;
+  background: #121212;
+  overflow: hidden;
 }
 
 /* Product Gallery Progress - Desktop (vertical) */

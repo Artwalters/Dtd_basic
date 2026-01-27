@@ -116,13 +116,17 @@ export default function Product() {
     });
   };
 
-  // Calculate total images from product media
+  // Calculate total images from product media (or 90 for 360 sequence)
   const totalImages = React.useMemo(() => {
+    // If product has 360 sequence, use 90 frames
+    const sequenceUrl = (product as any).productVideo360?.value;
+    if (sequenceUrl) return 90;
+
     const mediaImages = product.media?.nodes?.filter(
       (media) => media.__typename === 'MediaImage'
     ).length || 0;
     return mediaImages > 0 ? mediaImages : 1;
-  }, [product.media?.nodes]);
+  }, [product.media?.nodes, (product as any).productVideo360?.value]);
 
   return (
     <>
@@ -253,6 +257,9 @@ const PRODUCT_FRAGMENT = `#graphql
     seo {
       description
       title
+    }
+    productVideo360: metafield(namespace: "custom", key: "productvideo360") {
+      value
     }
   }
   ${PRODUCT_VARIANT_FRAGMENT}

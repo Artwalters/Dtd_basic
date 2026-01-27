@@ -1,9 +1,12 @@
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, useCallback} from 'react';
 import {Link, useFetcher} from 'react-router';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {Image, Money, CartForm} from '@shopify/hydrogen';
 import {useAside} from './Aside';
 import {MobileQuickAdd} from './MobileQuickAdd';
+
+const TOTAL_FRAMES = 90;
+const FRAME_DURATION = 20; // ~50fps animation - faster rotation
 
 interface ProductCardProps {
   product: CollectionItemFragment;
@@ -18,12 +21,15 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Video 360 state
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const rawVideoUrl = (product as any).productVideo360?.value as string | undefined;
-  // Only use video URL if it's a valid URL string
-  const videoUrl = rawVideoUrl && rawVideoUrl.startsWith('http') ? rawVideoUrl : undefined;
+  // Image sequence 360 state
+  const [currentFrame, setCurrentFrame] = useState(1);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const animationRef = useRef<number | null>(null);
+  const preloadedImages = useRef<HTMLImageElement[]>([]);
+
+  // Get sequence base URL from metafield
+  const sequenceBaseUrl = (product as any).productVideo360?.value as string | undefined;
 
   // Detect mobile
   useEffect(() => {
@@ -122,37 +128,133 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   const pasvormMetafield = (product as any).pasvorm?.value || (product as any).pasvormShopify?.value;
   const clothingFeature = clothingFeatures.values().next().value || pasvormMetafield || '';
 
-  // Video hover handlers
-  const handleVideoMouseEnter = async () => {
-    if (videoRef.current && !isVideoPlaying) {
-      try {
-        videoRef.current.currentTime = 0;
-        await videoRef.current.play();
-        setIsVideoPlaying(true);
-      } catch (error) {
-        console.warn('Video play failed:', error);
+  // Helper to get frame URL
+  const getFrameUrl = useCallback((frameNum: number) => {
+    if (!sequenceBaseUrl) return '';
+    const paddedFrame = String(frameNum).padStart(4, '0');
+    return `${sequenceBaseUrl}${paddedFrame}.webp`;
+  }, [sequenceBaseUrl]);
+
+  // Preload images for smooth animation
+  useEffect(() => {
+    if (!sequenceBaseUrl || imagesLoaded) return;
+
+    const images: HTMLImageElement[] = [];
+    let loadedCount = 0;
+
+    for (let i = 1; i <= TOTAL_FRAMES; i++) {
+      const img = new window.Image();
+      img.src = getFrameUrl(i);
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === TOTAL_FRAMES) {
+          setImagesLoaded(true);
+        }
+      };
+      images.push(img);
+    }
+
+    preloadedImages.current = images;
+  }, [sequenceBaseUrl, getFrameUrl, imagesLoaded]);
+
+  // Image sequence hover handlers
+  const frameRef = useRef(1);
+  const directionRef = useRef<'forward' | 'reverse' | 'complete' | 'idle'>('idle');
+  const speedRef = useRef(1);
+
+  const runAnimation = () => {
+    if (directionRef.current === 'idle') return;
+
+    if (directionRef.current === 'forward') {
+      // Normal hover animation - constant speed, loops
+      frameRef.current++;
+      if (frameRef.current > TOTAL_FRAMES) {
+        frameRef.current = 1; // Loop back to start
       }
+      setCurrentFrame(frameRef.current);
+      animationRef.current = window.setTimeout(runAnimation, FRAME_DURATION);
+    } else if (directionRef.current === 'complete') {
+      // Complete rotation with acceleration
+      speedRef.current = Math.min(speedRef.current + 0.15, 3);
+      frameRef.current += Math.ceil(speedRef.current);
+
+      if (frameRef.current >= TOTAL_FRAMES) {
+        frameRef.current = 1;
+        directionRef.current = 'idle';
+        speedRef.current = 1;
+        setIsAnimating(false);
+        setCurrentFrame(1);
+        return;
+      }
+      setCurrentFrame(frameRef.current);
+      animationRef.current = window.setTimeout(runAnimation, FRAME_DURATION);
+    } else if (directionRef.current === 'reverse') {
+      // Reverse with acceleration
+      speedRef.current = Math.min(speedRef.current + 0.15, 3);
+      frameRef.current -= Math.ceil(speedRef.current);
+
+      if (frameRef.current <= 1) {
+        frameRef.current = 1;
+        directionRef.current = 'idle';
+        speedRef.current = 1;
+        setIsAnimating(false);
+        setCurrentFrame(1);
+        return;
+      }
+      setCurrentFrame(frameRef.current);
+      animationRef.current = window.setTimeout(runAnimation, FRAME_DURATION);
     }
   };
 
-  const handleVideoEnded = () => {
-    setIsVideoPlaying(false);
-    if (videoRef.current) {
-      videoRef.current.currentTime = 0;
+  const handleSequenceMouseEnter = () => {
+    if (!sequenceBaseUrl) return;
+
+    // Stop any existing animation
+    if (animationRef.current) {
+      clearTimeout(animationRef.current);
     }
+
+    // Reset to frame 1 and start fresh
+    frameRef.current = 1;
+    speedRef.current = 1;
+    setCurrentFrame(1);
+    directionRef.current = 'forward';
+    setIsAnimating(true);
+    animationRef.current = window.setTimeout(runAnimation, FRAME_DURATION);
   };
 
-  const handleVideoMouseLeave = () => {
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-      setIsVideoPlaying(false);
+  const handleSequenceMouseLeave = () => {
+    if (animationRef.current) {
+      clearTimeout(animationRef.current);
+      animationRef.current = null;
     }
+
+    if (frameRef.current <= 1) {
+      directionRef.current = 'idle';
+      setIsAnimating(false);
+      return;
+    }
+
+    speedRef.current = 1;
+
+    // Past halfway? Complete rotation with acceleration. Before halfway? Reverse with acceleration.
+    if (frameRef.current > TOTAL_FRAMES / 2) {
+      directionRef.current = 'complete';
+    } else {
+      directionRef.current = 'reverse';
+    }
+
+    animationRef.current = window.setTimeout(runAnimation, FRAME_DURATION);
   };
 
-  const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    console.error('Video error:', e.currentTarget.error);
-  };
+  // Cleanup animation on unmount
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        clearTimeout(animationRef.current);
+      }
+    };
+  }, []);
 
   const handlePlusClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -188,24 +290,18 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
         data-cursor="more details"
         data-cursor-delayed
       >
-        {(videoUrl || product.featuredImage) && (
+        {(sequenceBaseUrl || product.featuredImage) && (
           <div
             className="new-drop-image-wrapper"
-            onMouseEnter={videoUrl ? handleVideoMouseEnter : undefined}
-            onMouseLeave={videoUrl ? handleVideoMouseLeave : undefined}
+            onMouseEnter={sequenceBaseUrl ? handleSequenceMouseEnter : undefined}
+            onMouseLeave={sequenceBaseUrl ? handleSequenceMouseLeave : undefined}
           >
-            {videoUrl ? (
-              <video
-                ref={videoRef}
+            {sequenceBaseUrl ? (
+              <img
+                src={getFrameUrl(currentFrame)}
+                alt={product.title}
                 className="new-drop-video"
-                muted
-                playsInline
-                preload="auto"
-                onEnded={handleVideoEnded}
-                onError={handleVideoError}
-              >
-                <source src={videoUrl} type="video/webm" />
-              </video>
+              />
             ) : product.featuredImage && (
               <Image
                 data={product.featuredImage}

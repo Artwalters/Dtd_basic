@@ -129,8 +129,8 @@ export function ProductDetails({
 
   return (
     <div className="product-details-wrapper">
-      {/* Scroll Indicator - Desktop only */}
-      {totalImages > 1 && (
+      {/* Scroll Indicator - Desktop only, hide for 360 sequence (drag-based) */}
+      {totalImages > 1 && totalImages <= 10 && (
         <div className="product-gallery-progress desktop-only">
           <div className="progress-track">
             <div
