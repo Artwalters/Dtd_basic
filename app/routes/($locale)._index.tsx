@@ -119,6 +119,9 @@ const COLLECTION_ITEM_FRAGMENT = `#graphql
     pasvormShopify: metafield(namespace: "shopify", key: "pasvorm") {
       value
     }
+    productVideo360: metafield(namespace: "custom", key: "productvideo360") {
+      value
+    }
     variants(first: 10) {
       nodes {
         id

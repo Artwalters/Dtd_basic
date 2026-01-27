@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import {Link, useFetcher} from 'react-router';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {Image, Money, CartForm} from '@shopify/hydrogen';
@@ -17,6 +17,13 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   const [isMobile, setIsMobile] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Video 360 state
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const rawVideoUrl = (product as any).productVideo360?.value as string | undefined;
+  // Only use video URL if it's a valid URL string
+  const videoUrl = rawVideoUrl && rawVideoUrl.startsWith('http') ? rawVideoUrl : undefined;
 
   // Detect mobile
   useEffect(() => {
@@ -115,6 +122,38 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   const pasvormMetafield = (product as any).pasvorm?.value || (product as any).pasvormShopify?.value;
   const clothingFeature = clothingFeatures.values().next().value || pasvormMetafield || '';
 
+  // Video hover handlers
+  const handleVideoMouseEnter = async () => {
+    if (videoRef.current && !isVideoPlaying) {
+      try {
+        videoRef.current.currentTime = 0;
+        await videoRef.current.play();
+        setIsVideoPlaying(true);
+      } catch (error) {
+        console.warn('Video play failed:', error);
+      }
+    }
+  };
+
+  const handleVideoEnded = () => {
+    setIsVideoPlaying(false);
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+    }
+  };
+
+  const handleVideoMouseLeave = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      setIsVideoPlaying(false);
+    }
+  };
+
+  const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    console.error('Video error:', e.currentTarget.error);
+  };
+
   const handlePlusClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -149,13 +188,31 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
         data-cursor="more details"
         data-cursor-delayed
       >
-        {product.featuredImage && (
-          <div className="new-drop-image-wrapper">
-            <Image
-              data={product.featuredImage}
-              sizes="(min-width: 45em) 20vw, 40vw"
-              className="new-drop-image"
-            />
+        {(videoUrl || product.featuredImage) && (
+          <div
+            className="new-drop-image-wrapper"
+            onMouseEnter={videoUrl ? handleVideoMouseEnter : undefined}
+            onMouseLeave={videoUrl ? handleVideoMouseLeave : undefined}
+          >
+            {videoUrl ? (
+              <video
+                ref={videoRef}
+                className="new-drop-video"
+                muted
+                playsInline
+                preload="auto"
+                onEnded={handleVideoEnded}
+                onError={handleVideoError}
+              >
+                <source src={videoUrl} type="video/webm" />
+              </video>
+            ) : product.featuredImage && (
+              <Image
+                data={product.featuredImage}
+                sizes="(min-width: 45em) 20vw, 40vw"
+                className="new-drop-image"
+              />
+            )}
 
             {/* Product Tags */}
             {(isNew || clothingFeature) && (
