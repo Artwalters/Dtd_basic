@@ -4089,6 +4089,14 @@ button.is-loading {
     z-index: 20;
   }
 
+  /* Mobile product tag - top left */
+  .product-gallery-mobile .product-item-tags {
+    position: absolute;
+    top: 1em;
+    left: 1em;
+    z-index: 20;
+  }
+
   /* Mobile rotate icon - top right */
   .product-gallery-360-icon.mobile-icon {
     position: absolute;
