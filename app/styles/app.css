@@ -2781,6 +2781,18 @@ button.is-loading {
   transform: translate(-50%, -50%);
 }
 
+/* Hover bridge extending upward to cover popup area */
+.product-marker.active::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12em;
+  height: 18em;
+  pointer-events: auto;
+}
+
 .product-marker-pin {
   width: 1.75em;
   height: 1.75em;
