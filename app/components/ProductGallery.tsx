@@ -34,11 +34,13 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentFrame, setCurrentFrame] = useState(1);
   const [activeView, setActiveView] = useState<'360' | number>('360');
+  const [mobileSelectedView, setMobileSelectedView] = useState<'360' | number>('360');
 
   // Refs
   const galleryContainerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const sequenceContainerRef = useRef<HTMLDivElement>(null);
+  const mobileSequenceRef = useRef<HTMLDivElement>(null);
   const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const preloadedImages = useRef<HTMLImageElement[]>([]);
 
@@ -226,6 +228,7 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
     window.scrollTo(0, 0);
     setCurrentImageIndex(0);
     setActiveView(sequenceBaseUrl ? '360' : 0);
+    setMobileSelectedView(sequenceBaseUrl ? '360' : 0);
     imageRefs.current = [];
     ScrollTrigger.getAll().forEach(trigger => trigger.kill());
 
@@ -242,6 +245,53 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
       }
     }
   }, [product.id, sequenceBaseUrl]);
+
+  // Mobile 360° drag handling
+  useEffect(() => {
+    if (!sequenceBaseUrl || !mobileSequenceRef.current) return;
+    if (typeof window === 'undefined' || window.innerWidth > 1000) return;
+
+    const container = mobileSequenceRef.current;
+    const friction = 0.95;
+    const sensitivity = 0.15;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      isDragging.current = true;
+      lastX.current = e.touches[0].clientX;
+      velocity.current = 0;
+      framePosition.current = currentFrame;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isDragging.current) return;
+
+      const deltaX = e.touches[0].clientX - lastX.current;
+      lastX.current = e.touches[0].clientX;
+      velocity.current = -deltaX * sensitivity;
+      framePosition.current += velocity.current;
+
+      while (framePosition.current < 1) framePosition.current += TOTAL_FRAMES;
+      while (framePosition.current > TOTAL_FRAMES) framePosition.current -= TOTAL_FRAMES;
+
+      const newFrame = Math.round(framePosition.current);
+      setCurrentFrame(newFrame);
+      onImageIndexChange?.(newFrame - 1);
+    };
+
+    const handleTouchEnd = () => {
+      isDragging.current = false;
+    };
+
+    container.addEventListener('touchstart', handleTouchStart, {passive: true});
+    container.addEventListener('touchmove', handleTouchMove, {passive: true});
+    window.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [sequenceBaseUrl, onImageIndexChange, currentFrame]);
 
   // GSAP ScrollTrigger stacking animation for desktop
   useEffect(() => {
@@ -333,8 +383,8 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
         className="product-gallery product-gallery--combined"
         style={{ height: `${(allImages.length + 2) * 100}vh` }}
       >
-        {/* Main sticky view area */}
-        <div className="product-gallery-stack-wrapper">
+        {/* Desktop: Main sticky view area */}
+        <div className="product-gallery-stack-wrapper desktop-only">
           {/* Thumbnails sidebar - inside sticky wrapper */}
           <div className="product-gallery-thumbnails">
             <div className={`product-gallery-thumbnail ${activeView === '360' ? 'active' : 'passed'}`}>
@@ -394,6 +444,73 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
                   className="product-gallery-img"
                 />
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile: Main view + thumbnail row */}
+        <div className="product-gallery-mobile mobile-only">
+          {/* Main view area */}
+          <div className="product-gallery-mobile-main">
+            {/* 360° view */}
+            <div
+              className={`product-gallery-mobile-360 ${mobileSelectedView === '360' ? 'active' : ''}`}
+              ref={mobileSequenceRef}
+            >
+              <img
+                src={getFrameUrl(currentFrame)}
+                alt={`${product.title} 360° view`}
+                className="product-gallery-sequence-element"
+                draggable={false}
+              />
+              <RotationIcon />
+            </div>
+
+            {/* Product images */}
+            {allImages.map((media, index) => (
+              <div
+                key={media.image.id || index}
+                className={`product-gallery-mobile-image ${mobileSelectedView === index ? 'active' : ''}`}
+              >
+                <Image
+                  alt={media.image.altText || `Product image ${index + 1}`}
+                  data={media.image}
+                  sizes="100vw"
+                  className="product-gallery-img"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Thumbnail row */}
+          <div className="product-gallery-mobile-thumbnails">
+            <button
+              type="button"
+              className={`product-gallery-mobile-thumb ${mobileSelectedView === '360' ? 'active' : ''}`}
+              onClick={() => setMobileSelectedView('360')}
+            >
+              <img
+                src={getFrameUrl(1)}
+                alt="360° view"
+                className="product-gallery-thumbnail-img"
+              />
+              <span className="thumbnail-360-badge">360°</span>
+            </button>
+
+            {allImages.map((media, index) => (
+              <button
+                key={media.image.id || index}
+                type="button"
+                className={`product-gallery-mobile-thumb ${mobileSelectedView === index ? 'active' : ''}`}
+                onClick={() => setMobileSelectedView(index)}
+              >
+                <Image
+                  alt={media.image.altText || `Thumbnail ${index + 1}`}
+                  data={media.image}
+                  sizes="80px"
+                  className="product-gallery-thumbnail-img"
+                />
+              </button>
             ))}
           </div>
         </div>
