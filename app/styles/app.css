@@ -2956,6 +2956,7 @@ button.is-loading {
   overflow: hidden;
   background: #121212;
   margin-bottom: 0.25em;
+  border-radius: 0.25em;
 }
 
 .new-drop-image {
