@@ -216,7 +216,7 @@ img {
   margin: 0;
   color: var(--color-white);
   background: var(--black-light);
-  border-radius: 4px;
+  border-radius: 0.25em;
 }
 
 /* Hide cursor tooltip on mobile/touch devices */
@@ -243,7 +243,7 @@ img {
   line-height: 1;
   text-decoration: none;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: 0.25em;
   cursor: pointer;
   transition: all 0.2s ease;
   background: transparent;
@@ -638,7 +638,7 @@ aside li {
     visibility: hidden;
     transition: opacity 0.4s, visibility 0.4s;
     z-index: 30;
-    border-radius: 12px;
+    border-radius: 0.75em;
     box-sizing: border-box;
   }
 
@@ -724,7 +724,7 @@ aside li {
     background: var(--color-black);
     color: var(--color-white);
     border-color: var(--color-black);
-    border-radius: 4px;
+    border-radius: 0.25em;
     width: 100%;
     box-sizing: border-box;
   }
@@ -1105,7 +1105,7 @@ button.reset:hover:not(:has(> *)) {
   /* Account button in header when menu is open */
   .mobile-account-button {
     background: var(--color-black) !important;
-    border-radius: 4px;
+    border-radius: 0.25em;
     padding: 0.75em;
   }
 
@@ -1117,7 +1117,7 @@ button.reset:hover:not(:has(> *)) {
   .mobile-cart-toggle .cart-close-button,
   .mobile-right-toggle .cart-close-button {
     background: var(--color-black) !important;
-    border-radius: 4px;
+    border-radius: 0.25em;
     padding: 0.75em;
     border: none;
     cursor: pointer;
@@ -1201,7 +1201,7 @@ button.reset:hover:not(:has(> *)) {
   margin: 0;
   background: var(--white-subtle);
   border: 1px solid var(--white-light);
-  border-radius: 4px;
+  border-radius: 0.25em;
   backdrop-filter: blur(4px) url(#liquidGlassFilter);
   -webkit-backdrop-filter: blur(4px);
   transition: border-color 0.2s ease;
@@ -1271,7 +1271,7 @@ button.reset:hover:not(:has(> *)) {
   color: var(--color-black);
   background: var(--color-white);
   border: 1px solid var(--color-white);
-  border-radius: 4px;
+  border-radius: 0.25em;
   cursor: pointer;
   height: 3em;
   box-sizing: border-box;
@@ -1792,7 +1792,7 @@ button.is-loading {
   /* X button in black square when menu open */
   .mobile-menu-toggle.menu-open {
     background: var(--color-black);
-    border-radius: 4px;
+    border-radius: 0.25em;
     padding: 0.75em;
   }
 
@@ -2001,7 +2001,7 @@ button.is-loading {
 
 .cart-content-scrollable::-webkit-scrollbar-thumb {
   background: var(--white-medium);
-  border-radius: 3px;
+  border-radius: 0.25em;
 }
 
 .cart-content-scrollable::-webkit-scrollbar-thumb:hover {
@@ -2180,7 +2180,7 @@ button.is-loading {
   font-size: var(--font-base);
   font-weight: var(--weight-medium);
   border: 1px solid var(--color-black);
-  border-radius: 4px;
+  border-radius: 0.25em;
   transition: border-color 0.2s ease;
   letter-spacing: var(--tracking-wide);
   position: relative;
@@ -2556,7 +2556,7 @@ button.is-loading {
   height: 4px;
   background: var(--white-subtle);
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25em;
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(3px);
@@ -2569,7 +2569,7 @@ button.is-loading {
   left: 0;
   height: 100%;
   background: var(--color-white);
-  border-radius: 4px;
+  border-radius: 0.25em;
   transition: transform 0.3s ease;
   transform: translateX(0);
 }
@@ -2593,7 +2593,7 @@ button.is-loading {
   cursor: pointer;
   background: transparent;
   border: 1px solid var(--white-medium);
-  border-radius: 0.3125rem;
+  border-radius: 0.25em;
   width: 5rem;
   padding: 0;
   transition: border-color 0.2s;
@@ -2658,7 +2658,7 @@ button.is-loading {
 
   .hero-slider-thumb {
     width: 4rem;
-    border-radius: 0.25rem;
+    border-radius: 0.25em;
   }
 
   .hero-content-row {
@@ -2864,7 +2864,7 @@ button.is-loading {
   left: 50%;
   transform: translateX(-50%);
   background: var(--color-black);
-  border-radius: 10px;
+  border-radius: 0.5em;
   padding: 10px 14px;
   white-space: nowrap;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
@@ -2927,6 +2927,47 @@ button.is-loading {
   width: 18px;
   height: 18px;
   stroke: var(--color-white);
+}
+
+/* ===========================================
+   Shop The Look Section (Product Page)
+   =========================================== */
+.shop-the-look {
+  padding: 3em 1em;
+  background: var(--color-black);
+}
+
+.shop-the-look-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+}
+
+.shop-the-look-featured {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  border-radius: 0.25em;
+  overflow: hidden;
+}
+
+.shop-the-look-featured-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.shop-the-look-featured-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 47.99em) {
+  .shop-the-look-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .new-drop-products {
@@ -3139,7 +3180,7 @@ button.is-loading {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   border: 1px solid var(--white-light);
-  border-radius: 4px;
+  border-radius: 0.25em;
   display: flex;
   flex-direction: row;
   transform: translateY(100%);
@@ -3193,7 +3234,7 @@ button.is-loading {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   border: 1px solid var(--white-light);
-  border-radius: 4px;
+  border-radius: 0.25em;
   color: var(--color-white);
   text-align: center;
   padding: 0.75em 0.5em;
@@ -3538,7 +3579,7 @@ button.is-loading {
 .product-item-image-wrapper {
   position: relative;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: 0.25em;
 }
 
 .product-item-tags {
@@ -3932,7 +3973,7 @@ button.is-loading {
   color: var(--color-white);
   background: rgba(0, 0, 0, 0.6);
   padding: 0.1em 0.3em;
-  border-radius: 0.2em;
+  border-radius: 0.25em;
 }
 
 .product-gallery-thumbnail {
@@ -4180,7 +4221,7 @@ button.is-loading {
     left: 0;
     right: 0;
     display: flex;
-    gap: 0.5em;
+    gap: 0.75em;
     padding: 0.75em;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -4198,7 +4239,7 @@ button.is-loading {
     width: 3.5em;
     height: 4.375em;
     border: 1px solid var(--white-light);
-    border-radius: 0.15em;
+    border-radius: 0.25em;
     overflow: hidden;
     background: #121212;
     cursor: pointer;
@@ -4229,7 +4270,7 @@ button.is-loading {
     color: var(--color-white);
     background: var(--black-dark);
     padding: 0.15em 0.3em;
-    border-radius: 0.15em;
+    border-radius: 0.25em;
   }
 }
 
@@ -4369,7 +4410,7 @@ button.is-loading {
 .size-grid {
   display: flex;
   border: 1px solid var(--white-light);
-  border-radius: 4px;
+  border-radius: 0.25em;
   overflow: hidden;
 }
 
@@ -4428,7 +4469,7 @@ button.is-loading {
   padding: 1em 1.5em;
   background: var(--color-white);
   border: 1px solid var(--color-white);
-  border-radius: 4px;
+  border-radius: 0.25em;
   color: var(--color-black);
   font-family: inherit;
   font-size: var(--font-base);
@@ -4450,7 +4491,7 @@ button.is-loading {
   padding: 1em 1.5em;
   background: var(--white-subtle);
   border: 1px solid var(--white-light);
-  border-radius: 4px;
+  border-radius: 0.25em;
   color: var(--color-white);
   font-family: inherit;
   font-size: var(--font-base);
@@ -4894,7 +4935,7 @@ button.is-loading {
   padding: 1em 1.5em;
   background: var(--white-subtle);
   border: 1px solid var(--white-light);
-  border-radius: 4px;
+  border-radius: 0.25em;
   color: var(--color-white);
   cursor: pointer;
   transition: border-color 0.2s;
@@ -5131,7 +5172,7 @@ button.is-loading {
   padding: 1em 1.5em;
   background: var(--color-white);
   border: 1px solid var(--color-white);
-  border-radius: 4px;
+  border-radius: 0.25em;
   color: var(--color-black);
   font-size: var(--font-base);
   font-weight: var(--weight-medium);
@@ -5187,7 +5228,7 @@ button.is-loading {
   color: var(--color-white);
   background: var(--white-subtle);
   border: 2px solid var(--white-medium);
-  border-radius: 0.15em;
+  border-radius: 0.25em;
   padding: 0.25em 0.5em;
   min-width: 2em;
 }
@@ -6135,7 +6176,7 @@ button.is-loading {
   font-family: inherit;
   background: var(--white-subtle);
   border: 1px solid var(--white-subtle);
-  border-radius: 4px;
+  border-radius: 0.25em;
   color: var(--color-white);
   outline: none;
   backdrop-filter: blur(3px);
@@ -6689,7 +6730,7 @@ button.is-loading {
   height: 120px;
   flex-shrink: 0;
   background: var(--white-subtle);
-  border-radius: 8px;
+  border-radius: 0.5em;
   overflow: hidden;
 }
 
@@ -6774,7 +6815,7 @@ button.is-loading {
   color: var(--color-white);
   background: var(--white-subtle);
   border: 1px solid var(--white-subtle);
-  border-radius: 4px;
+  border-radius: 0.25em;
   cursor: pointer;
   transition: border-color 0.2s ease;
   position: relative;
@@ -6812,7 +6853,7 @@ button.is-loading {
   background: var(--color-white);
   color: var(--color-black);
   border: 1px solid var(--color-white);
-  border-radius: 4px;
+  border-radius: 0.25em;
   padding: 1em;
   font-size: var(--font-base);
   font-weight: var(--weight-medium);
@@ -6869,7 +6910,7 @@ button.is-loading {
   background: var(--color-white);
   color: var(--color-black);
   border: 1px solid var(--color-white);
-  border-radius: 4px;
+  border-radius: 0.25em;
   padding: 1em;
   font-size: var(--font-base);
   font-weight: var(--weight-medium);
@@ -7277,7 +7318,7 @@ button.is-loading {
     right: 0;
     background: var(--color-black);
     color: var(--color-white);
-    border-radius: 16px 16px 0 0;
+    border-radius: 1em 1em 0 0;
     padding: 1.5em;
     padding-bottom: calc(1.5em + env(safe-area-inset-bottom));
     transform: translateY(100%);

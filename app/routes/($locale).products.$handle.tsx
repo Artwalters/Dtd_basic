@@ -11,6 +11,7 @@ import {
 } from '@shopify/hydrogen';
 import {ProductGallery} from '~/components/ProductGallery';
 import {ProductDetails} from '~/components/ProductDetails';
+import {ShopTheLook} from '~/components/ShopTheLook';
 import {NewArrivals} from '~/components/NewArrivals';
 import {Footer} from '~/components/Footer';
 import {FooterParallax} from '~/components/FooterReveal';
@@ -160,6 +161,7 @@ export default function Product() {
           }}
         />
       </div>
+      <ShopTheLook />
       <NewArrivals
         products={products.nodes}
         title="New Arrivals"
