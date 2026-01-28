@@ -60,16 +60,15 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
     const pasvormMetafield = (product as any).pasvorm?.value || (product as any).pasvormShopify?.value;
     if (pasvormMetafield) return pasvormMetafield;
 
-    // Check variant options
-    const variants = (product as any).variants?.nodes || [];
-    for (const variant of variants) {
-      const featureOption = variant.selectedOptions?.find(
-        (opt: {name: string; value: string}) => {
-          const name = opt.name.toLowerCase();
-          return name === 'kenmerken kleding' || name === 'pasvorm' || name === 'fit';
-        }
-      );
-      if (featureOption?.value) return featureOption.value;
+    // Check product options
+    const options = product.options || [];
+    for (const option of options) {
+      const name = option.name.toLowerCase();
+      if (name === 'kenmerken kleding' || name === 'pasvorm' || name === 'fit') {
+        // Get first option value
+        const firstValue = option.optionValues?.[0]?.name;
+        if (firstValue) return firstValue;
+      }
     }
     return '';
   }, [product]);
