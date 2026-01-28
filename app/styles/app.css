@@ -3462,7 +3462,7 @@ button.is-loading {
   -webkit-user-select: none;
   user-select: none;
   will-change: transform;
-  touch-action: pan-y;
+  touch-action: none;
   backface-visibility: hidden;
   display: flex;
 }
@@ -4166,6 +4166,41 @@ button.is-loading {
     height: 100%;
     background: #121212;
     overflow: hidden;
+  }
+
+  .mobile-nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 15;
+    width: 2.5em;
+    height: 2.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--white-strong);
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity var(--duration-fast) ease;
+  }
+
+  .mobile-nav-arrow:active {
+    opacity: 1;
+  }
+
+  .mobile-nav-arrow--left {
+    left: 0.5em;
+  }
+
+  .mobile-nav-arrow--right {
+    right: 0.5em;
+  }
+
+  .mobile-nav-arrow svg {
+    width: 1.5em;
+    height: 1.5em;
   }
 
   .product-gallery-mobile-360 {

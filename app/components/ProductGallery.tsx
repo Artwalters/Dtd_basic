@@ -50,6 +50,11 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
   const velocity = useRef(0);
   const framePosition = useRef(currentFrame);
   const animationId = useRef<number | null>(null);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const hasDragged = useRef(false);
+  const imageSwipeStartX = useRef(0);
+  const imageSwipeStartY = useRef(0);
 
   // Get sequence base URL from metafield
   const sequenceBaseUrl = (product as any).productVideo360?.value as string | undefined;
@@ -265,18 +270,38 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
     }
   }, [product.id, sequenceBaseUrl]);
 
+  // Get total number of views (360 + images)
+  const totalViews = sequenceBaseUrl ? allImages.length + 1 : allImages.length;
+
+  // Navigate to next/previous view on mobile (with looping)
+  const navigateMobileView = useCallback((direction: 'next' | 'prev') => {
+    const views: Array<'360' | number> = sequenceBaseUrl ? ['360', ...allImages.map((_, i) => i)] : allImages.map((_, i) => i);
+    const currentIndex = mobileSelectedView === '360' ? 0 : (typeof mobileSelectedView === 'number' ? (sequenceBaseUrl ? mobileSelectedView + 1 : mobileSelectedView) : 0);
+
+    let newIndex: number;
+    if (direction === 'next') {
+      newIndex = (currentIndex + 1) % views.length;
+    } else {
+      newIndex = (currentIndex - 1 + views.length) % views.length;
+    }
+
+    setMobileSelectedView(views[newIndex]);
+  }, [mobileSelectedView, allImages, sequenceBaseUrl]);
+
   // Mobile 360° drag handling
   useEffect(() => {
     if (!sequenceBaseUrl || !mobileSequenceRef.current) return;
     if (typeof window === 'undefined' || window.innerWidth > 1000) return;
 
     const container = mobileSequenceRef.current;
-    const friction = 0.95;
     const sensitivity = 0.15;
 
     const handleTouchStart = (e: TouchEvent) => {
       isDragging.current = true;
+      hasDragged.current = false;
       lastX.current = e.touches[0].clientX;
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
       velocity.current = 0;
       framePosition.current = currentFrame;
     };
@@ -285,6 +310,14 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
       if (!isDragging.current) return;
 
       const deltaX = e.touches[0].clientX - lastX.current;
+      const totalDeltaX = Math.abs(e.touches[0].clientX - touchStartX.current);
+      const totalDeltaY = Math.abs(e.touches[0].clientY - touchStartY.current);
+
+      // Mark as dragged if moved more than 10px horizontally
+      if (totalDeltaX > 10 || totalDeltaY > 10) {
+        hasDragged.current = true;
+      }
+
       lastX.current = e.touches[0].clientX;
       velocity.current = -deltaX * sensitivity;
       framePosition.current += velocity.current;
@@ -297,20 +330,39 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
       onImageIndexChange?.(newFrame - 1);
     };
 
-    const handleTouchEnd = () => {
+    const handleTouchEnd = (e: TouchEvent) => {
       isDragging.current = false;
+
+      // If it was a tap (not a drag), navigate based on tap position
+      if (!hasDragged.current && e.changedTouches.length > 0) {
+        const touch = e.changedTouches[0];
+        const deltaY = Math.abs(touch.clientY - touchStartY.current);
+
+        // Ignore if vertical movement detected (scrolling)
+        if (deltaY > 30) return;
+
+        const rect = container.getBoundingClientRect();
+        const tapX = touch.clientX - rect.left;
+        const halfWidth = rect.width / 2;
+
+        if (tapX < halfWidth) {
+          navigateMobileView('prev');
+        } else {
+          navigateMobileView('next');
+        }
+      }
     };
 
     container.addEventListener('touchstart', handleTouchStart, {passive: true});
     container.addEventListener('touchmove', handleTouchMove, {passive: true});
-    window.addEventListener('touchend', handleTouchEnd);
+    container.addEventListener('touchend', handleTouchEnd);
 
     return () => {
       container.removeEventListener('touchstart', handleTouchStart);
       container.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
+      container.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [sequenceBaseUrl, onImageIndexChange, currentFrame]);
+  }, [sequenceBaseUrl, onImageIndexChange, currentFrame, navigateMobileView]);
 
   // GSAP ScrollTrigger stacking animation for desktop
   useEffect(() => {
@@ -493,6 +545,27 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
 
           {/* Main view area */}
           <div className="product-gallery-mobile-main">
+            {/* Navigation arrows */}
+            <button
+              type="button"
+              className="mobile-nav-arrow mobile-nav-arrow--left"
+              onClick={() => navigateMobileView('prev')}
+              aria-label="Previous"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="mobile-nav-arrow mobile-nav-arrow--right"
+              onClick={() => navigateMobileView('next')}
+              aria-label="Next"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
             {/* 360° view */}
             <div
               className={`product-gallery-mobile-360 ${mobileSelectedView === '360' ? 'active' : ''}`}
@@ -511,6 +584,41 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
               <div
                 key={media.image.id || index}
                 className={`product-gallery-mobile-image ${mobileSelectedView === index ? 'active' : ''}`}
+                onTouchStart={(e) => {
+                  imageSwipeStartX.current = e.touches[0].clientX;
+                  imageSwipeStartY.current = e.touches[0].clientY;
+                }}
+                onTouchEnd={(e) => {
+                  const deltaX = e.changedTouches[0].clientX - imageSwipeStartX.current;
+                  const deltaY = e.changedTouches[0].clientY - imageSwipeStartY.current;
+                  const swipeThreshold = 50;
+                  const verticalThreshold = 30;
+
+                  // Ignore if primarily vertical movement (scrolling)
+                  if (Math.abs(deltaY) > verticalThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
+                    return;
+                  }
+
+                  if (Math.abs(deltaX) > swipeThreshold) {
+                    // Swipe detected
+                    if (deltaX > 0) {
+                      navigateMobileView('prev');
+                    } else {
+                      navigateMobileView('next');
+                    }
+                  } else if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+                    // Tap detected (minimal movement) - navigate based on tap position
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const tapX = e.changedTouches[0].clientX - rect.left;
+                    const halfWidth = rect.width / 2;
+
+                    if (tapX < halfWidth) {
+                      navigateMobileView('prev');
+                    } else {
+                      navigateMobileView('next');
+                    }
+                  }
+                }}
               >
                 <Image
                   alt={media.image.altText || `Product image ${index + 1}`}
