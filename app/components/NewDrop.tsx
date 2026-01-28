@@ -1,45 +1,33 @@
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, useCallback} from 'react';
 import {Link} from 'react-router';
 import {gsap} from 'gsap';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {ProductCard} from './ProductCard';
 
-// Product marker types for "shop the look" feature
-interface ProductMarker {
+// Product marker position config (only positions, products fetched from Shopify)
+interface MarkerPosition {
   id: string;
+  handle: string;  // Shopify product handle to look up
   x: number;  // percentage position (0-100)
   y: number;  // percentage position (0-100)
-  product: {
-    title: string;
-    price: string;
-    image: string;
-    handle: string;
-  };
 }
 
-// Mockup marker data
-const DEFAULT_MARKERS: ProductMarker[] = [
+const TOTAL_FRAMES = 90;
+const FRAME_DURATION = 25;
+
+// Marker positions - products will be looked up by handle
+const DEFAULT_MARKER_POSITIONS: MarkerPosition[] = [
   {
     id: 'shirt-1',
+    handle: 'envision-oversized-tee',
     x: 28,
     y: 38,
-    product: {
-      title: 'Envision Oversized Tee',
-      price: '40€',
-      image: '/Img/DSC04304.webp',
-      handle: 'envision-oversized-tee',
-    },
   },
   {
     id: 'pants-1',
+    handle: 'resist-sweats',
     x: 72,
     y: 68,
-    product: {
-      title: 'Resist Sweats',
-      price: '95€',
-      image: '/Img/DSC04329.webp',
-      handle: 'resist-sweats',
-    },
   },
 ];
 
@@ -47,17 +35,19 @@ interface NewDropProps {
   products: CollectionItemFragment[];
   title?: string;
   featuredImage?: string;
-  productMarkers?: ProductMarker[];
+  markerPositions?: MarkerPosition[];
 }
 
-// Product marker pin with popup
+// Product marker pin with popup - uses real Shopify product data
 function ProductMarkerPin({
-  marker,
+  position,
+  product,
   isActive,
   onActivate,
   onDeactivate,
 }: {
-  marker: ProductMarker;
+  position: MarkerPosition;
+  product: CollectionItemFragment;
   isActive: boolean;
   onActivate: () => void;
   onDeactivate: () => void;
@@ -65,6 +55,39 @@ function ProductMarkerPin({
   const markerRef = useRef<HTMLDivElement>(null);
   const pulseRef = useRef<HTMLSpanElement>(null);
   const pulseTimeline = useRef<gsap.core.Timeline | null>(null);
+
+  // 360° rotation state
+  const [currentFrame, setCurrentFrame] = useState(1);
+  const animationRef = useRef<number | null>(null);
+  const sequenceBaseUrl = (product as any).productVideo360?.value as string | undefined;
+
+  // Helper to get frame URL
+  const getFrameUrl = useCallback((frameNum: number) => {
+    if (!sequenceBaseUrl) return '';
+    const paddedFrame = String(frameNum).padStart(4, '0');
+    return `${sequenceBaseUrl}${paddedFrame}.webp`;
+  }, [sequenceBaseUrl]);
+
+  // Continuous rotation animation when popup is active
+  useEffect(() => {
+    if (!isActive || !sequenceBaseUrl) return;
+
+    let frame = 1;
+    const animate = () => {
+      frame--;
+      if (frame < 1) frame = TOTAL_FRAMES;
+      setCurrentFrame(frame);
+      animationRef.current = window.setTimeout(animate, FRAME_DURATION);
+    };
+
+    animationRef.current = window.setTimeout(animate, FRAME_DURATION);
+
+    return () => {
+      if (animationRef.current) {
+        clearTimeout(animationRef.current);
+      }
+    };
+  }, [isActive, sequenceBaseUrl]);
 
   useEffect(() => {
     if (!pulseRef.current) return;
@@ -106,18 +129,28 @@ function ProductMarkerPin({
     }
   }, [isActive]);
 
+  // Format price from Shopify Money
+  const formatPrice = (price: {amount: string; currencyCode: string}) => {
+    const amount = parseFloat(price.amount);
+    return new Intl.NumberFormat('nl-NL', {
+      style: 'currency',
+      currency: price.currencyCode,
+    }).format(amount);
+  };
+
   return (
     <div
       ref={markerRef}
       className={`product-marker ${isActive ? 'active' : ''}`}
-      style={{left: `${marker.x}%`, top: `${marker.y}%`}}
+      style={{left: `${position.x}%`, top: `${position.y}%`}}
       onMouseEnter={onActivate}
       onMouseLeave={onDeactivate}
     >
       <button
         type="button"
         className="product-marker-pin"
-        aria-label={`View ${marker.product.title}`}
+        aria-label={`View ${product.title}`}
+        data-cursor-hide
       >
         <span ref={pulseRef} className="marker-pulse-ring" />
         <span className={`marker-plus-icon ${isActive ? 'marker-plus-rotated' : ''}`} />
@@ -125,17 +158,23 @@ function ProductMarkerPin({
 
       {isActive && (
         <Link
-          to={`/products/${marker.product.handle}`}
-          className="product-marker-popup"
+          to={`/products/${product.handle}`}
+          className={`product-marker-popup ${sequenceBaseUrl ? 'product-marker-popup--with-image' : ''}`}
           onClick={(e) => e.stopPropagation()}
+          data-cursor-hide
         >
-          <div className="product-marker-popup-title">{marker.product.title}</div>
-          <div className="product-marker-popup-price">{marker.product.price}</div>
-          <div className="product-marker-popup-arrow">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeMiterlimit="10">
-              <path d="M15 10L20 15L15 20" />
-              <path d="M4 4V12L7 15H20" />
-            </svg>
+          {sequenceBaseUrl && (
+            <div className="product-marker-popup-image">
+              <img
+                src={getFrameUrl(currentFrame)}
+                alt={product.title}
+                className="product-marker-popup-image-360"
+              />
+            </div>
+          )}
+          <div className="product-marker-popup-content">
+            <div className="product-marker-popup-title">{product.title}</div>
+            <div className="product-marker-popup-price">{formatPrice(product.priceRange.minVariantPrice)}</div>
           </div>
         </Link>
       )}
@@ -147,7 +186,7 @@ export function NewDrop({
   products,
   title = 'New Drop',
   featuredImage = '/hero-bg.jpg',
-  productMarkers = DEFAULT_MARKERS,
+  markerPositions = DEFAULT_MARKER_POSITIONS,
 }: NewDropProps) {
   const [openProductId, setOpenProductId] = useState<string | null>(null);
   const [activeMarkerId, setActiveMarkerId] = useState<string | null>(null);
@@ -187,6 +226,10 @@ export function NewDrop({
   // Take first 6 products for the grid
   const gridProducts = products.slice(0, 6);
 
+  // Look up products by handle for markers
+  const getProductByHandle = (handle: string) =>
+    products.find(p => p.handle === handle);
+
   const handleToggle = (productId: string) => {
     setOpenProductId(openProductId === productId ? null : productId);
   };
@@ -202,21 +245,26 @@ export function NewDrop({
       </div>
 
       <div className="new-drop-grid">
-        <div className="new-drop-featured" ref={featuredRef}>
+        <div className="new-drop-featured" ref={featuredRef} data-cursor="explore">
           <div className="new-drop-featured-wrapper">
             <img src={featuredImage} alt="" className="new-drop-featured-image" />
 
             {/* Product markers overlay */}
             <div className="product-markers-overlay">
-              {productMarkers.map((marker) => (
-                <ProductMarkerPin
-                  key={marker.id}
-                  marker={marker}
-                  isActive={activeMarkerId === marker.id}
-                  onActivate={() => setActiveMarkerId(marker.id)}
-                  onDeactivate={() => setActiveMarkerId(null)}
-                />
-              ))}
+              {markerPositions.map((position) => {
+                const product = getProductByHandle(position.handle);
+                if (!product) return null;
+                return (
+                  <ProductMarkerPin
+                    key={position.id}
+                    position={position}
+                    product={product}
+                    isActive={activeMarkerId === position.id}
+                    onActivate={() => setActiveMarkerId(position.id)}
+                    onDeactivate={() => setActiveMarkerId(null)}
+                  />
+                );
+              })}
             </div>
           </div>
         </div>

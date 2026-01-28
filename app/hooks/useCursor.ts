@@ -90,6 +90,9 @@ export function useCursor() {
 
     const getTargetAtPosition = (): HTMLElement | null => {
       const el = document.elementFromPoint(mouseX, mouseY);
+      // Check if we're hovering over an element that should hide the cursor
+      const hideElement = el?.closest('[data-cursor-hide]');
+      if (hideElement) return null;
       return el?.closest('[data-cursor]') as HTMLElement | null;
     };
 

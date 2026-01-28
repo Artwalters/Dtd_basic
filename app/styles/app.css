@@ -2860,19 +2860,19 @@ button.is-loading {
 /* Popup Card */
 .product-marker-popup {
   position: absolute;
-  bottom: calc(100% + 10px);
+  bottom: calc(100% + 0.5em);
   left: 50%;
   transform: translateX(-50%);
-  background: var(--color-black);
-  border-radius: 0.5em;
-  padding: 10px 14px;
+  background: #121212;
+  border-radius: 0.25em;
+  padding: 0.6em 0.8em;
   white-space: nowrap;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0.25em 1.25em rgba(0, 0, 0, 0.4);
   pointer-events: auto;
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.75em;
   animation: markerPopupIn 0.2s ease-out;
 }
 
@@ -2880,10 +2880,10 @@ button.is-loading {
 .product-marker-popup::after {
   content: '';
   position: absolute;
-  bottom: -15px;
-  left: 0;
-  right: 0;
-  height: 15px;
+  bottom: -1.5em;
+  left: -1em;
+  right: -1em;
+  height: 2em;
 }
 
 @keyframes markerPopupIn {
@@ -2898,7 +2898,7 @@ button.is-loading {
 }
 
 .product-marker-popup-title {
-  font-size: 12px;
+  font-size: 0.7em;
   font-weight: 600;
   text-transform: uppercase;
   color: var(--color-white);
@@ -2906,9 +2906,9 @@ button.is-loading {
 }
 
 .product-marker-popup-price {
-  font-size: 11px;
+  font-size: 0.65em;
   color: rgba(255, 255, 255, 0.6);
-  margin-top: 1px;
+  margin-top: 0.1em;
 }
 
 .product-marker-popup-arrow {
@@ -2924,9 +2924,48 @@ button.is-loading {
 }
 
 .product-marker-popup-arrow svg {
-  width: 18px;
-  height: 18px;
+  width: 1.125em;
+  height: 1.125em;
   stroke: var(--color-white);
+}
+
+/* Popup with 360° image - desktop only */
+.product-marker-popup--with-image {
+  flex-direction: column;
+  padding: 0.35em;
+  overflow: hidden;
+  white-space: normal;
+  width: 9em;
+}
+
+.product-marker-popup-image {
+  width: 100%;
+  aspect-ratio: 1/1;
+  background: #121212;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 0.15em;
+}
+
+.product-marker-popup-image-360 {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  transform: scale(1.05);
+}
+
+.product-marker-popup--with-image .product-marker-popup-content {
+  padding: 0 0.35em 0.15em 0.35em;
+  margin-top: -0.3em;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.product-marker-popup--with-image .product-marker-popup-arrow {
+  display: none;
 }
 
 /* ===========================================

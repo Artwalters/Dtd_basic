@@ -161,7 +161,7 @@ export default function Product() {
           }}
         />
       </div>
-      <ShopTheLook />
+      <ShopTheLook products={products.nodes} />
       <NewArrivals
         products={products.nodes}
         title="New Arrivals"
