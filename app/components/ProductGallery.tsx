@@ -120,7 +120,7 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
       const deltaX = e.clientX - lastX.current;
       lastX.current = e.clientX;
 
-      velocity.current = deltaX * sensitivity;
+      velocity.current = -deltaX * sensitivity;
       framePosition.current += velocity.current;
 
       while (framePosition.current < 1) framePosition.current += TOTAL_FRAMES;
@@ -151,7 +151,7 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
       const deltaX = e.touches[0].clientX - lastX.current;
       lastX.current = e.touches[0].clientX;
 
-      velocity.current = deltaX * sensitivity;
+      velocity.current = -deltaX * sensitivity;
       framePosition.current += velocity.current;
 
       while (framePosition.current < 1) framePosition.current += TOTAL_FRAMES;

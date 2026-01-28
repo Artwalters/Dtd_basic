@@ -166,19 +166,19 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
     if (directionRef.current === 'idle') return;
 
     if (directionRef.current === 'forward') {
-      // Normal hover animation - constant speed, loops
-      frameRef.current++;
-      if (frameRef.current > TOTAL_FRAMES) {
-        frameRef.current = 1; // Loop back to start
+      // Normal hover animation - constant speed, loops (reversed direction)
+      frameRef.current--;
+      if (frameRef.current < 1) {
+        frameRef.current = TOTAL_FRAMES; // Loop back to end
       }
       setCurrentFrame(frameRef.current);
       animationRef.current = window.setTimeout(runAnimation, FRAME_DURATION);
     } else if (directionRef.current === 'complete') {
-      // Complete rotation with acceleration
+      // Complete rotation with acceleration (reversed direction)
       speedRef.current = Math.min(speedRef.current + 0.15, 3);
-      frameRef.current += Math.ceil(speedRef.current);
+      frameRef.current -= Math.ceil(speedRef.current);
 
-      if (frameRef.current >= TOTAL_FRAMES) {
+      if (frameRef.current <= 1) {
         frameRef.current = 1;
         directionRef.current = 'idle';
         speedRef.current = 1;
@@ -189,11 +189,11 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
       setCurrentFrame(frameRef.current);
       animationRef.current = window.setTimeout(runAnimation, FRAME_DURATION);
     } else if (directionRef.current === 'reverse') {
-      // Reverse with acceleration
+      // Reverse with acceleration (reversed direction - go back up to frame 1)
       speedRef.current = Math.min(speedRef.current + 0.15, 3);
-      frameRef.current -= Math.ceil(speedRef.current);
+      frameRef.current += Math.ceil(speedRef.current);
 
-      if (frameRef.current <= 1) {
+      if (frameRef.current >= TOTAL_FRAMES) {
         frameRef.current = 1;
         directionRef.current = 'idle';
         speedRef.current = 1;
@@ -237,8 +237,8 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
 
     speedRef.current = 1;
 
-    // Past halfway? Complete rotation with acceleration. Before halfway? Reverse with acceleration.
-    if (frameRef.current > TOTAL_FRAMES / 2) {
+    // Past halfway? Reverse back to 1 with acceleration. Before halfway? Complete rotation.
+    if (frameRef.current < TOTAL_FRAMES / 2) {
       directionRef.current = 'complete';
     } else {
       directionRef.current = 'reverse';
