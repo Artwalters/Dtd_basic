@@ -4061,7 +4061,7 @@ button.is-loading {
     display: block;
     position: relative;
     width: 100%;
-    aspect-ratio: 4/5;
+    height: 60svh;
     background: #121212;
     overflow: hidden;
   }
