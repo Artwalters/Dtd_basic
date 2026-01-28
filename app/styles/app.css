@@ -4082,11 +4082,12 @@ button.is-loading {
   }
 
   /* Mobile tag - top left */
-  .product-gallery-tag.mobile-tag {
+  .product-gallery-mobile .product-gallery-tag.mobile-tag {
     position: absolute;
     top: 1em;
     left: 1em;
-    z-index: 10;
+    z-index: 20;
+    display: block;
   }
 
   /* Hide desktop tag on mobile */
