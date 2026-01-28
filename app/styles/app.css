@@ -4140,17 +4140,16 @@ button.is-loading {
     -webkit-user-drag: none;
   }
 
-  /* Mobile 360° icon - centered below model */
+  /* Mobile 360° icon - top right corner */
   .product-gallery-mobile-360 .product-gallery-360-icon {
     position: absolute;
-    bottom: 5em;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 1em;
+    right: 1em;
     pointer-events: none;
   }
 
   .product-gallery-mobile-360 .product-gallery-360-icon .arrow-3d-icon {
-    width: 2.5em;
+    width: 2em;
     height: auto;
     color: var(--white-strong);
   }
