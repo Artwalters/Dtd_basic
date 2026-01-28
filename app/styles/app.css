@@ -3969,6 +3969,7 @@ button.is-loading {
   will-change: transform;
   background: var(--color-black);
   overflow: hidden;
+  border-radius: 0.25em;
   /* FOUC prevention: hidden until GSAP initializes */
   visibility: hidden;
 }
