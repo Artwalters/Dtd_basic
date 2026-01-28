@@ -2962,6 +2962,7 @@ button.is-loading {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: opacity 0.3s ease;
 }
 
 .new-drop-video {
@@ -2970,11 +2971,17 @@ button.is-loading {
   object-fit: contain;
   background: transparent;
   transform: scale(1.06);
-  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Power1.out - softer */
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
 }
 
 .new-drop-image-wrapper:hover .new-drop-video {
   transform: scale(1.08);
+}
+
+/* Darken image on success */
+.new-drop-image-wrapper--success .new-drop-video,
+.new-drop-image-wrapper--success .new-drop-image {
+  opacity: 0.4;
 }
 
 .new-drop-info {
@@ -3101,6 +3108,7 @@ button.is-loading {
   right: 10px;
   z-index: 10;
   pointer-events: none;
+  overflow: hidden;
 }
 
 .size-selector-open {

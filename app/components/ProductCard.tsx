@@ -166,13 +166,55 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
     if (directionRef.current === 'idle') return;
 
     if (directionRef.current === 'forward') {
-      // Normal hover animation - constant speed, loops (reversed direction)
-      frameRef.current--;
-      if (frameRef.current < 1) {
-        frameRef.current = TOTAL_FRAMES; // Loop back to end
+      // Phase 1: Rotate from front (1) to back (45) with easing
+      const targetFrame = 45;
+      const startFrame = 1;
+      const totalFrames = targetFrame - startFrame;
+      const currentProgress = frameRef.current - startFrame;
+
+      // Ease out: start fast, end slow
+      const progress = currentProgress / totalFrames;
+      const easeDelay = 10 + (progress * progress * 30); // 10ms -> 40ms
+
+      frameRef.current++;
+      if (frameRef.current >= targetFrame) {
+        frameRef.current = targetFrame;
+        setCurrentFrame(frameRef.current);
+        directionRef.current = 'pauseBack';
+        animationRef.current = window.setTimeout(runAnimation, 2000);
+        return;
       }
       setCurrentFrame(frameRef.current);
-      animationRef.current = window.setTimeout(runAnimation, FRAME_DURATION);
+      animationRef.current = window.setTimeout(runAnimation, easeDelay);
+    } else if (directionRef.current === 'pauseBack') {
+      // After pause at back, go to front
+      directionRef.current = 'toFront';
+      animationRef.current = window.setTimeout(runAnimation, 20);
+    } else if (directionRef.current === 'toFront') {
+      // Phase 2: Rotate from back (45) to front (90/1) with easing
+      const startFrame = 45;
+      const endFrame = 90;
+      const totalFrames = endFrame - startFrame;
+      const currentProgress = frameRef.current - startFrame;
+
+      // Ease out: start fast, end slow
+      const progress = currentProgress / totalFrames;
+      const easeDelay = 10 + (progress * progress * 30); // 10ms -> 40ms
+
+      frameRef.current++;
+      if (frameRef.current >= endFrame) {
+        frameRef.current = 1; // Loop back to frame 1
+        setCurrentFrame(frameRef.current);
+        directionRef.current = 'pauseFront';
+        animationRef.current = window.setTimeout(runAnimation, 2000);
+        return;
+      }
+      setCurrentFrame(frameRef.current);
+      animationRef.current = window.setTimeout(runAnimation, easeDelay);
+    } else if (directionRef.current === 'pauseFront') {
+      // After pause at front, go to back again
+      directionRef.current = 'forward';
+      animationRef.current = window.setTimeout(runAnimation, 20);
     } else if (directionRef.current === 'complete') {
       // Complete rotation with acceleration (reversed direction)
       speedRef.current = Math.min(speedRef.current + 0.15, 3);
@@ -214,13 +256,13 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
       clearTimeout(animationRef.current);
     }
 
-    // Reset to frame 1 and start fresh
+    // Start at frame 1 (front) and rotate to back after 0.5s delay
     frameRef.current = 1;
     speedRef.current = 1;
     setCurrentFrame(1);
     directionRef.current = 'forward';
     setIsAnimating(true);
-    animationRef.current = window.setTimeout(runAnimation, FRAME_DURATION);
+    animationRef.current = window.setTimeout(runAnimation, 500);
   };
 
   const handleSequenceMouseLeave = () => {
@@ -292,7 +334,7 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
       >
         {(sequenceBaseUrl || product.featuredImage) && (
           <div
-            className="new-drop-image-wrapper"
+            className={`new-drop-image-wrapper ${showSuccess ? 'new-drop-image-wrapper--success' : ''}`}
             onMouseEnter={sequenceBaseUrl ? handleSequenceMouseEnter : undefined}
             onMouseLeave={sequenceBaseUrl ? handleSequenceMouseLeave : undefined}
           >
@@ -345,38 +387,36 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
                 )}
 
                 {/* Desktop Size Selector Popup */}
-                {isOpen && !showSuccess && fetcher.state === 'idle' && (
+                <div
+                  className={`size-selector ${isOpen && !showSuccess && fetcher.state === 'idle' ? 'size-selector-open' : ''}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
                   <div
-                    className="size-selector size-selector-open"
+                    className={`size-selector-content ${isOpen && !showSuccess && fetcher.state === 'idle' ? 'size-selector-content-open' : ''}`}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                     }}
                   >
-                    <div
-                      className="size-selector-content size-selector-content-open"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                    >
-                      {sizeOptions.map((size) => (
-                        <button
-                          key={size.id}
-                          className="size-option"
-                          disabled={!size.available}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleAddToCart(size.id);
-                          }}
-                        >
-                          {size.name}
-                        </button>
-                      ))}
-                    </div>
+                    {sizeOptions.map((size) => (
+                      <button
+                        key={size.id}
+                        className="size-option"
+                        disabled={!size.available}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleAddToCart(size.id);
+                        }}
+                      >
+                        {size.name}
+                      </button>
+                    ))}
                   </div>
-                )}
+                </div>
 
                 {/* Plus Button - hide during loading/success */}
                 {fetcher.state === 'idle' && !showSuccess && (
