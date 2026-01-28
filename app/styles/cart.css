@@ -114,6 +114,12 @@
   flex-shrink: 0;
 }
 
+.cart-line img.cart-line-image {
+  object-fit: contain;
+  background: #EDECEA;
+  border-radius: 4px;
+}
+
 .cart-line-details {
   flex: 1;
   display: flex;

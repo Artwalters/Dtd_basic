@@ -47,6 +47,9 @@ export const CART_QUERY_FRAGMENT = `#graphql
           title
           id
           vendor
+          productVideo360: metafield(namespace: "custom", key: "productvideo360") {
+            value
+          }
         }
         selectedOptions {
           name
@@ -97,6 +100,9 @@ export const CART_QUERY_FRAGMENT = `#graphql
           title
           id
           vendor
+          productVideo360: metafield(namespace: "custom", key: "productvideo360") {
+            value
+          }
         }
         selectedOptions {
           name

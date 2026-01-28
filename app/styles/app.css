@@ -7047,10 +7047,9 @@ button.is-loading {
 * --------------------------------------------------
 */
 @media (hover: none) {
-  /* Completely hide wipe animation pseudo-elements on touch devices */
+  /* Hide wipe animations - but NOT on header-nav-item (breaks close button) */
   .btn-glass::before,
   .btn-solid::before,
-  .header-nav-item::before,
   .add-to-bag-button::before,
   .buy-now-button::before,
   .checkout-button::before,
@@ -7058,8 +7057,6 @@ button.is-loading {
   .mobile-quick-add__size-btn::before,
   .mobile-quick-add__notify-btn::before,
   .community-sticky-btn::before,
-  .cart-close-icon::before,
-  .cart-close-text::before,
   .size-guide-option-btn::before,
   .size-guide-submit::before {
     display: none !important;
@@ -7070,8 +7067,9 @@ button.is-loading {
     transform: none;
   }
 
+  /* Keep base scale on touch - don't animate to larger scale */
   .new-drop-image-wrapper:hover .new-drop-video {
-    transform: none;
+    transform: scale(1.06);
   }
 
   /* Disable slider thumb hover */
@@ -7080,55 +7078,16 @@ button.is-loading {
     background: var(--white-light);
   }
 
-  /* Disable general hover opacity/color changes */
+  /* Disable button hover styles - but NOT header-nav-item */
   .btn-glass:hover,
-  .btn-solid:hover,
-  .header-nav-item:hover {
+  .btn-solid:hover {
     color: inherit;
     border-color: var(--white-light);
     background: transparent;
   }
 
-  /* Disable all button hover and active states */
-  .btn:hover,
-  .btn:active,
-  .header-nav-item:hover,
-  .header-nav-item:active,
-  .header-menu-item:hover,
-  .header-menu-item:active,
-  .header-menu-mobile .header-menu-item:hover,
-  .header-menu-mobile .header-menu-item:active,
-  .add-to-bag-button:hover,
-  .add-to-bag-button:active,
-  .buy-now-button:hover,
-  .buy-now-button:active,
-  .checkout-button:hover,
-  .checkout-button:active,
-  .size-grid-option:hover,
-  .size-grid-option:active,
-  .mobile-quick-add__size-btn:hover,
-  .mobile-quick-add__size-btn:active,
-  .mobile-quick-add__add-btn:hover,
-  .mobile-quick-add__add-btn:active,
-  .mobile-quick-add__notify-btn:hover,
-  .mobile-quick-add__notify-btn:active,
-  .community-sticky-btn:hover,
-  .community-sticky-btn:active,
-  .cart-close-icon:hover,
-  .cart-close-icon:active,
-  .cart-close-text:hover,
-  .cart-close-text:active,
-  .size-guide-option-btn:hover,
-  .size-guide-option-btn:active,
-  .size-guide-submit:hover,
-  .size-guide-submit:active {
-    transform: none;
-    opacity: 1;
-    background: inherit;
-  }
-
-  /* Disable link underline animations on hover */
-  .link:hover {
-    background-size: 0% 1px;
+  /* Disable menu item tap feedback */
+  .header-menu-mobile .header-menu-item {
+    -webkit-tap-highlight-color: transparent;
   }
 }

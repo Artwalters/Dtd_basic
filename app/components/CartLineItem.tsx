@@ -33,9 +33,22 @@ export function CartLineItem({
     ? `${product.title} - ${sizeOption.value}`
     : product.title;
 
+  // Get 360° sequence URL from product metafield
+  const sequenceBaseUrl = (product as any).productVideo360?.value as string | undefined;
+  const firstFrameUrl = sequenceBaseUrl ? `${sequenceBaseUrl}0001.webp` : null;
+
   return (
     <li key={id} className="cart-line">
-      {image && (
+      {firstFrameUrl ? (
+        <img
+          alt={title}
+          src={firstFrameUrl}
+          height={100}
+          width={100}
+          loading="lazy"
+          className="cart-line-image"
+        />
+      ) : image && (
         <Image
           alt={title}
           data={image}
