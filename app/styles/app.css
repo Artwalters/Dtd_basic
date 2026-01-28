@@ -4060,7 +4060,7 @@ button.is-loading {
 }
 
 /* 360° rotation icon wrapper - desktop uses default arrow-3d-icon positioning */
-.product-gallery-360-icon {
+.product-gallery-360-layer .product-gallery-360-icon {
   display: contents;
 }
 
