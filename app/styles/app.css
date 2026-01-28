@@ -3981,6 +3981,7 @@ button.is-loading {
   object-fit: cover;
   object-position: center;
   display: block;
+  border-radius: 0.25em;
 }
 
 /* Hide mobile scroll container on desktop */
