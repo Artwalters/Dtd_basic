@@ -3059,8 +3059,8 @@ button.is-loading {
 /* 360° Arrow Icon */
 .arrow-3d-icon {
   position: absolute;
-  bottom: 1.5em;
-  right: 1.5em;
+  bottom: 2.5em;
+  right: 2.5em;
   width: 2.5em;
   height: auto;
   color: var(--color-white);
@@ -3805,7 +3805,22 @@ button.is-loading {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--color-black);
+  user-select: none;
+  overflow: hidden;
+}
+
+/* Inner container with grey background */
+.product-gallery--sticky::before {
+  content: '';
+  position: absolute;
+  top: 1em;
+  left: 1em;
+  width: calc(100% - 2em);
+  height: calc(100% - 2em);
   background: #121212;
+  border-radius: 0.5em;
+  z-index: 0;
 }
 
 .product-gallery-sequence-element {
@@ -3817,12 +3832,8 @@ button.is-loading {
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
-}
-
-.product-gallery--sticky {
-  user-select: none;
-  background: #121212;
-  overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 /* Product Gallery Progress - Desktop (vertical) */
@@ -3939,9 +3950,13 @@ button.is-loading {
 
 /* Stack container - holds all stacking images */
 .product-gallery-stack {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 1em;
+  left: 1em;
+  width: calc(100% - 2em);
+  height: calc(100% - 2em);
+  overflow: hidden;
+  border-radius: 0.25em;
 }
 
 /* Individual stacked image */
@@ -3953,7 +3968,8 @@ button.is-loading {
   height: 100%;
   will-change: transform;
   background: var(--color-black);
-  /* FOUC prevention: hidden until GSAP initializes with autoAlpha */
+  overflow: hidden;
+  /* FOUC prevention: hidden until GSAP initializes */
   visibility: hidden;
 }
 
@@ -3984,22 +4000,24 @@ button.is-loading {
   height: 100vh;
   width: 100%;
   overflow: hidden;
-  background: #121212;
+  background: var(--color-black);
 }
 
 /* 360 layer */
 .product-gallery-360-layer {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 1em;
+  left: 1em;
+  width: calc(100% - 2em);
+  height: calc(100% - 2em);
   display: flex;
   align-items: center;
   justify-content: center;
   background: #121212;
   z-index: 0;
   cursor: grab;
+  overflow: hidden;
+  border-radius: 0.25em;
 }
 
 .product-gallery-360-layer .product-gallery-sequence-element {
@@ -4016,12 +4034,14 @@ button.is-loading {
 /* Stack in combined view */
 .product-gallery--combined .product-gallery-stack {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 1em;
+  left: 1em;
+  width: calc(100% - 2em);
+  height: calc(100% - 2em);
   z-index: 1;
   pointer-events: none;
+  overflow: hidden;
+  border-radius: 0.25em;
 }
 
 .product-gallery--combined .product-gallery-stack-image {

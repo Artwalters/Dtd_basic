@@ -228,6 +228,19 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
     setActiveView(sequenceBaseUrl ? '360' : 0);
     imageRefs.current = [];
     ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+
+    // Reset 360° rotation to frame 1
+    setCurrentFrame(1);
+    framePosition.current = 1;
+    velocity.current = 0;
+
+    // Reset zoom scale on sequence element
+    if (sequenceContainerRef.current) {
+      const sequenceImg = sequenceContainerRef.current.querySelector('.product-gallery-sequence-element');
+      if (sequenceImg) {
+        gsap.set(sequenceImg, { scale: 1 });
+      }
+    }
   }, [product.id, sequenceBaseUrl]);
 
   // GSAP ScrollTrigger stacking animation for desktop
@@ -245,9 +258,16 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
 
       const scrollOffset = sequenceBaseUrl ? window.innerHeight : 0;
 
+      // Get 360° sequence element for zoom effect
+      const sequenceImg = sequenceContainerRef.current?.querySelector('.product-gallery-sequence-element');
+      if (sequenceImg) gsap.set(sequenceImg, { scale: 1 });
+
       // Set initial state: autoAlpha removes visibility:hidden, yPercent positions off-screen
       images.forEach((img, index) => {
         gsap.set(img, { autoAlpha: 1, yPercent: 100, zIndex: index + 2 });
+        // Set initial scale on inner image
+        const innerImg = img.querySelector('.product-gallery-img');
+        if (innerImg) gsap.set(innerImg, { scale: 1 });
       });
 
       // Create scroll triggers for stacking animation
@@ -259,6 +279,22 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
           scrub: true,
           onUpdate: (self) => {
             gsap.set(img, { yPercent: 100 - (self.progress * 100) });
+
+            // Subtle zoom on 360° view when first image covers it
+            if (index === 0 && sequenceImg) {
+              const zoomScale = 1 + (self.progress * 0.05);
+              gsap.set(sequenceImg, { scale: zoomScale });
+            }
+
+            // Subtle zoom on previous image when this one covers it
+            if (index > 0) {
+              const prevImg = images[index - 1]?.querySelector('.product-gallery-img');
+              if (prevImg) {
+                // Scale from 1 to 1.05 as this image covers the previous
+                const zoomScale = 1 + (self.progress * 0.05);
+                gsap.set(prevImg, { scale: zoomScale });
+              }
+            }
 
             if (self.progress > 0.5) {
               setCurrentImageIndex(index);
