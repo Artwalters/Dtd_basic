@@ -480,9 +480,11 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
         {/* Mobile: Main view + thumbnail row */}
         <div className="product-gallery-mobile">
           {/* Clothing feature tag - mobile top left */}
-          <div className="product-item-tags">
-            <span className="product-item-tag btn btn-glass">{clothingFeature || 'Test'}</span>
-          </div>
+          {clothingFeature && (
+            <div className="product-item-tags">
+              <span className="product-item-tag btn btn-glass">{clothingFeature}</span>
+            </div>
+          )}
           {/* Rotate icon - mobile top right (only show when 360 view active) */}
           {mobileSelectedView === '360' && (
             <div className="product-gallery-360-icon mobile-icon">
