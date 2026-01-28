@@ -4144,8 +4144,8 @@ button.is-loading {
   }
 
   .product-gallery-mobile-360 .product-gallery-sequence-element {
-    width: 85%;
-    height: 85%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     object-position: center;
     pointer-events: none;
