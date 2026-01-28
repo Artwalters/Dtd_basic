@@ -3061,7 +3061,7 @@ button.is-loading {
 .arrow-3d-icon {
   position: absolute;
   bottom: 2.5em;
-  right: 2.5em;
+  left: 2.5em;
   width: 2.5em;
   height: auto;
   color: var(--color-white);
