@@ -4131,17 +4131,19 @@ button.is-loading {
   }
 
   /* Mobile 360° icon - top right corner */
-  .product-gallery-mobile-360 .product-gallery-360-icon {
+  .product-gallery-mobile .product-gallery-360-icon {
     position: absolute;
     top: 1em;
     right: 1em;
     pointer-events: none;
+    z-index: 15;
   }
 
-  .product-gallery-mobile-360 .product-gallery-360-icon .arrow-3d-icon {
+  .product-gallery-mobile .product-gallery-360-icon .arrow-3d-icon {
     width: 2em;
     height: auto;
     color: var(--color-white);
+    position: static;
   }
 
   .product-gallery-mobile-image {
