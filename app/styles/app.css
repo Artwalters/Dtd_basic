@@ -4162,12 +4162,13 @@ button.is-loading {
     cursor: pointer;
     padding: 0;
     opacity: 0.6;
-    transition: opacity var(--duration-fast) ease, border-color var(--duration-fast) ease;
+    transition: opacity var(--duration-fast) ease, border-color var(--duration-fast) ease, transform var(--duration-fast) ease;
   }
 
   .product-gallery-mobile-thumb.active {
     opacity: 1;
     border-color: var(--color-white);
+    transform: scale(1.15);
   }
 
   .product-gallery-mobile-thumb .product-gallery-thumbnail-img {
