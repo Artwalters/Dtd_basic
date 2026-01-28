@@ -4141,7 +4141,7 @@ button.is-loading {
   .product-gallery-mobile-360 .product-gallery-360-icon .arrow-3d-icon {
     width: 2em;
     height: auto;
-    color: var(--white-strong);
+    color: var(--color-white);
   }
 
   .product-gallery-mobile-image {
