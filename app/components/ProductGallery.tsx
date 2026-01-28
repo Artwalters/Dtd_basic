@@ -54,6 +54,26 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
   // Get sequence base URL from metafield
   const sequenceBaseUrl = (product as any).productVideo360?.value as string | undefined;
 
+  // Get clothing feature tag (pasvorm/fit)
+  const clothingFeature = React.useMemo(() => {
+    // Check metafields first
+    const pasvormMetafield = (product as any).pasvorm?.value || (product as any).pasvormShopify?.value;
+    if (pasvormMetafield) return pasvormMetafield;
+
+    // Check variant options
+    const variants = (product as any).variants?.nodes || [];
+    for (const variant of variants) {
+      const featureOption = variant.selectedOptions?.find(
+        (opt: {name: string; value: string}) => {
+          const name = opt.name.toLowerCase();
+          return name === 'kenmerken kleding' || name === 'pasvorm' || name === 'fit';
+        }
+      );
+      if (featureOption?.value) return featureOption.value;
+    }
+    return '';
+  }, [product]);
+
   // Get all product images from media
   const allImages = React.useMemo(() => {
     const images: Array<{image: {id: string; url: string; altText?: string | null; width?: number; height?: number}}> = [];
@@ -426,8 +446,17 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
               className="product-gallery-sequence-element"
               draggable={false}
             />
-            <RotationIcon />
+            <div className="product-gallery-360-icon">
+              <RotationIcon />
+            </div>
           </div>
+
+          {/* Clothing feature tag - desktop bottom right */}
+          {clothingFeature && (
+            <div className="product-gallery-tag desktop-tag">
+              <span className="btn btn-glass">{clothingFeature}</span>
+            </div>
+          )}
 
           {/* Stacking images layer */}
           <div className="product-gallery-stack">
@@ -450,6 +479,13 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
 
         {/* Mobile: Main view + thumbnail row */}
         <div className="product-gallery-mobile mobile-only">
+          {/* Clothing feature tag - mobile top left */}
+          {clothingFeature && (
+            <div className="product-gallery-tag mobile-tag">
+              <span className="btn btn-glass">{clothingFeature}</span>
+            </div>
+          )}
+
           {/* Main view area */}
           <div className="product-gallery-mobile-main">
             {/* 360° view */}
@@ -463,7 +499,9 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
                 className="product-gallery-sequence-element"
                 draggable={false}
               />
-              <RotationIcon />
+              <div className="product-gallery-360-icon">
+                <RotationIcon />
+              </div>
             </div>
 
             {/* Product images */}
