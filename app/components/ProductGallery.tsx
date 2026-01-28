@@ -478,11 +478,17 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
         </div>
 
         {/* Mobile: Main view + thumbnail row */}
-        <div className="product-gallery-mobile mobile-only">
+        <div className="product-gallery-mobile">
           {/* Clothing feature tag - mobile top left */}
           {clothingFeature && (
             <div className="product-gallery-tag mobile-tag">
               <span className="btn btn-glass">{clothingFeature}</span>
+            </div>
+          )}
+          {/* Rotate icon - mobile top right (only show when 360 view active) */}
+          {mobileSelectedView === '360' && (
+            <div className="product-gallery-360-icon mobile-icon">
+              <RotationIcon />
             </div>
           )}
 
@@ -499,9 +505,6 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
                 className="product-gallery-sequence-element"
                 draggable={false}
               />
-              <div className="product-gallery-360-icon">
-                <RotationIcon />
-              </div>
             </div>
 
             {/* Product images */}
