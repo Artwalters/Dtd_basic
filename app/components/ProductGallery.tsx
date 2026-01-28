@@ -111,6 +111,7 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
       velocity.current = 0;
       framePosition.current = currentFrame;
       container.style.cursor = 'grabbing';
+      window.dispatchEvent(new CustomEvent('swiper-drag-start'));
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -135,6 +136,7 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
       if (isDragging.current) {
         isDragging.current = false;
         container.style.cursor = 'grab';
+        window.dispatchEvent(new CustomEvent('swiper-drag-end'));
       }
     };
 
@@ -246,7 +248,7 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
   // If we have a 360 sequence, show only that (sticky)
   if (sequenceBaseUrl) {
     return (
-      <div className="product-gallery product-gallery--sticky" ref={sequenceContainerRef}>
+      <div className="product-gallery product-gallery--sticky" ref={sequenceContainerRef} data-cursor="click & drag">
         <img
           src={getFrameUrl(currentFrame)}
           alt={`${product.title} 360° view`}
