@@ -297,46 +297,37 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
         className="product-gallery product-gallery--combined"
         style={{ height: `${(allImages.length + 2) * 100}vh` }}
       >
-        {/* Thumbnails sidebar */}
-        <div className="product-gallery-thumbnails">
-          <button
-            className={`product-gallery-thumbnail ${activeView === '360' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveView('360');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            type="button"
-          >
-            <img
-              src={getFrameUrl(1)}
-              alt="360° view"
-              className="product-gallery-thumbnail-img"
-            />
-            <span className="thumbnail-360-badge">360°</span>
-          </button>
-
-          {allImages.map((media, index) => (
-            <button
-              key={media.image.id || index}
-              className={`product-gallery-thumbnail ${activeView === index ? 'active' : ''}`}
-              onClick={() => {
-                setActiveView(index);
-                window.scrollTo({ top: (index + 1) * window.innerHeight, behavior: 'smooth' });
-              }}
-              type="button"
-            >
-              <Image
-                alt={media.image.altText || `Thumbnail ${index + 1}`}
-                data={media.image}
-                sizes="80px"
-                className="product-gallery-thumbnail-img"
-              />
-            </button>
-          ))}
-        </div>
-
         {/* Main sticky view area */}
         <div className="product-gallery-stack-wrapper">
+          {/* Thumbnails sidebar - inside sticky wrapper */}
+          <div className="product-gallery-thumbnails">
+            <div className={`product-gallery-thumbnail ${activeView === '360' ? 'active' : 'passed'}`}>
+              <img
+                src={getFrameUrl(1)}
+                alt="360° view"
+                className="product-gallery-thumbnail-img"
+              />
+              <span className="thumbnail-360-badge">360°</span>
+            </div>
+
+            {allImages.map((media, index) => {
+              const isActive = activeView === index;
+              const isPassed = typeof activeView === 'number' && index < activeView;
+              return (
+                <div
+                  key={media.image.id || index}
+                  className={`product-gallery-thumbnail ${isActive ? 'active' : ''} ${isPassed ? 'passed' : ''}`}
+                >
+                  <Image
+                    alt={media.image.altText || `Thumbnail ${index + 1}`}
+                    data={media.image}
+                    sizes="80px"
+                    className="product-gallery-thumbnail-img"
+                  />
+                </div>
+              );
+            })}
+          </div>
           {/* 360° viewer layer */}
           <div
             className={`product-gallery-360-layer ${activeView === '360' ? 'active' : ''}`}
@@ -398,27 +389,25 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
       className="product-gallery product-gallery--stacking"
       style={{ height: scrollHeight }}
     >
-      {/* Desktop: Thumbnails sidebar */}
-      <div className="product-gallery-thumbnails">
-        {allImages.map((media, index) => (
-          <button
-            key={media.image.id || index}
-            className={`product-gallery-thumbnail ${currentImageIndex === index ? 'active' : ''}`}
-            onClick={() => window.scrollTo({ top: index * window.innerHeight, behavior: 'smooth' })}
-            type="button"
-          >
-            <Image
-              alt={media.image.altText || `Thumbnail ${index + 1}`}
-              data={media.image}
-              sizes="80px"
-              className="product-gallery-thumbnail-img"
-            />
-          </button>
-        ))}
-      </div>
-
       {/* Desktop: Stacking container */}
       <div className="product-gallery-stack-wrapper">
+        {/* Thumbnails sidebar - inside sticky wrapper */}
+        <div className="product-gallery-thumbnails">
+          {allImages.map((media, index) => (
+            <div
+              key={media.image.id || index}
+              className={`product-gallery-thumbnail ${currentImageIndex === index ? 'active' : ''}`}
+            >
+              <Image
+                alt={media.image.altText || `Thumbnail ${index + 1}`}
+                data={media.image}
+                sizes="80px"
+                className="product-gallery-thumbnail-img"
+              />
+            </div>
+          ))}
+        </div>
+
         <div className="product-gallery-stack">
           {allImages.map((media, index) => (
             <div
