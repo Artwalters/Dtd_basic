@@ -3056,6 +3056,18 @@ button.is-loading {
   opacity: 0.7;
 }
 
+/* 360° Arrow Icon */
+.arrow-3d-icon {
+  position: absolute;
+  bottom: 1.5em;
+  right: 1.5em;
+  width: 2.5em;
+  height: auto;
+  color: var(--color-white);
+  pointer-events: none;
+  z-index: 10;
+}
+
 @media (max-width: 47.99em) {
   .product-plus-btn {
     padding: 1em;
