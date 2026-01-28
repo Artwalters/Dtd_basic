@@ -4059,19 +4059,9 @@ button.is-loading {
   z-index: 10;
 }
 
-/* 360° rotation icon - below the model */
+/* 360° rotation icon wrapper - desktop uses default arrow-3d-icon positioning */
 .product-gallery-360-icon {
-  position: absolute;
-  bottom: 1.5em;
-  left: 50%;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.product-gallery-360-icon .arrow-3d-icon {
-  width: 3em;
-  height: auto;
-  color: var(--white-strong);
+  display: contents;
 }
 
 /* Mobile Product Gallery */
