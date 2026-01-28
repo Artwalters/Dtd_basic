@@ -18,12 +18,13 @@ const CLOSE_SPIN_DURATION = 1200;
 
 interface ModelProps {
   isActive: boolean;
+  isMenuOpen?: boolean;
   logoScale?: number;
   isHovered?: boolean;
   menuAnimationPhase?: MenuAnimationPhase;
 }
 
-function FullLogoModel({isActive, logoScale = 1, menuAnimationPhase = 'idle'}: ModelProps) {
+function FullLogoModel({isActive, isMenuOpen = false, logoScale = 1, menuAnimationPhase = 'idle'}: ModelProps) {
   const {scene} = useGLTF('/3D/Daretodream_full_optimized.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
@@ -56,30 +57,32 @@ function FullLogoModel({isActive, logoScale = 1, menuAnimationPhase = 'idle'}: M
       // Footer becomes visible in the last 10% of scroll
       footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.98;
 
-      // On mobile during menu animation: hide during spinning phases, show during full-logo phase
-      // On desktop: show when at top (not scrolled)
+      // Phase-based logic for menu animation with smooth fade
+      const isSpinning = menuAnimationPhase === 'small-logo-spinning' || menuAnimationPhase === 'closing-spinning';
+
       let target: number;
-      if (menuAnimationPhase === 'small-logo-spinning' || menuAnimationPhase === 'closing-spinning') {
-        // Hide full logo while small logo is spinning (both opening and closing)
+      if (isSpinning) {
+        // Hide full logo while small logo is spinning
         target = 0;
       } else if (menuAnimationPhase === 'full-logo-black') {
-        // Show full logo (black) - always show in menu, ignore footer visibility
+        // Show full logo after spin
         target = 1;
       } else {
-        // Normal behavior: show when at top (not scrolled) and footer not visible
-        target = isActive && !footerVisibleRef.current ? 1 : 0;
+        // Normal: show when at top (isActive) or menu open
+        target = (isMenuOpen || isActive) && !footerVisibleRef.current ? 1 : 0;
       }
 
-      animProgress.current += (target - animProgress.current) * 0.08;
+      // Smooth fade - same speed as scroll transition
+      animProgress.current += (target - animProgress.current) * 0.15;
 
       const progress = animProgress.current;
       const scale = 3.557 * progress * logoScale;
       groupRef.current.scale.setScalar(scale);
-      groupRef.current.visible = progress > 0.01;
+      groupRef.current.visible = progress > 0.05;
 
-      // Fade opacity faster as it zooms out
+      // Fade opacity much faster so zoom-out isn't visible
       if (materialRef.current) {
-        materialRef.current.opacity = Math.pow(progress, 2);
+        materialRef.current.opacity = Math.pow(progress, 4);
 
         // Smoothly transition color: black when menu animation is in full-logo-black phase, white otherwise
         const targetColor = menuAnimationPhase === 'full-logo-black' ? 1 : 0;
@@ -99,7 +102,7 @@ function FullLogoModel({isActive, logoScale = 1, menuAnimationPhase = 'idle'}: M
   );
 }
 
-function SmallLogoModel({isActive, logoScale = 1, isHovered = false, menuAnimationPhase = 'idle'}: ModelProps) {
+function SmallLogoModel({isActive, isMenuOpen = false, logoScale = 1, isHovered = false, menuAnimationPhase = 'idle'}: ModelProps) {
   const {scene, animations} = useGLTF('/3D/dtd_logo7_nav.glb', '/draco/');
   const groupRef = useRef<THREE.Group>(null);
   const animProgress = useRef(isActive ? 1 : 0);
@@ -107,12 +110,7 @@ function SmallLogoModel({isActive, logoScale = 1, isHovered = false, menuAnimati
   const materialRef = useRef<THREE.MeshStandardMaterial | null>(null);
 
   // Rotation tracking
-  const rotationRef = useRef(0);
-  const rotationVelocityRef = useRef(0.005); // Base auto-rotation speed
-  const lastScrollRef = useRef(0);
-  const rotationDirectionRef = useRef(1); // 1 or -1, flips based on scroll direction
-
-  // Menu spin animation tracking
+  const rotationInitialized = useRef(false);
   const menuSpinStartRef = useRef(0);
   const wasSpinningRef = useRef(false);
   const hasReachedTargetRef = useRef(false);
@@ -161,95 +159,63 @@ function SmallLogoModel({isActive, logoScale = 1, isHovered = false, menuAnimati
       // Footer becomes visible in the last 10% of scroll
       footerVisibleRef.current = maxScroll > 0 && scrollY > maxScroll * 0.98;
 
-      // Scale animation - show during menu spinning phases or when scrolled (normal behavior)
-      let target: number;
+      // Phase-based logic for menu animation with smooth fade
       const isSpinning = menuAnimationPhase === 'small-logo-spinning' || menuAnimationPhase === 'closing-spinning';
+
+      let target: number;
       if (isSpinning) {
-        // Show small logo during spinning phase (both opening and closing)
+        // Show small logo during spin
         target = 1;
-
-        // Track spin start position
-        if (!wasSpinningRef.current) {
-          wasSpinningRef.current = true;
-          menuSpinStartRef.current = rotationRef.current;
-        }
+      } else if (menuAnimationPhase === 'full-logo-black') {
+        // Hide small logo when full logo shows
+        target = 0;
       } else {
-        // Reset spin tracking when not spinning
-        wasSpinningRef.current = false;
-
-        // Normal behavior: show when scrolled (isActive) and not in menu animation
-        target = isActive && menuAnimationPhase === 'idle' && !footerVisibleRef.current ? 1 : 0;
+        // Normal: show when scrolled (isActive) and menu not open
+        target = isActive && !isMenuOpen && !footerVisibleRef.current ? 1 : 0;
       }
 
-      animProgress.current += (target - animProgress.current) * 0.08;
+      // Smooth fade - same speed as scroll transition
+      animProgress.current += (target - animProgress.current) * 0.15;
 
       const progress = animProgress.current;
       const scale = 1.65 * progress * logoScale;
       groupRef.current.scale.setScalar(scale);
-      groupRef.current.visible = progress > 0.01;
+      groupRef.current.visible = progress > 0.05;
 
-      // Fade opacity faster as it zooms out
+      // Fade opacity much faster so zoom-out isn't visible
       if (materialRef.current) {
-        materialRef.current.opacity = Math.pow(progress, 2);
+        materialRef.current.opacity = Math.pow(progress, 4);
       }
 
-      // Calculate scroll delta for direction
-      const scrollDelta = scrollY - lastScrollRef.current;
-      lastScrollRef.current = scrollY;
+      // Scroll-based rotation: 0% = 0rad (straight), 100% = 4π rad (straight)
+      const scrollProgress = maxScroll > 0 ? scrollY / maxScroll : 0;
+      const targetY = scrollProgress * Math.PI * 4;
 
-      // Flip rotation direction based on scroll direction
-      if (scrollDelta > 2) {
-        rotationDirectionRef.current = 1; // Scroll down
-      } else if (scrollDelta < -2) {
-        rotationDirectionRef.current = -1; // Scroll up
-      }
-
-      // Menu spin animation - 2 rotations, ending at forward-facing position
       if (isSpinning) {
-        // Calculate target that makes ~2 rotations AND ends at forward-facing position (multiple of π)
-        const minRotation = menuSpinStartRef.current + Math.PI * 4; // At least 2 full rotations
-        // Round up to nearest multiple of Math.PI so logo ends facing forward
-        const targetRotation = Math.ceil(minRotation / Math.PI) * Math.PI;
-        // Fast start, slow end - higher value = faster overall with more ease-out feel
-        const spinSpeed = 0.10;
-        rotationRef.current += (targetRotation - rotationRef.current) * spinSpeed;
-        rotationVelocityRef.current = 0; // Reset velocity for smooth transition back
+        // Menu spin - 2 rotations
+        if (!wasSpinningRef.current) {
+          wasSpinningRef.current = true;
+          menuSpinStartRef.current = groupRef.current.rotation.y;
+        }
+        const targetRotation = Math.ceil((menuSpinStartRef.current + Math.PI * 4) / Math.PI) * Math.PI;
+        groupRef.current.rotation.y += (targetRotation - groupRef.current.rotation.y) * 0.10;
 
-        // When close to target (facing forward), dispatch event to switch to full logo
-        const distanceToTarget = Math.abs(targetRotation - rotationRef.current);
-        if (distanceToTarget < 0.1 && !hasReachedTargetRef.current && menuAnimationPhase === 'small-logo-spinning') {
+        if (Math.abs(targetRotation - groupRef.current.rotation.y) < 0.1 && !hasReachedTargetRef.current && menuAnimationPhase === 'small-logo-spinning') {
           hasReachedTargetRef.current = true;
           window.dispatchEvent(new CustomEvent('logoFacingForward'));
         }
       } else {
-        // Reset the target reached flag when not spinning
+        wasSpinningRef.current = false;
         hasReachedTargetRef.current = false;
+
+        // Direct scroll rotation
+        if (!rotationInitialized.current) {
+          groupRef.current.rotation.y = targetY;
+          rotationInitialized.current = true;
+        } else {
+          groupRef.current.rotation.y += (targetY - groupRef.current.rotation.y) * 0.15;
+        }
       }
-
-      if (isHovered && !isSpinning) {
-        // On hover, smoothly rotate to nearest forward-facing position
-        // Logo is symmetric, so 0 and Math.PI (180°) both look the same
-        rotationVelocityRef.current *= 0.9; // Slow down
-
-        // Find nearest multiple of Math.PI (0, π, 2π, -π, etc.)
-        const nearestMultiple = Math.round(rotationRef.current / Math.PI) * Math.PI;
-        rotationRef.current += (nearestMultiple - rotationRef.current) * 0.08;
-      } else {
-        // Base auto-rotation speed, direction flips based on last scroll
-        const baseSpeed = 0.003 * rotationDirectionRef.current;
-
-        // Add scroll speed boost - faster scroll = faster rotation
-        const scrollBoost = Math.abs(scrollDelta) * 0.0012 * rotationDirectionRef.current;
-        const targetSpeed = baseSpeed + scrollBoost;
-
-        // Smoothly blend velocity towards target
-        rotationVelocityRef.current += (targetSpeed - rotationVelocityRef.current) * 0.03;
-
-        // Apply rotation
-        rotationRef.current += rotationVelocityRef.current;
-      }
-
-      groupRef.current.rotation.y = rotationRef.current;
     }
   });
 
@@ -315,15 +281,17 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
   // Handle menu animation phases using interval-based timing
   // Works for both mobile menu and desktop cart
   useEffect(() => {
-    // Track menu open/close transitions
+    // Track menu open/close transitions - set phase immediately
     if (isMenuOpen && !wasMenuOpenRef.current) {
       wasMenuOpenRef.current = true;
       menuOpenTimeRef.current = performance.now();
       menuCloseTimeRef.current = null;
+      setMenuAnimationPhase('small-logo-spinning'); // Start spinning immediately
     } else if (!isMenuOpen && wasMenuOpenRef.current) {
       wasMenuOpenRef.current = false;
       menuCloseTimeRef.current = performance.now();
       menuOpenTimeRef.current = null;
+      setMenuAnimationPhase('closing-spinning'); // Start closing spin immediately
     }
 
     // Update phase based on elapsed time (only for closing animation now)
@@ -362,11 +330,13 @@ export default function NavbarLogo3D({isScrolled, isMenuOpen}: NavbarLogo3DProps
         <Suspense fallback={null}>
           <FullLogoModel
             isActive={!isScrolled}
+            isMenuOpen={isMenuOpen}
             logoScale={logoScale}
             menuAnimationPhase={menuAnimationPhase}
           />
           <SmallLogoModel
             isActive={isScrolled}
+            isMenuOpen={isMenuOpen}
             logoScale={logoScale}
             isHovered={isHovered}
             menuAnimationPhase={menuAnimationPhase}
