@@ -261,6 +261,12 @@ const PRODUCT_FRAGMENT = `#graphql
     productVideo360: metafield(namespace: "custom", key: "productvideo360") {
       value
     }
+    pasvorm: metafield(namespace: "custom", key: "pasvorm") {
+      value
+    }
+    pasvormShopify: metafield(namespace: "shopify", key: "pasvorm") {
+      value
+    }
   }
   ${PRODUCT_VARIANT_FRAGMENT}
 ` as const;
