@@ -1,10 +1,13 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useRef, useCallback} from 'react';
 import {createPortal} from 'react-dom';
 import {useFetcher} from 'react-router';
 import type {CollectionItemFragment} from 'storefrontapi.generated';
 import {Image, Money, CartForm} from '@shopify/hydrogen';
 import {useAside} from './Aside';
 import {getLenis} from '~/hooks/useLenis';
+
+const TOTAL_FRAMES = 90;
+const FRAME_DURATION = 25; // Smooth rotation speed
 
 interface MobileQuickAddProps {
   product: CollectionItemFragment;
@@ -19,6 +22,39 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
   const [selectedSize, setSelectedSize] = useState<{id: string; name: string} | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 360 rotation state
+  const [currentFrame, setCurrentFrame] = useState(1);
+  const animationRef = useRef<number | null>(null);
+  const sequenceBaseUrl = (product as any).productVideo360?.value as string | undefined;
+
+  // Helper to get frame URL
+  const getFrameUrl = useCallback((frameNum: number) => {
+    if (!sequenceBaseUrl) return '';
+    const paddedFrame = String(frameNum).padStart(4, '0');
+    return `${sequenceBaseUrl}${paddedFrame}.webp`;
+  }, [sequenceBaseUrl]);
+
+  // Continuous rotation animation when open
+  useEffect(() => {
+    if (!isOpen || !sequenceBaseUrl) return;
+
+    let frame = 1;
+    const animate = () => {
+      frame--;
+      if (frame < 1) frame = TOTAL_FRAMES;
+      setCurrentFrame(frame);
+      animationRef.current = window.setTimeout(animate, FRAME_DURATION);
+    };
+
+    animationRef.current = window.setTimeout(animate, FRAME_DURATION);
+
+    return () => {
+      if (animationRef.current) {
+        clearTimeout(animationRef.current);
+      }
+    };
+  }, [isOpen, sequenceBaseUrl]);
 
   // Wait for client-side mount for portal
   useEffect(() => {
@@ -160,13 +196,21 @@ export function MobileQuickAdd({product, isOpen, onClose}: MobileQuickAddProps) 
 
         {/* Product Info */}
         <div className="mobile-quick-add__product">
-          {product.featuredImage && (
+          {(sequenceBaseUrl || product.featuredImage) && (
             <div className="mobile-quick-add__image">
-              <Image
-                data={product.featuredImage}
-                sizes="80px"
-                className="mobile-quick-add__image-img"
-              />
+              {sequenceBaseUrl ? (
+                <img
+                  src={getFrameUrl(currentFrame)}
+                  alt={product.title}
+                  className="mobile-quick-add__image-img mobile-quick-add__image-360"
+                />
+              ) : product.featuredImage && (
+                <Image
+                  data={product.featuredImage}
+                  sizes="80px"
+                  className="mobile-quick-add__image-img"
+                />
+              )}
             </div>
           )}
           <div className="mobile-quick-add__info">

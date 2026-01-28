@@ -207,7 +207,7 @@ export function ProductCard({product, isOpen = false, onToggle}: ProductCardProp
   };
 
   const handleSequenceMouseEnter = () => {
-    if (!sequenceBaseUrl) return;
+    if (!sequenceBaseUrl || isMobile) return;
 
     // Stop any existing animation
     if (animationRef.current) {

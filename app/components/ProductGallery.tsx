@@ -174,7 +174,7 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
     window.addEventListener('mouseup', handleMouseUp);
     window.addEventListener('mouseleave', handleMouseUp);
     container.addEventListener('touchstart', handleTouchStart, {passive: true});
-    window.addEventListener('touchmove', handleTouchMove, {passive: true});
+    container.addEventListener('touchmove', handleTouchMove, {passive: true});
     window.addEventListener('touchend', handleTouchEnd);
 
     return () => {
@@ -184,7 +184,7 @@ export function ProductGallery({product, selectedVariant, onImageIndexChange}: P
       window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('mouseleave', handleMouseUp);
       container.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
     };
   }, [sequenceBaseUrl, onImageIndexChange, currentFrame]);

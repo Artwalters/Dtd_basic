@@ -248,6 +248,7 @@ img {
   transition: all 0.2s ease;
   background: transparent;
   color: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn:hover {
@@ -1207,6 +1208,7 @@ button.reset:hover:not(:has(> *)) {
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* ===========================================
@@ -1611,6 +1613,7 @@ button.is-loading {
   font-weight: var(--weight-normal);
   text-decoration: none;
   color: var(--color-black);
+  -webkit-tap-highlight-color: transparent;
   opacity: 1;
 }
 
@@ -1648,9 +1651,6 @@ button.is-loading {
   transition: opacity 0.2s ease;
 }
 
-.header-menu-mobile .header-menu-item:active svg {
-  opacity: 0.8;
-}
 
 /* Mobile menu divider - with corner brackets like site style */
 .mobile-menu-divider {
@@ -3771,7 +3771,6 @@ button.is-loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 8vh;
   background: #121212;
 }
 
@@ -3780,6 +3779,7 @@ button.is-loading {
   height: 85%;
   object-fit: contain;
   object-position: center;
+  transform: translateY(4vh);
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
@@ -4169,6 +4169,18 @@ button.is-loading {
     width: 100%;
     height: 100%;
     scroll-snap-align: start;
+  }
+
+  .product-gallery--sticky {
+    position: relative;
+    height: 60svh;
+    overflow: visible;
+  }
+
+  .product-gallery-sequence-element {
+    width: 105%;
+    height: 105%;
+    transform: none;
   }
 
   /* Hide desktop progress on mobile */
@@ -6238,8 +6250,8 @@ button.is-loading {
 }
 
 .mobile-quick-add__image {
-  width: 80px;
-  height: 80px;
+  width: 120px;
+  height: 120px;
   flex-shrink: 0;
   background: var(--white-subtle);
   border-radius: 8px;
@@ -6250,6 +6262,12 @@ button.is-loading {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* 360 rotating image */
+.mobile-quick-add__image-360 {
+  object-fit: contain;
+  transform: scale(1.0);
 }
 
 .mobile-quick-add__info {
@@ -6365,7 +6383,16 @@ button.is-loading {
   font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-wide);
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-quick-add__add-btn:hover,
+.mobile-quick-add__add-btn:active {
+  background: var(--color-white);
+  color: var(--color-black);
+  border-color: var(--color-white);
+  opacity: 1;
 }
 
 .mobile-quick-add__add-btn--disabled {
@@ -7011,5 +7038,97 @@ button.is-loading {
 
   .error-page-message {
     font-size: var(--font-sm);
+  }
+}
+
+/*
+* --------------------------------------------------
+* Disable hover animations on touch devices
+* --------------------------------------------------
+*/
+@media (hover: none) {
+  /* Completely hide wipe animation pseudo-elements on touch devices */
+  .btn-glass::before,
+  .btn-solid::before,
+  .header-nav-item::before,
+  .add-to-bag-button::before,
+  .buy-now-button::before,
+  .checkout-button::before,
+  .size-grid-option::before,
+  .mobile-quick-add__size-btn::before,
+  .mobile-quick-add__notify-btn::before,
+  .community-sticky-btn::before,
+  .cart-close-icon::before,
+  .cart-close-text::before,
+  .size-guide-option-btn::before,
+  .size-guide-submit::before {
+    display: none !important;
+  }
+
+  /* Disable product card hover effects */
+  .new-drop-card:hover {
+    transform: none;
+  }
+
+  .new-drop-image-wrapper:hover .new-drop-video {
+    transform: none;
+  }
+
+  /* Disable slider thumb hover */
+  .hero-slider-thumb:hover {
+    transform: none;
+    background: var(--white-light);
+  }
+
+  /* Disable general hover opacity/color changes */
+  .btn-glass:hover,
+  .btn-solid:hover,
+  .header-nav-item:hover {
+    color: inherit;
+    border-color: var(--white-light);
+    background: transparent;
+  }
+
+  /* Disable all button hover and active states */
+  .btn:hover,
+  .btn:active,
+  .header-nav-item:hover,
+  .header-nav-item:active,
+  .header-menu-item:hover,
+  .header-menu-item:active,
+  .header-menu-mobile .header-menu-item:hover,
+  .header-menu-mobile .header-menu-item:active,
+  .add-to-bag-button:hover,
+  .add-to-bag-button:active,
+  .buy-now-button:hover,
+  .buy-now-button:active,
+  .checkout-button:hover,
+  .checkout-button:active,
+  .size-grid-option:hover,
+  .size-grid-option:active,
+  .mobile-quick-add__size-btn:hover,
+  .mobile-quick-add__size-btn:active,
+  .mobile-quick-add__add-btn:hover,
+  .mobile-quick-add__add-btn:active,
+  .mobile-quick-add__notify-btn:hover,
+  .mobile-quick-add__notify-btn:active,
+  .community-sticky-btn:hover,
+  .community-sticky-btn:active,
+  .cart-close-icon:hover,
+  .cart-close-icon:active,
+  .cart-close-text:hover,
+  .cart-close-text:active,
+  .size-guide-option-btn:hover,
+  .size-guide-option-btn:active,
+  .size-guide-submit:hover,
+  .size-guide-submit:active {
+    transform: none;
+    opacity: 1;
+    background: inherit;
+  }
+
+  /* Disable link underline animations on hover */
+  .link:hover {
+    background-size: 0% 1px;
   }
 }
