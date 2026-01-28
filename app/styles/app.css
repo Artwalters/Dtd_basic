@@ -3096,9 +3096,9 @@ button.is-loading {
 /* Size Selector Popup */
 .size-selector {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
   z-index: 10;
   pointer-events: none;
 }
@@ -3107,13 +3107,23 @@ button.is-loading {
   pointer-events: auto;
 }
 
+/* Hide plus button when size selector is open */
+.size-selector-open ~ .product-plus-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .size-selector-content {
-  background: var(--color-light-gray, #f5f5f5);
-  border-top: 1px solid var(--black-muted);
+  background: var(--white-subtle);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid var(--white-light);
+  border-radius: 4px;
   display: flex;
   flex-direction: row;
   transform: translateY(100%);
   transition: transform 0.3s ease;
+  overflow: hidden;
 }
 
 .size-selector-content-open {
@@ -3124,12 +3134,12 @@ button.is-loading {
   flex: 1;
   background: none;
   border: none;
-  border-right: 1px solid var(--black-muted);
-  color: var(--color-black);
+  border-right: 1px solid var(--white-light);
+  color: var(--color-white);
   font-size: var(--font-sm);
   font-family: inherit;
   text-align: center;
-  padding: 1.25em 0.5em;
+  padding: 0.75em 0.5em;
   cursor: pointer;
   transition: background 0.2s ease;
 }
@@ -3139,12 +3149,13 @@ button.is-loading {
 }
 
 .size-option:hover:not(:disabled) {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--white-subtle);
 }
 
 .size-option:disabled {
-  color: var(--black-muted);
+  color: var(--white-strong);
   cursor: not-allowed;
+  text-decoration: line-through;
 }
 
 .size-option-selected {
@@ -3154,14 +3165,17 @@ button.is-loading {
 /* Quick Add Status (Loading & Success) */
 .quick-add-status {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--color-light-gray, #f5f5f5);
-  border-top: 1px solid var(--black-muted);
-  color: var(--color-black);
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  background: var(--white-subtle);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid var(--white-light);
+  border-radius: 4px;
+  color: var(--color-white);
   text-align: center;
-  padding: 1.25em 0.5em;
+  padding: 0.75em 0.5em;
   font-size: var(--font-sm);
   display: flex;
   align-items: center;
@@ -3177,8 +3191,8 @@ button.is-loading {
 .quick-add-loader {
   width: 1em;
   height: 1em;
-  border: 2px solid var(--black-muted);
-  border-top-color: var(--color-black);
+  border: 2px solid var(--white-light);
+  border-top-color: var(--color-white);
   border-radius: 50%;
   animation: loaderSpin 0.6s linear infinite;
 }
