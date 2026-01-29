@@ -421,13 +421,6 @@ export function Header({
         </NavLink>
       </nav>
 
-      {/* Mobile inline search bar (replaces logo when open) */}
-      <MobileInlineSearch
-        isOpen={mobileSearchOpen}
-        onClose={() => setMobileSearchOpen(false)}
-        inputRef={mobileSearchInputRef}
-      />
-
       <NavLink
         to="/"
         className={`header-logo ${mobileSearchOpen ? 'mobile-search-active' : ''}`}
@@ -461,7 +454,7 @@ export function Header({
         <CartToggle cart={cart} />
       </nav>
 
-      {/* Mobile right side: Cart toggle, close button, or search icon */}
+      {/* Mobile right side: Cart toggle, close button, or search */}
       <div className="mobile-right-toggle" ref={rightSideRef}>
         {visualCartOpen ? (
           <button
@@ -472,29 +465,23 @@ export function Header({
             <CloseIcon />
           </button>
         ) : visualMenuOpen ? (
-          <button
-            className="header-nav-item btn-glass--icon mobile-search-button"
-            onClick={() => {
+          <MobileInlineSearch
+            isOpen={mobileSearchOpen}
+            onToggle={() => {
               close();
-              window.dispatchEvent(new CustomEvent('closeQuickAdd'));
               setMobileSearchOpen(true);
             }}
-            aria-label="Search"
-          >
-            <SearchIcon />
-          </button>
+            onClose={() => setMobileSearchOpen(false)}
+            inputRef={mobileSearchInputRef}
+          />
         ) : (
           <>
-            <button
-              className="header-nav-item btn-glass--icon mobile-search-button"
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent('closeQuickAdd'));
-                setMobileSearchOpen((prev) => !prev);
-              }}
-              aria-label="Search"
-            >
-              <SearchIcon />
-            </button>
+            <MobileInlineSearch
+              isOpen={mobileSearchOpen}
+              onToggle={() => setMobileSearchOpen((prev) => !prev)}
+              onClose={() => setMobileSearchOpen(false)}
+              inputRef={mobileSearchInputRef}
+            />
             <CartToggleMobile cart={cart} />
           </>
         )}
@@ -794,10 +781,12 @@ function HeaderSearch() {
 
 function MobileInlineSearch({
   isOpen,
+  onToggle,
   onClose,
   inputRef,
 }: {
   isOpen: boolean;
+  onToggle: () => void;
   onClose: () => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
 }) {
@@ -902,6 +891,16 @@ function MobileInlineSearch({
 
   return (
     <div className={`mobile-inline-search ${isOpen ? 'is-open' : ''}`} ref={wrapperRef}>
+      <button
+        className="header-nav-item btn-glass--icon mobile-search-button"
+        onClick={() => {
+          window.dispatchEvent(new CustomEvent('closeQuickAdd'));
+          onToggle();
+        }}
+        aria-label="Search"
+      >
+        <SearchIcon />
+      </button>
       <div className="mobile-inline-search-form">
         <div className="header-search-input-wrapper">
           <span className="header-search-ghost" aria-hidden="true">
