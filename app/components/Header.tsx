@@ -796,14 +796,23 @@ function MobileInlineSearch({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [dropdownTop, setDropdownTop] = useState(0);
 
-  // Calculate dropdown position from header bottom
+  // Calculate dropdown position below header
   useEffect(() => {
     if (!isOpen || !wrapperRef.current) return;
     const header = wrapperRef.current.closest('.header') as HTMLElement;
-    if (header) {
+    if (!header) return;
+
+    const updatePosition = () => {
       const rect = header.getBoundingClientRect();
       setDropdownTop(rect.bottom);
-    }
+    };
+
+    // Use rAF to ensure layout is settled after open
+    requestAnimationFrame(updatePosition);
+
+    // Recalculate on resize
+    window.addEventListener('resize', updatePosition);
+    return () => window.removeEventListener('resize', updatePosition);
   }, [isOpen]);
 
   // Reset term when closing
