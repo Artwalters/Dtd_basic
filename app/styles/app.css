@@ -340,7 +340,7 @@ aside:not(.policies-contact) {
 
 aside header {
   align-items: center;
-  border-bottom: 0.0625em solid var(--white-medium);
+  border-bottom: 1px solid var(--white-medium);
   display: flex;
   height: 3.5em;
   justify-content: space-between;
@@ -1861,12 +1861,12 @@ button.is-loading {
   /* Mobile button font size */
   .btn,
   .btn-glass {
-    font-size: var(--font-sm);
+    font-size: var(--font-base);
   }
 
   /* Mobile tag font size */
   .product-item-tag.btn.btn-glass {
-    font-size: var(--font-sm);
+    font-size: var(--font-base);
     padding: 0.4em 0.6em;
   }
 
@@ -1900,10 +1900,9 @@ button.is-loading {
     padding: 0 0.75em;
     gap: 0.15em;
     border-left: 1px solid var(--white-subtle);
-    border-top: 1px solid var(--white-subtle);
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.04);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
     height: 100%;
     display: flex;
     align-items: center;
@@ -3396,7 +3395,7 @@ button.is-loading {
   width: 100%;
   box-sizing: border-box;
   padding: 1em;
-  font-size: var(--font-sm);
+  font-size: var(--font-base);
   text-align: center;
 }
 
