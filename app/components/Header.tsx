@@ -689,7 +689,6 @@ function HeaderSearch() {
                     >
                       <div className="header-search-item-info">
                         <span className="header-search-item-title">{page.label}</span>
-                        <span className="header-search-item-price">{page.path}</span>
                       </div>
                     </NavLink>
                   ))}
