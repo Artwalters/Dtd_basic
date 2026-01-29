@@ -6193,6 +6193,7 @@ button.is-loading {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3em;
+  align-items: start;
   width: 100%;
   padding: 3em 0;
 }
@@ -6200,6 +6201,8 @@ button.is-loading {
 .about-editorial-row__left {
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 12em;
 }
 
 .about-editorial-row__left .section-divider {
@@ -6243,10 +6246,17 @@ button.is-loading {
   text-transform: uppercase;
   letter-spacing: var(--tracking-widest);
   color: var(--white-strong);
-  margin-bottom: 2em;
+  margin-bottom: 0.5em;
   position: sticky;
   top: 4em;
   z-index: 1;
+}
+
+.about-chapter-role {
+  display: block;
+  font-size: var(--font-base);
+  color: var(--color-white);
+  margin-bottom: 2em;
 }
 
 .about-editorial-text p {
@@ -6387,6 +6397,7 @@ button.is-loading {
 
   .about-editorial-row__left {
     order: 1;
+    position: static;
   }
 
   .about-editorial-chapter {

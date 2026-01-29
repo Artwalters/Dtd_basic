@@ -1,4 +1,5 @@
 import type {Route} from './+types/about';
+import {Link} from 'react-router';
 import {Footer} from '~/components/Footer';
 import {FooterParallax} from '~/components/FooterReveal';
 
@@ -104,8 +105,8 @@ export default function AboutPage() {
 
         {/* Bottom Nav */}
         <div className="about-chapter-nav">
-          <button type="button" className="btn btn-glass about-chapter-nav-btn">Previous Chapter</button>
-          <button type="button" className="btn btn-solid about-chapter-nav-btn">Next Chapter</button>
+          <Link to="/collections/all" className="btn btn-glass about-chapter-nav-btn">Shop Now</Link>
+          <Link to="/pages/members" className="btn btn-solid about-chapter-nav-btn">Next Chapter</Link>
         </div>
       </section>
 
