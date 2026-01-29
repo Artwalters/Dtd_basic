@@ -323,7 +323,7 @@ body:has(.overlay.expanded) {
   }
 }
 
-aside {
+aside:not(.policies-contact) {
   background: var(--color-black);
   color: var(--color-white);
   /* box-shadow: var(--shadow-strong); */
@@ -7021,11 +7021,13 @@ button.is-loading {
 
 .policies-container {
   display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: 30em;
-  max-width: 100%;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+  gap: 0 2em;
+  align-items: stretch;
+  width: 100%;
   margin: 0;
-  padding: 0 1em 6em;
+  padding: 1em 1em 6em 1em;
+  box-sizing: border-box;
 }
 
 /* Policy Dividers with corner brackets */
@@ -7063,14 +7065,13 @@ button.is-loading {
 
 /* Left Navigation */
 .policies-nav {
-  position: sticky;
-  top: 16em;
-  height: fit-content;
 }
 
 .policies-nav-inner {
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 16em;
 }
 
 .policies-nav-list {
@@ -7109,12 +7110,47 @@ button.is-loading {
 }
 
 .policies-nav-arrow {
-  font-size: var(--font-base);
-  opacity: 0.5;
-  transition: transform 0.3s ease;
+  display: none;
 }
 
 .policies-nav-link.active .policies-nav-arrow {
+  opacity: 1;
+}
+
+/* Right Contact Links */
+.policies-contact {
+  min-width: 0;
+}
+
+.policies-contact-inner {
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 16em;
+}
+
+.policies-contact-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  padding: 1.5em 0;
+}
+
+.policies-contact-link {
+  font-size: var(--font-xs);
+  font-weight: var(--weight-normal);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-white);
+  opacity: 0.6;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+  padding: 0.4em 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.policies-contact-link:hover {
   opacity: 1;
 }
 
@@ -7123,11 +7159,12 @@ button.is-loading {
   display: flex;
   flex-direction: column;
   gap: 0;
-  max-width: 70em;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .policy-section {
-  padding: 0 0 4em 0;
+  padding: 0;
 }
 
 .policy-section > .policy-divider:first-child {
@@ -7146,7 +7183,7 @@ button.is-loading {
 }
 
 .policy-block {
-  margin-bottom: 2em;
+  margin-bottom: 1.25em;
 }
 
 .policy-block h3 {
@@ -7282,7 +7319,12 @@ button.is-loading {
 /* Tablet Policies */
 @media (max-width: 64em) {
   .policies-container {
-    gap: 8em;
+    grid-template-columns: 1fr 3fr;
+    padding: 0 1em 6em;
+  }
+
+  .policies-contact {
+    display: none;
   }
 
   .policies-content {
@@ -7311,8 +7353,9 @@ button.is-loading {
     padding-bottom: calc(6em + env(safe-area-inset-bottom, 0));
   }
 
-  /* Hide desktop nav on mobile */
-  .policies-nav {
+  /* Hide desktop nav and contact on mobile */
+  .policies-nav,
+  .policies-contact {
     display: none;
   }
 

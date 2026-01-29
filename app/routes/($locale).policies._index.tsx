@@ -460,6 +460,28 @@ export default function PoliciesPage() {
             </article>
           </div>
 
+          {/* Right Contact Links */}
+          <aside className="policies-contact">
+            <div className="policies-contact-inner">
+              <div className="policy-divider" />
+              <div className="policies-contact-content">
+                <a href="mailto:info@daretodream.nl" className="policies-contact-link">
+                  info@daretodream.nl
+                </a>
+                <a href="mailto:support@daretodream.nl" className="policies-contact-link">
+                  support@daretodream.nl
+                </a>
+                <a href="https://instagram.com/daretodream" target="_blank" rel="noopener noreferrer" className="policies-contact-link">
+                  Instagram
+                </a>
+                <a href="https://tiktok.com/@daretodream" target="_blank" rel="noopener noreferrer" className="policies-contact-link">
+                  TikTok
+                </a>
+              </div>
+              <div className="policy-divider divider-bottom" />
+            </div>
+          </aside>
+
           {/* Mobile Quick Nav - Sticky Button */}
           <div className={`policies-quick-nav-trigger ${showQuickNav ? 'visible' : ''}`}>
             <button
