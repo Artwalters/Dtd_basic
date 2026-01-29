@@ -3073,6 +3073,10 @@ button.is-loading {
   .shop-the-look-grid {
     grid-template-columns: 1fr;
   }
+
+  .shop-the-look-section-title {
+    font-size: var(--font-2xl);
+  }
 }
 
 .new-drop-products {
@@ -3517,6 +3521,7 @@ button.is-loading {
     --slider-status: on;
     --slider-spv: 2;
     --slider-gap: 1em;
+    margin-top: 2.5em;
   }
 }
 
@@ -6162,7 +6167,7 @@ button.is-loading {
 }
 
 .shop-page-title {
-  font-size: var(--font-3xl);
+  font-size: var(--font-4xl);
   font-weight: 600;
   font-variation-settings: 'wght' 600, 'ital' 0, 'MONO' 0, 'XHGT' 30;
   line-height: var(--leading-tight);
@@ -6222,8 +6227,8 @@ button.is-loading {
   z-index: 100;
   background: var(--color-black);
   border-top: 1px solid var(--white-light);
-  margin: 0 -1em;
-  padding: 1.25em 1.5em;
+  margin: 0;
+  padding: 1.25em 0;
   padding-bottom: calc(1.25em + env(safe-area-inset-bottom, 0));
 }
 
@@ -7275,6 +7280,11 @@ button.is-loading {
 
 .policy-section {
   padding: 0;
+  margin-bottom: 3em;
+}
+
+.policy-section:last-child {
+  margin-bottom: 0;
 }
 
 .policy-section > .policy-divider:first-child {

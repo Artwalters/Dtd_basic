@@ -14,6 +14,7 @@ const policyNavItems = [
   {id: 'shipping', label: 'Shipping Policy'},
   {id: 'returns', label: 'Returns & Exchanges'},
   {id: 'contact', label: 'Contact'},
+  {id: 'athlete', label: 'Become an Athlete'},
 ];
 
 export default function PoliciesPage() {
@@ -53,6 +54,24 @@ export default function PoliciesPage() {
       }
       window.removeEventListener('scroll', checkVisibility);
     };
+  }, []);
+
+  // Scroll to hash section on page load
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+      const element = document.getElementById(hash);
+      if (element) {
+        setTimeout(() => {
+          const lenis = getLenis();
+          if (lenis) {
+            lenis.scrollTo(element, {offset: -100, immediate: true});
+          } else {
+            element.scrollIntoView({block: 'start'});
+          }
+        }, 300);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -455,6 +474,34 @@ export default function PoliciesPage() {
               <div className="policy-block">
                 <h3>Feedback</h3>
                 <p>We value your feedback and are constantly working to improve our products and services. If you have suggestions or comments, please don't hesitate to reach out. Your input helps us serve you better.</p>
+              </div>
+              <div className="policy-divider divider-bottom" />
+            </article>
+
+            {/* Become an Athlete */}
+            <article id="athlete" className="policy-section">
+              <div className="policy-divider" />
+              <h2 className="policy-title">Become an Athlete</h2>
+
+              <div className="policy-block">
+                <h3>Join the Dare to Dream Team</h3>
+                <p>At Dare to Dream, we are always on the lookout for the best athletes to represent our brand. We follow the scene closely and keep track of talent that aligns with our vision and values.</p>
+              </div>
+
+              <div className="policy-block">
+                <h3>Think You Have What It Takes?</h3>
+                <p>If you believe you have what it takes to be part of the Dare to Dream team, we'd love to hear from you. Send us a message with a short introduction about yourself, your sport, your achievements, and why you'd be a great fit for our brand.</p>
+                <p>Reach out to us at <a href="mailto:athletes@daretodream.nl">athletes@daretodream.nl</a> and we'll get back to you.</p>
+              </div>
+
+              <div className="policy-block">
+                <h3>What We Look For</h3>
+                <ul>
+                  <li>Dedication and passion for your sport.</li>
+                  <li>A strong presence on social media.</li>
+                  <li>Alignment with the Dare to Dream mindset and values.</li>
+                  <li>Consistent performance and competitive drive.</li>
+                </ul>
               </div>
               <div className="policy-divider divider-bottom" />
             </article>

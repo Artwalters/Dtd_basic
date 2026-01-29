@@ -52,9 +52,9 @@ export function Footer() {
       ],
     },
     {
-      title: 'About Us',
+      title: 'About',
       links: [
-        {to: '/pages/about', label: 'Our Story'},
+        {to: '/pages/about', label: 'About Us'},
         {to: '/pages/members', label: 'Community'},
       ],
     },
@@ -109,9 +109,9 @@ export function Footer() {
 
         {/* About us */}
         <nav className="footer-links-col">
-          <h3 className="footer-links-title">About Us</h3>
+          <h3 className="footer-links-title">About</h3>
           <ul className="footer-links-list">
-            <li><Link to="/pages/about">Our Story</Link></li>
+            <li><Link to="/pages/about">About Us</Link></li>
             <li><Link to="/pages/members">Community</Link></li>
           </ul>
         </nav>
