@@ -264,10 +264,13 @@ export function Header({
     };
   }, [mobileSearchOpen]);
 
-  // Focus mobile search input when opened
+  // Focus mobile search input when opened (small delay for CSS transition)
   useEffect(() => {
     if (mobileSearchOpen && mobileSearchInputRef.current) {
-      mobileSearchInputRef.current.focus();
+      const ref = mobileSearchInputRef.current;
+      requestAnimationFrame(() => {
+        ref.focus();
+      });
     }
   }, [mobileSearchOpen]);
 
@@ -465,15 +468,16 @@ export function Header({
             <CloseIcon />
           </button>
         ) : visualMenuOpen ? (
-          <MobileInlineSearch
-            isOpen={mobileSearchOpen}
-            onToggle={() => {
+          <button
+            className="header-nav-item btn-glass--icon mobile-search-button"
+            onClick={() => {
               close();
-              setMobileSearchOpen(true);
+              setTimeout(() => setMobileSearchOpen(true), 300);
             }}
-            onClose={() => setMobileSearchOpen(false)}
-            inputRef={mobileSearchInputRef}
-          />
+            aria-label="Search"
+          >
+            <SearchIcon />
+          </button>
         ) : (
           <>
             <MobileInlineSearch

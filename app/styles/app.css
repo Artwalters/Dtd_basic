@@ -1118,6 +1118,18 @@ button.reset:hover:not(:has(> *)) {
     stroke: var(--color-white) !important;
   }
 
+  /* Search button in header when menu is open */
+  .header-dark .mobile-search-button {
+    background: var(--color-black) !important;
+    border-radius: 0.25em;
+    padding: 0.75em;
+    border: none;
+  }
+
+  .header-dark .mobile-search-button svg {
+    stroke: var(--color-white) !important;
+  }
+
   /* Cart close button - always black with white icon (no dependency on body:has) */
   .mobile-cart-toggle .cart-close-button,
   .mobile-right-toggle .cart-close-button {
