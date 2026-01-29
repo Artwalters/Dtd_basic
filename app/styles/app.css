@@ -3106,7 +3106,10 @@ button.is-loading {
   }
 
   .shop-the-look-section-title {
-    font-size: var(--font-2xl);
+    font-size: var(--font-md);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    font-weight: var(--weight-medium);
   }
 }
 
@@ -4579,6 +4582,12 @@ button.is-loading {
   opacity: 0.7;
 }
 
+.product-size-guide-link {
+  margin-top: 0.5em;
+  margin-bottom: 1.5em;
+  text-decoration: none;
+}
+
 /* ==========================================================================
    Size Grid - Row of size option buttons
    Uses subtle hover wipe effect consistent with other buttons
@@ -5291,9 +5300,9 @@ button.is-loading {
 }
 
 .build-option.active {
-  background: var(--white-light);
-  border-color: var(--white-medium);
-  color: var(--color-white);
+  background: var(--color-white);
+  border-color: var(--color-white);
+  color: var(--color-black);
 }
 
 /* Fit Options */
@@ -5323,9 +5332,9 @@ button.is-loading {
 }
 
 .fit-option.active {
-  background: var(--white-light);
-  border-color: var(--white-medium);
-  color: var(--color-white);
+  background: var(--color-white);
+  border-color: var(--color-white);
+  color: var(--color-black);
 }
 
 .fit-icon {
@@ -6213,7 +6222,7 @@ button.is-loading {
   top: -1.8em;
   left: 50%;
   transform: translateX(-50%);
-  font-size: var(--font-md);
+  font-size: var(--font-sm);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
   color: var(--color-white);
@@ -6434,6 +6443,7 @@ button.is-loading {
 
   .about-chapter-number {
     position: static;
+    font-size: var(--font-sm);
   }
 
   .about-editorial-chapter {

@@ -154,6 +154,18 @@ export function ProductDetails({
           </span>
         </div>
 
+        {/* Size & Fit Guide link */}
+        <button className="size-guide-link product-size-guide-link" onClick={() => setIsSizeGuideOpen(true)}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="6" width="22" height="12" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+            <path d="M5 6V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M9 6V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M13 6V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M17 6V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          <span>Size & Fit Guide</span>
+        </button>
+
         {/* Divider Line with brackets */}
         <div className="section-divider product-section-divider"></div>
 
