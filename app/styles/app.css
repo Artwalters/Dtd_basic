@@ -38,6 +38,11 @@
   --weight-semibold: 600;
   --weight-bold: 700;
 
+  /* Font Families */
+  --font-body: 'Genesis', sans-serif;
+  --font-heading: 'Genesis', sans-serif;
+  --font-family-heading: 'Genesis', sans-serif;
+
   /* Letter Spacing */
   --tracking-tight: -0.02em;
   --tracking-normal: 0;
@@ -1786,6 +1791,8 @@ button.is-loading {
 
   .mobile-right-toggle {
     display: flex;
+    align-items: center;
+    gap: 0.5em;
     order: 3;
   }
 
@@ -8390,5 +8397,66 @@ button.is-loading {
 @media screen and (max-width: 767px) {
   .header-search {
     display: none;
+  }
+}
+
+/* ===========================================
+   Mobile Inline Search (same style as desktop)
+   =========================================== */
+
+.mobile-inline-search {
+  display: none;
+}
+
+@media screen and (max-width: 47.99em) {
+  .mobile-inline-search {
+    display: flex;
+    align-items: center;
+    position: relative;
+    order: 2;
+    flex: 1;
+    min-width: 0;
+    flex-direction: row-reverse;
+  }
+
+  .mobile-inline-search-form {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .mobile-inline-search .header-search-input-wrapper {
+    width: 0;
+    opacity: 0;
+    height: 2.625em;
+    transition: width 0.3s var(--ease-smooth), opacity 0.3s var(--ease-smooth);
+  }
+
+  .mobile-inline-search.is-open .header-search-input-wrapper {
+    width: 100%;
+    opacity: 1;
+  }
+
+  .mobile-inline-search .header-search-input {
+    width: 100%;
+    opacity: 1;
+    padding: 0 0.75em;
+    font-size: 16px; /* Must be absolute 16px to prevent iOS auto-zoom on focus */
+    height: 100%;
+  }
+
+  .mobile-inline-search .header-search-dropdown {
+    position: fixed;
+    left: 1em;
+    right: 1em;
+    width: auto;
+    max-height: 60vh;
+  }
+
+  /* Hide logo when mobile search is active */
+  .header-logo.mobile-search-active {
+    visibility: hidden !important;
+    pointer-events: none;
   }
 }

@@ -249,6 +249,34 @@ export function Header({
   const [headerDarkMode, setHeaderDarkMode] = useState(false);
   const [visualMenuOpen, setVisualMenuOpen] = useState(false);
   const [visualCartOpen, setVisualCartOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
+
+  // Close mobile search on scroll (native + touch move for iOS)
+  useEffect(() => {
+    if (!mobileSearchOpen) return;
+    const handleScroll = () => setMobileSearchOpen(false);
+    window.addEventListener('scroll', handleScroll, {passive: true});
+    window.addEventListener('touchmove', handleScroll, {passive: true});
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('touchmove', handleScroll);
+    };
+  }, [mobileSearchOpen]);
+
+  // Focus mobile search input when opened
+  useEffect(() => {
+    if (mobileSearchOpen && mobileSearchInputRef.current) {
+      mobileSearchInputRef.current.focus();
+    }
+  }, [mobileSearchOpen]);
+
+  // Close mobile search when menu or cart opens
+  useEffect(() => {
+    if (isMobileMenuOpen || isCartOpen) {
+      setMobileSearchOpen(false);
+    }
+  }, [isMobileMenuOpen, isCartOpen]);
   // Desktop nav animation refs
   const leftNavRef = useRef<HTMLElement>(null);
   const rightNavRef = useRef<HTMLElement>(null);
@@ -393,9 +421,16 @@ export function Header({
         </NavLink>
       </nav>
 
+      {/* Mobile inline search bar (replaces logo when open) */}
+      <MobileInlineSearch
+        isOpen={mobileSearchOpen}
+        onClose={() => setMobileSearchOpen(false)}
+        inputRef={mobileSearchInputRef}
+      />
+
       <NavLink
         to="/"
-        className="header-logo"
+        className={`header-logo ${mobileSearchOpen ? 'mobile-search-active' : ''}`}
         onClick={(e) => {
           window.dispatchEvent(new CustomEvent('closeQuickAdd'));
           if (isAsideOpen) {
@@ -426,7 +461,7 @@ export function Header({
         <CartToggle cart={cart} />
       </nav>
 
-      {/* Mobile right side: Cart toggle, close button, or account icon */}
+      {/* Mobile right side: Cart toggle, close button, or search icon */}
       <div className="mobile-right-toggle" ref={rightSideRef}>
         {visualCartOpen ? (
           <button
@@ -437,19 +472,31 @@ export function Header({
             <CloseIcon />
           </button>
         ) : visualMenuOpen ? (
-          <NavLink
-            to="/account"
-            className="header-nav-item btn-glass--icon mobile-account-button"
+          <button
+            className="header-nav-item btn-glass--icon mobile-search-button"
             onClick={() => {
               close();
               window.dispatchEvent(new CustomEvent('closeQuickAdd'));
+              setMobileSearchOpen(true);
             }}
-            aria-label="Account"
+            aria-label="Search"
           >
-            <UserIcon />
-          </NavLink>
+            <SearchIcon />
+          </button>
         ) : (
-          <CartToggleMobile cart={cart} />
+          <>
+            <button
+              className="header-nav-item btn-glass--icon mobile-search-button"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('closeQuickAdd'));
+                setMobileSearchOpen((prev) => !prev);
+              }}
+              aria-label="Search"
+            >
+              <SearchIcon />
+            </button>
+            <CartToggleMobile cart={cart} />
+          </>
         )}
       </div>
     </header>
@@ -599,8 +646,7 @@ function HeaderSearch() {
     return () => clearTimeout(timer);
   }, [term]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (term.trim()) {
       navigate(`/search?q=${encodeURIComponent(term.trim())}`);
       setIsOpen(false);
@@ -636,11 +682,15 @@ function HeaderSearch() {
       e.preventDefault();
       setTerm(suggestion);
     }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   return (
     <div className={`header-search ${isOpen ? 'is-open' : ''}`} ref={wrapperRef}>
-      <form onSubmit={handleSubmit} className="header-search-form">
+      <div className="header-search-form">
         <div className="header-search-input-wrapper">
           <span className="header-search-ghost" aria-hidden="true">
             {suggestion ? (
@@ -661,7 +711,7 @@ function HeaderSearch() {
             tabIndex={isOpen ? 0 : -1}
           />
         </div>
-      </form>
+      </div>
       <button
         className="header-nav-item btn-glass--icon reset header-search-toggle"
         onClick={() => {
@@ -675,6 +725,206 @@ function HeaderSearch() {
       </button>
       {showDropdown && (
         <div className="header-search-dropdown">
+          {hasResults ? (
+            <>
+              {matchingPages.length > 0 && (
+                <div className="header-search-group">
+                  <span className="header-search-group-label">Pages</span>
+                  {matchingPages.map((page) => (
+                    <NavLink
+                      key={page.path}
+                      to={page.path}
+                      className="header-search-item"
+                      onClick={handleResultClick}
+                    >
+                      <div className="header-search-item-info">
+                        <span className="header-search-item-title">{page.label}</span>
+                      </div>
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+              {products.length > 0 && (
+                <div className="header-search-group">
+                  <span className="header-search-group-label">Products</span>
+                  {products.map((product: any) => (
+                    <NavLink
+                      key={product.id}
+                      to={`/products/${product.handle}`}
+                      className="header-search-item"
+                      onClick={handleResultClick}
+                    >
+                      {(product.productVideo360?.value || product.selectedOrFirstAvailableVariant?.image) && (
+                        <img
+                          className="header-search-item-img"
+                          src={
+                            product.productVideo360?.value
+                              ? `${product.productVideo360.value}0001.webp`
+                              : product.selectedOrFirstAvailableVariant.image.url
+                          }
+                          alt={product.selectedOrFirstAvailableVariant?.image?.altText || product.title}
+                          width={40}
+                          height={40}
+                        />
+                      )}
+                      <div className="header-search-item-info">
+                        <span className="header-search-item-title">{product.title}</span>
+                        {product.selectedOrFirstAvailableVariant?.price && (
+                          <span className="header-search-item-price">
+                            {new Intl.NumberFormat(undefined, {
+                              style: 'currency',
+                              currency: product.selectedOrFirstAvailableVariant.price.currencyCode,
+                            }).format(Number(product.selectedOrFirstAvailableVariant.price.amount))}
+                          </span>
+                        )}
+                      </div>
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="header-search-empty">No results found</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MobileInlineSearch({
+  isOpen,
+  onClose,
+  inputRef,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+}) {
+  const [term, setTerm] = useState('');
+  const fetcher = useFetcher();
+  const navigate = useNavigate();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [dropdownTop, setDropdownTop] = useState(0);
+
+  // Calculate dropdown position from header bottom
+  useEffect(() => {
+    if (!isOpen || !wrapperRef.current) return;
+    const header = wrapperRef.current.closest('.header') as HTMLElement;
+    if (header) {
+      const rect = header.getBoundingClientRect();
+      setDropdownTop(rect.bottom);
+    }
+  }, [isOpen]);
+
+  // Reset term when closing
+  useEffect(() => {
+    if (!isOpen) setTerm('');
+  }, [isOpen]);
+
+  // Close on click outside
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        const target = e.target as HTMLElement;
+        if (target.closest('.mobile-search-button')) return;
+        onClose();
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, onClose]);
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Fetch predictive results
+  const synonymFetchers = [useFetcher(), useFetcher(), useFetcher()];
+  useEffect(() => {
+    if (!isOpen || term.length < 1) return;
+    const timer = setTimeout(() => {
+      fetcher.load(`/search?q=${encodeURIComponent(term)}&limit=10&predictive=true`);
+      const group = getSynonymGroup(term);
+      if (group) {
+        const extras = group.filter((s) => s.toLowerCase() !== term.toLowerCase()).slice(0, 3);
+        extras.forEach((syn, i) => {
+          synonymFetchers[i].load(`/search?q=${encodeURIComponent(syn)}&limit=5&predictive=true`);
+        });
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [term, isOpen]);
+
+  const handleSubmit = () => {
+    if (term.trim()) {
+      navigate(`/search?q=${encodeURIComponent(term.trim())}`);
+      onClose();
+    }
+  };
+
+  const handleResultClick = () => {
+    onClose();
+  };
+
+  // Merge & deduplicate results
+  const mainProducts = fetcher.data?.result?.items?.products ?? [];
+  const allSynonymProducts = synonymFetchers.flatMap((f) => f.data?.result?.items?.products ?? []);
+  const seenIds = new Set<string>();
+  const products = [...mainProducts, ...allSynonymProducts].filter((p: any) => {
+    if (seenIds.has(p.id)) return false;
+    seenIds.add(p.id);
+    return true;
+  });
+  const matchingPages = filterSitePages(term);
+  const hasResults = products.length > 0 || matchingPages.length > 0;
+  const showDropdown = isOpen && term.length >= 1 && (fetcher.data || matchingPages.length > 0);
+
+  const suggestion = getAutocompleteSuggestion(term);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.key === 'Tab' || e.key === 'ArrowRight') && suggestion) {
+      e.preventDefault();
+      setTerm(suggestion);
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  return (
+    <div className={`mobile-inline-search ${isOpen ? 'is-open' : ''}`} ref={wrapperRef}>
+      <div className="mobile-inline-search-form">
+        <div className="header-search-input-wrapper">
+          <span className="header-search-ghost" aria-hidden="true">
+            {suggestion ? (
+              <>
+                <span className="header-search-ghost-typed">{term}</span>
+                <span className="header-search-ghost-rest">{suggestion.slice(term.length)}</span>
+              </>
+            ) : null}
+          </span>
+          <input
+            ref={inputRef}
+            type="text"
+            className="header-search-input"
+            placeholder="Search..."
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+        </div>
+      </div>
+      {showDropdown && (
+        <div className="header-search-dropdown" style={dropdownTop ? {top: `${dropdownTop}px`} : undefined}>
           {hasResults ? (
             <>
               {matchingPages.length > 0 && (
