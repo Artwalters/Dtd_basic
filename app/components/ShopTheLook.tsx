@@ -219,8 +219,19 @@ export function ShopTheLook({
     };
   }, [activeMarkerId]);
 
+  // Count unique products shown across all markers
+  const markerProducts = [...markerPositions, ...markerPositions2]
+    .map(p => getProductByHandle(p.handle))
+    .filter(Boolean);
+  const uniqueProductCount = new Set(markerProducts.map(p => p!.id)).size;
+
   return (
     <section className="shop-the-look">
+      <div className="section-divider" />
+      <div className="shop-the-look-section-header">
+        <h2 className="shop-the-look-section-title">Shop this collection</h2>
+        <span className="shop-the-look-section-count">{uniqueProductCount} items</span>
+      </div>
       <div className="shop-the-look-grid">
         <div className="shop-the-look-featured" ref={featuredRef} data-cursor="explore">
           <div className="shop-the-look-featured-wrapper">
