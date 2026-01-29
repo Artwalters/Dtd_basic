@@ -3005,6 +3005,38 @@ button.is-loading {
   display: none;
 }
 
+@media screen and (max-width: 767px) {
+  .product-marker-popup--with-image {
+    width: 11em;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .product-marker-popup--with-image .product-marker-popup-image {
+    width: 3.5em;
+    min-width: 3.5em;
+    aspect-ratio: 1/1;
+  }
+
+  .product-marker-popup--with-image .product-marker-popup-content {
+    text-align: left;
+    padding: 0.3em 0.25em;
+    margin-top: 0;
+  }
+
+  .product-marker-popup {
+    padding: 0.4em 0.6em;
+  }
+
+  .product-marker-popup-title {
+    font-size: 0.65em;
+  }
+
+  .product-marker-popup-price {
+    font-size: 0.6em;
+  }
+}
+
 /* ===========================================
    Shop The Look Section (Product Page)
    =========================================== */
