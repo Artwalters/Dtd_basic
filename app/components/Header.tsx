@@ -1,5 +1,5 @@
-import {Suspense, useState, useEffect, useRef, lazy, useMemo} from 'react';
-import {Await, NavLink, useAsyncValue} from 'react-router';
+import {Suspense, useState, useEffect, useRef, useCallback, lazy, useMemo} from 'react';
+import {Await, NavLink, useAsyncValue, useNavigate, useFetcher} from 'react-router';
 import {
   type CartViewPayload,
   useAnalytics,
@@ -413,7 +413,7 @@ export function Header({
 
       {/* Desktop: Right navigation */}
       <nav className="header-nav-right" ref={rightNavRef}>
-        <SearchToggle />
+        <HeaderSearch />
         <Suspense fallback={<NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account" onClick={() => window.dispatchEvent(new CustomEvent('closeQuickAdd'))}><UserIcon /></NavLink>}>
           <Await resolve={isLoggedIn} errorElement={<NavLink to="/account" className="header-nav-item btn-glass--icon" aria-label="Account" onClick={() => window.dispatchEvent(new CustomEvent('closeQuickAdd'))}><UserIcon /></NavLink>}>
             {(isLoggedIn) => (
@@ -473,19 +473,273 @@ function SearchIcon() {
   );
 }
 
-function SearchToggle() {
-  const {open} = useAside();
+// Synonym groups: any term in a group expands the search to all terms in that group
+const SEARCH_SYNONYMS: string[][] = [
+  ['shirt', 'shirts', 'tee', 'tees', 't-shirt', 't-shirts', 'top', 'tops', 'oversized tee'],
+  ['pants', 'jogger', 'joggers', 'sweats', 'sweatpants', 'trousers', 'bottoms'],
+  ['hoodie', 'hoodies', 'sweater', 'sweaters', 'pullover', 'sweatshirt'],
+  ['jacket', 'jackets', 'coat', 'coats', 'outerwear'],
+  ['cap', 'caps', 'hat', 'hats', 'beanie', 'headwear'],
+  ['socks', 'sock'],
+  ['sneaker', 'sneakers', 'shoes', 'shoe', 'footwear'],
+  ['bag', 'bags', 'tote', 'totes', 'backpack'],
+  ['accessories', 'accessory', 'acc'],
+];
+
+// Site pages for search (label + path + search keywords incl. NL)
+const SITE_PAGES = [
+  {label: 'About Us', path: '/about', keywords: ['about', 'about us', 'over', 'over ons', 'story', 'verhaal', 'ons verhaal', 'wie zijn wij']},
+  {label: 'Shop', path: '/collections/all', keywords: ['shop', 'products', 'producten', 'collection', 'collectie', 'all', 'winkel', 'alle producten', 'kleding']},
+  {label: 'Community', path: '/community', keywords: ['community', 'gemeenschap', 'athletes', 'atleten']},
+  {label: 'Lookbook', path: '/lookbook', keywords: ['lookbook', 'look', 'looks', 'style', 'stijl', 'outfits', 'inspiratie']},
+  {label: 'Account', path: '/account', keywords: ['account', 'login', 'inloggen', 'profiel', 'profile', 'mijn account']},
+  {label: 'Privacy Policy', path: '/policies#privacy', keywords: ['privacy', 'policy', 'privacybeleid', 'gegevens', 'data']},
+  {label: 'Terms of Service', path: '/policies#terms', keywords: ['terms', 'voorwaarden', 'algemene voorwaarden', 'terms of service', 'tos']},
+  {label: 'Shipping Policy', path: '/policies#shipping', keywords: ['shipping', 'verzending', 'levering', 'delivery', 'bezorging', 'verzendkosten']},
+  {label: 'Returns & Exchanges', path: '/policies#returns', keywords: ['return', 'returns', 'retour', 'retouren', 'ruilen', 'exchange', 'exchanges', 'terugsturen', 'retourneren', 'refund']},
+  {label: 'Contact', path: '/policies#contact', keywords: ['contact', 'help', 'support', 'hulp', 'klantenservice', 'bereiken', 'mail', 'email']},
+  {label: 'Become an Athlete', path: '/policies#athlete', keywords: ['athlete', 'atleet', 'ambassador', 'ambassadeur', 'join', 'samenwerken', 'collab', 'sponsoring']},
+  {label: 'Meet the Team', path: '/pages/members', keywords: ['team', 'members', 'leden', 'meet', 'wie', 'oprichters', 'founders']},
+];
+
+function filterSitePages(input: string) {
+  const lower = input.toLowerCase().trim();
+  if (!lower) return [];
+  return SITE_PAGES.filter((page) =>
+    page.label.toLowerCase().includes(lower) ||
+    page.keywords.some((kw) => kw.startsWith(lower) || kw.includes(lower))
+  );
+}
+
+// Autocomplete suggestion words (first/primary term from each synonym group + common product names + pages)
+const AUTOCOMPLETE_WORDS = [
+  'shirts', 'joggers', 'hoodie', 'jacket', 'cap', 'socks', 'sneakers', 'bag', 'accessories',
+  'tee', 'pants', 'sweater', 'hat', 'shoes', 'tops', 'bottoms',
+  'envision', 'lucid', 'summit', 'origin', 'resist', 'genesis',
+  'about', 'shop', 'community', 'lookbook', 'privacy', 'contact', 'account', 'team',
+];
+
+function getAutocompleteSuggestion(input: string): string {
+  if (!input) return '';
+  const lower = input.toLowerCase();
+  const match = AUTOCOMPLETE_WORDS.find((w) => w.startsWith(lower) && w !== lower);
+  return match || '';
+}
+
+function getSynonymGroup(input: string): string[] | null {
+  const lower = input.toLowerCase().trim();
+  if (!lower) return null;
+  for (const group of SEARCH_SYNONYMS) {
+    if (group.some((syn) => lower === syn || lower.includes(syn) || syn.startsWith(lower))) {
+      return group;
+    }
+  }
+  return null;
+}
+
+function HeaderSearch() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [term, setTerm] = useState('');
+  const fetcher = useFetcher();
+  const navigate = useNavigate();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Focus input when opened
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
+
+  // Close on click outside
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+        setTerm('');
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  // Close on ESC
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+        setTerm('');
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
+  // Fetch predictive results when term changes (start from 1 character)
+  // Use multiple fetchers for synonym searches
+  const synonymFetchers = [useFetcher(), useFetcher(), useFetcher()];
+  useEffect(() => {
+    if (term.length < 1) return;
+    const timer = setTimeout(() => {
+      // Always search the original term
+      fetcher.load(`/search?q=${encodeURIComponent(term)}&limit=10&predictive=true`);
+      // Also search synonym terms if applicable
+      const group = getSynonymGroup(term);
+      if (group) {
+        // Pick up to 3 unique synonyms different from the original term
+        const extras = group.filter((s) => s.toLowerCase() !== term.toLowerCase()).slice(0, 3);
+        extras.forEach((syn, i) => {
+          synonymFetchers[i].load(`/search?q=${encodeURIComponent(syn)}&limit=5&predictive=true`);
+        });
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [term]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (term.trim()) {
+      navigate(`/search?q=${encodeURIComponent(term.trim())}`);
+      setIsOpen(false);
+      setTerm('');
+    }
+  };
+
+  const handleResultClick = () => {
+    setIsOpen(false);
+    setTerm('');
+  };
+
+  // Extract predictive search results (products only), merge main + synonym results
+  const mainProducts = fetcher.data?.result?.items?.products ?? [];
+  const allSynonymProducts = synonymFetchers.flatMap((f) => f.data?.result?.items?.products ?? []);
+  // Merge and deduplicate by id
+  const seenIds = new Set<string>();
+  const products = [...mainProducts, ...allSynonymProducts].filter((p: any) => {
+    if (seenIds.has(p.id)) return false;
+    seenIds.add(p.id);
+    return true;
+  });
+  // Site pages matching the search term
+  const matchingPages = filterSitePages(term);
+  const hasResults = products.length > 0 || matchingPages.length > 0;
+  const showDropdown = isOpen && term.length >= 1 && (fetcher.data || matchingPages.length > 0);
+
+  // Autocomplete ghost suggestion
+  const suggestion = getAutocompleteSuggestion(term);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.key === 'Tab' || e.key === 'ArrowRight') && suggestion) {
+      e.preventDefault();
+      setTerm(suggestion);
+    }
+  };
+
   return (
-    <button
-      className="header-nav-item btn-glass--icon reset"
-      onClick={() => {
-        window.dispatchEvent(new CustomEvent('closeQuickAdd'));
-        open('search');
-      }}
-      aria-label="Search"
-    >
-      <SearchIcon />
-    </button>
+    <div className={`header-search ${isOpen ? 'is-open' : ''}`} ref={wrapperRef}>
+      <form onSubmit={handleSubmit} className="header-search-form">
+        <div className="header-search-input-wrapper">
+          <span className="header-search-ghost" aria-hidden="true">
+            {suggestion ? (
+              <>
+                <span className="header-search-ghost-typed">{term}</span>
+                <span className="header-search-ghost-rest">{suggestion.slice(term.length)}</span>
+              </>
+            ) : null}
+          </span>
+          <input
+            ref={inputRef}
+            type="text"
+            className="header-search-input"
+            placeholder="Search..."
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            onKeyDown={handleKeyDown}
+            tabIndex={isOpen ? 0 : -1}
+          />
+        </div>
+      </form>
+      <button
+        className="header-nav-item btn-glass--icon reset header-search-toggle"
+        onClick={() => {
+          window.dispatchEvent(new CustomEvent('closeQuickAdd'));
+          setIsOpen((prev) => !prev);
+          if (isOpen) setTerm('');
+        }}
+        aria-label="Search"
+      >
+        <SearchIcon />
+      </button>
+      {showDropdown && (
+        <div className="header-search-dropdown">
+          {hasResults ? (
+            <>
+              {matchingPages.length > 0 && (
+                <div className="header-search-group">
+                  <span className="header-search-group-label">Pages</span>
+                  {matchingPages.map((page) => (
+                    <NavLink
+                      key={page.path}
+                      to={page.path}
+                      className="header-search-item"
+                      onClick={handleResultClick}
+                    >
+                      <div className="header-search-item-info">
+                        <span className="header-search-item-title">{page.label}</span>
+                        <span className="header-search-item-price">{page.path}</span>
+                      </div>
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+              {products.length > 0 && (
+                <div className="header-search-group">
+                  <span className="header-search-group-label">Products</span>
+                  {products.map((product: any) => (
+                    <NavLink
+                      key={product.id}
+                      to={`/products/${product.handle}`}
+                      className="header-search-item"
+                      onClick={handleResultClick}
+                    >
+                      {(product.productVideo360?.value || product.selectedOrFirstAvailableVariant?.image) && (
+                        <img
+                          className="header-search-item-img"
+                          src={
+                            product.productVideo360?.value
+                              ? `${product.productVideo360.value}0001.webp`
+                              : product.selectedOrFirstAvailableVariant.image.url
+                          }
+                          alt={product.selectedOrFirstAvailableVariant?.image?.altText || product.title}
+                          width={40}
+                          height={40}
+                        />
+                      )}
+                      <div className="header-search-item-info">
+                        <span className="header-search-item-title">{product.title}</span>
+                        {product.selectedOrFirstAvailableVariant?.price && (
+                          <span className="header-search-item-price">
+                            {new Intl.NumberFormat(undefined, {
+                              style: 'currency',
+                              currency: product.selectedOrFirstAvailableVariant.price.currencyCode,
+                            }).format(Number(product.selectedOrFirstAvailableVariant.price.amount))}
+                          </span>
+                        )}
+                      </div>
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="header-search-empty">No results found</div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

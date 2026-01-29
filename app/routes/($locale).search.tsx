@@ -306,6 +306,9 @@ const PREDICTIVE_SEARCH_PRODUCT_FRAGMENT = `#graphql
     title
     handle
     trackingParameters
+    productVideo360: metafield(namespace: "custom", key: "productvideo360") {
+      value
+    }
     selectedOrFirstAvailableVariant(
       selectedOptions: []
       ignoreUnknownOptions: true
