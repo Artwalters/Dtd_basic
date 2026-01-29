@@ -47,8 +47,8 @@ export function Footer() {
       title: 'Help',
       links: [
         {to: '/policies#contact', label: 'Contact'},
-        {to: '/policies#faq', label: 'FAQ'},
         {to: '/policies#shipping', label: 'Shipping'},
+        {to: '/policies#returns', label: 'Returns & Exchanges'},
       ],
     },
     {
@@ -56,7 +56,6 @@ export function Footer() {
       links: [
         {to: '/pages/about', label: 'Our Story'},
         {to: '/pages/members', label: 'Community'},
-        {to: '/pages/lookbook', label: 'Lookbook'},
       ],
     },
     {
@@ -94,7 +93,7 @@ export function Footer() {
             </button>
           </form>
           <p className="footer-newsletter-disclaimer">
-            you can unsubscribe at any time. <Link to="/policies/privacy-policy">privacy policy</Link>
+            you can unsubscribe at any time. <Link to="/policies#privacy">privacy policy</Link>
           </p>
         </div>
 
@@ -103,8 +102,8 @@ export function Footer() {
           <h3 className="footer-links-title">Help</h3>
           <ul className="footer-links-list">
             <li><Link to="/policies#contact">Contact</Link></li>
-            <li><Link to="/policies#faq">FAQ</Link></li>
             <li><Link to="/policies#shipping">Shipping</Link></li>
+            <li><Link to="/policies#returns">Returns & Exchanges</Link></li>
           </ul>
         </nav>
 
@@ -114,7 +113,6 @@ export function Footer() {
           <ul className="footer-links-list">
             <li><Link to="/pages/about">Our Story</Link></li>
             <li><Link to="/pages/members">Community</Link></li>
-            <li><Link to="/pages/lookbook">Lookbook</Link></li>
           </ul>
         </nav>
 
@@ -160,7 +158,7 @@ export function Footer() {
             </button>
           </form>
           <p className="footer-newsletter-disclaimer">
-            Sign up to our newsletter to stay updated on new releases. <Link to="/policies/privacy-policy">privacy policy</Link>
+            Sign up to our newsletter to stay updated on new releases. <Link to="/policies#privacy">privacy policy</Link>
           </p>
         </div>
 

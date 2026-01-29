@@ -15,7 +15,10 @@ export function CommunitySection() {
     <section className="community-section">
       <div className="section-divider-with-title section-divider-top">
         <div className="section-divider-line section-divider-line-left" />
-        <h2 className="section-divider-title">Let's Connect</h2>
+        <div className="community-title-wrapper">
+          <span className="community-subtitle">Join the community</span>
+          <h2 className="section-divider-title">Dream Bigger With Us</h2>
+        </div>
         <div className="section-divider-line section-divider-line-right" />
       </div>
 

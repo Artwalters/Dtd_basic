@@ -3027,7 +3027,7 @@ button.is-loading {
 }
 
 .shop-the-look-section-title {
-  font-size: var(--font-2xl);
+  font-size: var(--font-4xl);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
   color: var(--color-white);
@@ -5829,6 +5829,25 @@ button.is-loading {
   white-space: nowrap;
 }
 
+/* Community Title Block */
+.community-title-wrapper {
+  position: relative;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.community-subtitle {
+  position: absolute;
+  top: -1.8em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--font-md);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-white);
+  white-space: nowrap;
+}
+
 /* Community Sticky Side Elements */
 .community-sticky-wrapper {
   position: relative;
@@ -6016,8 +6035,9 @@ button.is-loading {
     z-index: 30;
   }
 
-  .community-section .section-divider-line {
-    display: none;
+
+  .community-subtitle {
+    font-size: var(--font-sm);
   }
 
   .community-canvas {
@@ -6079,10 +6099,6 @@ button.is-loading {
 
   .community-section .section-divider-bottom {
     display: none;
-  }
-
-  .community-title {
-    font-size: var(--font-3xl);
   }
 
   .community-form {
