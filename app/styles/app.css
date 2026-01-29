@@ -5972,7 +5972,7 @@ button.is-loading {
 }
 
 .community-subtitle {
-  font-size: var(--font-sm);
+  font-size: var(--font-md);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
   color: var(--color-white);
@@ -6213,9 +6213,9 @@ button.is-loading {
   top: -1.8em;
   left: 50%;
   transform: translateX(-50%);
-  font-size: var(--font-sm);
+  font-size: var(--font-md);
   text-transform: uppercase;
-  letter-spacing: var(--tracking-widest);
+  letter-spacing: var(--tracking-wide);
   color: var(--color-white);
   white-space: nowrap;
 }
@@ -6274,9 +6274,9 @@ button.is-loading {
 
 .about-chapter-number {
   display: block;
-  font-size: var(--font-sm);
+  font-size: var(--font-md);
   text-transform: uppercase;
-  letter-spacing: var(--tracking-widest);
+  letter-spacing: var(--tracking-wide);
   color: var(--white-strong);
   margin-bottom: 0.5em;
   position: sticky;
@@ -6344,7 +6344,7 @@ button.is-loading {
 
 /* Quote — simple italic blockquote */
 .about-editorial-blockquote {
-  width: 100%;
+  max-width: 32em;
   text-align: center;
   font-style: italic;
   font-size: var(--font-2xl);
@@ -6412,7 +6412,7 @@ button.is-loading {
 /* Mobile */
 @media (max-width: 47.99em) {
   .about-editorial {
-    padding: 10em 1em 0;
+    padding: 15em 1em 0;
   }
 
   .about-editorial-header {
@@ -6429,6 +6429,10 @@ button.is-loading {
 
   .about-editorial-row__left {
     order: 1;
+    position: static;
+  }
+
+  .about-chapter-number {
     position: static;
   }
 

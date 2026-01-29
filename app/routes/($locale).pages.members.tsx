@@ -116,7 +116,7 @@ export default function MeetTheTeamPage() {
 
         {/* Quote */}
         <blockquote className="about-editorial-blockquote">
-          "Four people, one mission. Built on discipline, driven by dreams."
+          "You can't build something meaningful on your own. You need people around you who believe in the same thing — and push you to keep going."
         </blockquote>
 
         <div className="section-divider" />
