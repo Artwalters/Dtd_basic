@@ -471,11 +471,14 @@ export default function PoliciesPage() {
                 <a href="mailto:support@daretodream.nl" className="policies-contact-link">
                   support@daretodream.nl
                 </a>
-                <a href="https://instagram.com/daretodream" target="_blank" rel="noopener noreferrer" className="policies-contact-link">
+                <a href="https://www.instagram.com/daretodream_apparel/" target="_blank" rel="noopener noreferrer" className="policies-contact-link">
                   Instagram
                 </a>
-                <a href="https://tiktok.com/@daretodream" target="_blank" rel="noopener noreferrer" className="policies-contact-link">
+                <a href="https://www.tiktok.com/@daretodream_apparel" target="_blank" rel="noopener noreferrer" className="policies-contact-link">
                   TikTok
+                </a>
+                <a href="https://youtube.com/@daretodreamapparel" target="_blank" rel="noopener noreferrer" className="policies-contact-link">
+                  YouTube
                 </a>
               </div>
               <div className="policy-divider divider-bottom" />

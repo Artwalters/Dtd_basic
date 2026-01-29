@@ -62,9 +62,9 @@ export function Footer() {
     {
       title: 'Socials',
       links: [
-        {href: 'https://www.instagram.com/daretodream/', label: 'Instagram'},
-        {href: 'https://www.facebook.com/daretodream', label: 'Facebook'},
-        {href: 'https://www.tiktok.com/@daretodream', label: 'TikTok'},
+        {href: 'https://www.instagram.com/daretodream_apparel/', label: 'Instagram'},
+        {href: 'https://www.tiktok.com/@daretodream_apparel', label: 'TikTok'},
+        {href: 'https://youtube.com/@daretodreamapparel', label: 'YouTube'},
       ],
     },
   ];
@@ -123,18 +123,18 @@ export function Footer() {
           <h3 className="footer-links-title">Socials</h3>
           <ul className="footer-links-list">
             <li>
-              <a href="https://www.instagram.com/daretodream/" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.instagram.com/daretodream_apparel/" target="_blank" rel="noopener noreferrer">
                 Instagram
               </a>
             </li>
             <li>
-              <a href="https://www.facebook.com/daretodream" target="_blank" rel="noopener noreferrer">
-                Facebook
+              <a href="https://www.tiktok.com/@daretodream_apparel" target="_blank" rel="noopener noreferrer">
+                TikTok
               </a>
             </li>
             <li>
-              <a href="https://www.tiktok.com/@daretodream" target="_blank" rel="noopener noreferrer">
-                TikTok
+              <a href="https://youtube.com/@daretodreamapparel" target="_blank" rel="noopener noreferrer">
+                YouTube
               </a>
             </li>
           </ul>

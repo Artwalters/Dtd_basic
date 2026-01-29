@@ -5807,6 +5807,30 @@ button.is-loading {
   pointer-events: none;
 }
 
+/* Social icon buttons */
+.community-social-links {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  pointer-events: auto;
+}
+
+.community-social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3em;
+  height: 3em;
+  padding: 0;
+  color: var(--color-white);
+  pointer-events: auto;
+}
+
+.community-social-btn svg {
+  width: 1.2em;
+  height: 1.2em;
+}
+
 .community-sticky-btn {
   background: var(--color-white) !important;
   color: var(--color-black) !important;
@@ -5969,19 +5993,34 @@ button.is-loading {
     top: auto;
     transform: none;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
     padding: 0 1em;
     width: 100%;
+    gap: 0.4em;
   }
 
   .community-sticky-text {
     display: none;
   }
 
+  .community-social-links {
+    display: flex;
+    gap: 0.4em;
+    flex-shrink: 0;
+  }
+
+  .community-social-btn {
+    font-size: var(--font-base);
+    width: 3em;
+    height: 3em;
+  }
+
   .community-sticky-btn {
-    width: 100%;
+    font-size: var(--font-base);
+    flex: 1;
+    height: 3em;
   }
 
   .community-section .section-divider-bottom {
@@ -6075,6 +6114,7 @@ button.is-loading {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1em;
+  padding-bottom: 4em;
 }
 
 .shop-no-results {
