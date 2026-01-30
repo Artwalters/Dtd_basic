@@ -9154,16 +9154,7 @@ button.is-loading {
   bottom: 1.5em;
   right: 1.5em;
   z-index: 99;
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  padding: 1.5em;
   max-width: 22em;
-  background: rgba(7, 7, 7, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--white-light);
-  border-radius: 0.75em;
   opacity: 0;
   visibility: hidden;
   transform: translateY(1em);
@@ -9171,6 +9162,18 @@ button.is-loading {
     opacity var(--duration-slow) var(--ease-smooth),
     visibility var(--duration-slow) var(--ease-smooth),
     transform var(--duration-slow) var(--ease-smooth);
+}
+
+.cookie-banner__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  padding: 1.5em;
+  background: rgba(7, 7, 7, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--white-light);
+  border-radius: 0.75em;
 }
 
 .cookie-banner--visible {
@@ -9222,12 +9225,46 @@ button.is-loading {
   color: var(--color-white);
 }
 
-@media screen and (max-width: 479px) {
+@media screen and (max-width: 767px) {
   .cookie-banner {
-    right: 1em;
-    left: 1em;
-    bottom: 1em;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    top: 0;
     max-width: none;
+    background: rgba(7, 7, 7, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2em;
+    transform: none;
+  }
+
+  .cookie-banner__inner {
+    background: rgba(7, 7, 7, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--white-light);
+    border-radius: 0.75em;
+    padding: 2em;
+    align-items: center;
+    text-align: center;
+    max-width: 22em;
+    width: 100%;
+  }
+
+  .cookie-banner__text {
+    font-size: var(--font-base);
+    margin-bottom: 0.5em;
+  }
+
+  .cookie-banner__actions {
+    width: 100%;
+    max-width: 20em;
+  }
+
+  .cookie-banner__customize {
+    margin-top: 0.5em;
   }
 }
 
@@ -9392,10 +9429,10 @@ button.is-loading {
 }
 
 /* ===========================================
-   Discount Popup (15% Off)
+   Discount Popup (10% Off)
    =========================================== */
 
-/* Trigger button — bottom-left */
+/* Trigger button — desktop only, bottom-left */
 .discount-trigger {
   position: fixed;
   bottom: 1.5em;
@@ -9416,10 +9453,9 @@ button.is-loading {
   transform: translateY(0);
 }
 
-@media screen and (max-width: 479px) {
+@media screen and (max-width: 767px) {
   .discount-trigger {
-    left: 1em;
-    bottom: 1em;
+    display: none;
   }
 }
 
@@ -9515,7 +9551,7 @@ button.is-loading {
   min-width: 0;
   height: 48px;
   padding: 0 1em;
-  font-size: var(--font-base);
+  font-size: 16px;
   font-family: inherit;
   background: var(--white-subtle);
   border: 1px solid var(--white-subtle);
@@ -9606,6 +9642,7 @@ button.is-loading {
     width: 100%;
     max-width: none;
     margin: 1em;
+    border-radius: 0.75em;
   }
 
   .discount-modal__body {

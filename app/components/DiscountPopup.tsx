@@ -7,29 +7,69 @@ export function DiscountPopup() {
 
   const [triggerVisible, setTriggerVisible] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const isSubmitting = fetcher.state !== 'idle';
   const isSuccess = fetcher.data?.success === true;
   const errorMessage = fetcher.data?.error ?? null;
-  const discountCode = fetcher.data?.discountCode ?? null;
 
-  // Show trigger button after a short delay
+  // Detect mobile once on mount
   useEffect(() => {
-    const timeout = setTimeout(() => setTriggerVisible(true), 1500);
-    return () => clearTimeout(timeout);
+    setIsMobile(window.matchMedia('(max-width: 767px)').matches);
   }, []);
 
-  // On success without discount code, auto-close after delay
+  // Desktop: show trigger button after delay
+  // Mobile: auto-open modal after cookie banner is dismissed
   useEffect(() => {
-    if (isSuccess && !discountCode) {
+    if (dismissed) return;
+
+    const show = () => {
+      if (isMobile) {
+        setModalOpen(true);
+      } else {
+        setTriggerVisible(true);
+      }
+    };
+
+    // Always listen for the cookie-banner-dismissed event first
+    let fallbackTimeout: ReturnType<typeof setTimeout>;
+    let showed = false;
+
+    const handleDismissed = () => {
+      if (showed) return;
+      showed = true;
+      clearTimeout(fallbackTimeout);
+      setTimeout(() => show(), 500);
+    };
+
+    window.addEventListener('cookie-banner-dismissed', handleDismissed);
+
+    // Fallback: if no cookie banner appears within 3s, show the popup
+    fallbackTimeout = setTimeout(() => {
+      const bannerEl = document.querySelector('.cookie-banner');
+      if (!bannerEl && !showed) {
+        showed = true;
+        show();
+      }
+    }, 3000);
+
+    return () => {
+      clearTimeout(fallbackTimeout);
+      window.removeEventListener('cookie-banner-dismissed', handleDismissed);
+    };
+  }, [dismissed, isMobile]);
+
+  // On success, auto-close after delay
+  useEffect(() => {
+    if (isSuccess) {
       if (inputRef.current) inputRef.current.value = '';
       const timeout = setTimeout(() => {
         handleDismiss();
       }, 2500);
       return () => clearTimeout(timeout);
     }
-  }, [isSuccess, discountCode]);
+  }, [isSuccess]);
 
   // Focus input when modal opens
   useEffect(() => {
@@ -40,27 +80,17 @@ export function DiscountPopup() {
 
   function handleDismiss() {
     setModalOpen(false);
-  }
-
-  async function handleCopy() {
-    if (!discountCode) return;
-    try {
-      await navigator.clipboard.writeText(discountCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Fallback: select text
-    }
+    setDismissed(true);
   }
 
   return (
     <>
-      {/* Trigger button — bottom-left */}
+      {/* Desktop trigger button — bottom-left */}
       <button
         className={`btn btn-glass discount-trigger ${triggerVisible && !modalOpen ? 'discount-trigger--visible' : ''}`}
         onClick={() => setModalOpen(true)}
       >
-        {discountCode ? 'Get your 10% Off' : 'Get 10% Off'}
+        Get 10% Off
       </button>
 
       {/* Modal overlay */}
@@ -68,41 +98,19 @@ export function DiscountPopup() {
         <div
           className="discount-overlay"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setModalOpen(false);
+            if (e.target === e.currentTarget) handleDismiss();
           }}
         >
           <div className="discount-modal">
             <button
               className="discount-modal__close"
-              onClick={() => setModalOpen(false)}
+              onClick={handleDismiss}
               aria-label="Close"
             >
               ✕
             </button>
 
-            {isSuccess && discountCode ? (
-              <div className="discount-modal__body">
-                <h2 className="discount-modal__title">Your Code</h2>
-                <p className="discount-modal__subtitle">
-                  Use this code at checkout for 10% off:
-                </p>
-                <div className="discount-modal__code-wrapper">
-                  <span className="discount-modal__code">{discountCode}</span>
-                  <button
-                    className="btn btn-glass discount-modal__copy-btn"
-                    onClick={handleCopy}
-                  >
-                    {copied ? 'Copied!' : 'Copy'}
-                  </button>
-                </div>
-                <button
-                  className="discount-modal__decline"
-                  onClick={handleDismiss}
-                >
-                  Close
-                </button>
-              </div>
-            ) : isSuccess ? (
+            {isSuccess ? (
               <div className="discount-modal__body">
                 <h2 className="discount-modal__title">Welcome!</h2>
                 <p className="discount-modal__subtitle">

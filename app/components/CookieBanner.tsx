@@ -88,7 +88,10 @@ export function CookieBanner() {
       // Hide UI
       setVisible(false);
       setShowPreferences(false);
-      setTimeout(() => setShouldRender(false), 500);
+      setTimeout(() => {
+        setShouldRender(false);
+        window.dispatchEvent(new CustomEvent('cookie-banner-dismissed'));
+      }, 500);
     },
     [customerPrivacy, ready],
   );
@@ -106,32 +109,34 @@ export function CookieBanner() {
         <div
           className={`cookie-banner ${visible ? 'cookie-banner--visible' : ''}`}
         >
-          <p className="cookie-banner__text">
-            We use cookies to improve your experience.{' '}
-            <Link to="/policies#privacy" className="cookie-banner__link">
-              Privacy Policy
-            </Link>
-          </p>
-          <div className="cookie-banner__actions">
+          <div className="cookie-banner__inner">
+            <p className="cookie-banner__text">
+              We use cookies to improve your experience.{' '}
+              <Link to="/policies#privacy" className="cookie-banner__link">
+                Privacy Policy
+              </Link>
+            </p>
+            <div className="cookie-banner__actions">
+              <button
+                className="btn btn-glass"
+                onClick={() => handleConsent('rejectAll')}
+              >
+                Reject All
+              </button>
+              <button
+                className="btn btn-solid"
+                onClick={() => handleConsent('acceptAll')}
+              >
+                Accept All
+              </button>
+            </div>
             <button
-              className="btn btn-glass"
-              onClick={() => handleConsent('rejectAll')}
+              className="cookie-banner__customize"
+              onClick={() => setShowPreferences(true)}
             >
-              Reject All
-            </button>
-            <button
-              className="btn btn-solid"
-              onClick={() => handleConsent('acceptAll')}
-            >
-              Accept All
+              Customize
             </button>
           </div>
-          <button
-            className="cookie-banner__customize"
-            onClick={() => setShowPreferences(true)}
-          >
-            Customize
-          </button>
         </div>
       )}
 
