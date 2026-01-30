@@ -16,7 +16,6 @@ import favicon from '~/assets/favicon.svg';
 import {HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
-import cartStyles from '~/styles/cart.css?url';
 import genesisFont from '~/assets/fonts/Genesis.woff2?url';
 import {PageLayout} from './components/PageLayout';
 import {useLenis} from '~/hooks/useLenis';
@@ -162,7 +161,6 @@ export function Layout({children}: {children?: React.ReactNode}) {
         `}} />
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
-        <link rel="stylesheet" href={cartStyles}></link>
         <Meta />
         <Links />
       </head>
