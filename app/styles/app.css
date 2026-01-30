@@ -9493,6 +9493,36 @@ button.is-loading {
   color: var(--color-white);
 }
 
+.discount-modal__code-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  margin: 1.5em 0;
+  padding: 0.875em 1em;
+  background: var(--white-subtle);
+  border: 1px solid var(--white-light);
+  border-radius: 0.5em;
+}
+
+.discount-modal__code {
+  font-size: var(--font-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-white);
+  flex: 1;
+  text-align: center;
+  user-select: all;
+}
+
+.discount-modal__copy-btn.btn.btn-glass {
+  padding: 0.5em 1em;
+  font-size: var(--font-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 @media screen and (max-width: 479px) {
   .discount-modal {
     width: 100%;
@@ -9506,5 +9536,10 @@ button.is-loading {
 
   .discount-modal__title {
     font-size: var(--font-4xl);
+  }
+
+  .discount-modal__code-wrapper {
+    flex-direction: column;
+    gap: 0.5em;
   }
 }

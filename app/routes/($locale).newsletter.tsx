@@ -1,5 +1,6 @@
 import {data} from 'react-router';
 import type {Route} from './+types/($locale).newsletter';
+import {createDiscountCode} from '~/lib/admin';
 
 const CUSTOMER_CREATE_MUTATION = `#graphql
   mutation customerCreate($input: CustomerCreateInput!) {
@@ -19,12 +20,12 @@ const CUSTOMER_CREATE_MUTATION = `#graphql
 export async function action({request, context}: Route.ActionArgs) {
   const formData = await request.formData();
   const email = String(formData.get('email') || '').trim();
+  const source = String(formData.get('source') || '');
 
   if (!email) {
-    return data({success: false, error: 'Please enter an email address.'}, {status: 400});
+    return data({success: false, error: 'Please enter an email address.', discountCode: null}, {status: 400});
   }
 
-  // Generate a random password — required by the API but the subscriber won't use it
   const password = crypto.randomUUID();
 
   try {
@@ -45,16 +46,32 @@ export async function action({request, context}: Route.ActionArgs) {
         (e: {code: string}) => e.code === 'TAKEN' || e.code === 'CUSTOMER_DISABLED',
       );
       if (alreadyExists) {
-        return data({success: false, error: 'This email is already subscribed.'}, {status: 409});
+        if (source === 'discount') {
+          return data({
+            success: false,
+            error: 'You already claimed your discount. Use a creator code instead!',
+            discountCode: null,
+          }, {status: 400});
+        }
+        return data({success: true, error: null, discountCode: null});
       }
-      return data({success: false, error: errors[0].message}, {status: 400});
+      return data({success: false, error: errors[0].message, discountCode: null}, {status: 400});
     }
 
-    return data({success: true, error: null});
+    let discountCode: string | null = null;
+    if (source === 'discount') {
+      try {
+        discountCode = await createDiscountCode(context.env);
+      } catch (err) {
+        console.error('Discount code generation failed:', err);
+      }
+    }
+
+    return data({success: true, error: null, discountCode});
   } catch (err) {
     console.error('Newsletter signup error:', err);
     return data(
-      {success: false, error: 'Something went wrong. Please try again.'},
+      {success: false, error: 'Something went wrong. Please try again.', discountCode: null},
       {status: 500},
     );
   }

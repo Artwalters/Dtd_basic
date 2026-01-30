@@ -1,43 +1,35 @@
 import {useState, useEffect, useRef} from 'react';
 import {useFetcher} from 'react-router';
 
-const STORAGE_KEY = 'discount-popup-dismissed';
-
 export function DiscountPopup() {
-  const fetcher = useFetcher<{success: boolean; error: string | null}>();
+  const fetcher = useFetcher<{success: boolean; error: string | null; discountCode: string | null}>();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [dismissed, setDismissed] = useState(() => {
-    try {
-      return !!localStorage.getItem(STORAGE_KEY);
-    } catch {
-      return false;
-    }
-  });
   const [triggerVisible, setTriggerVisible] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const isSubmitting = fetcher.state !== 'idle';
   const isSuccess = fetcher.data?.success === true;
   const errorMessage = fetcher.data?.error ?? null;
+  const discountCode = fetcher.data?.discountCode ?? null;
 
   // Show trigger button after a short delay
   useEffect(() => {
-    if (dismissed) return;
     const timeout = setTimeout(() => setTriggerVisible(true), 1500);
     return () => clearTimeout(timeout);
-  }, [dismissed]);
+  }, []);
 
-  // On success, clear input and auto-close after delay
+  // On success without discount code, auto-close after delay
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess && !discountCode) {
       if (inputRef.current) inputRef.current.value = '';
       const timeout = setTimeout(() => {
         handleDismiss();
       }, 2500);
       return () => clearTimeout(timeout);
     }
-  }, [isSuccess]);
+  }, [isSuccess, discountCode]);
 
   // Focus input when modal opens
   useEffect(() => {
@@ -48,14 +40,18 @@ export function DiscountPopup() {
 
   function handleDismiss() {
     setModalOpen(false);
-    setTriggerVisible(false);
-    try {
-      localStorage.setItem(STORAGE_KEY, '1');
-    } catch {}
-    setTimeout(() => setDismissed(true), 500);
   }
 
-  if (dismissed) return null;
+  async function handleCopy() {
+    if (!discountCode) return;
+    try {
+      await navigator.clipboard.writeText(discountCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback: select text
+    }
+  }
 
   return (
     <>
@@ -64,7 +60,7 @@ export function DiscountPopup() {
         className={`btn btn-glass discount-trigger ${triggerVisible && !modalOpen ? 'discount-trigger--visible' : ''}`}
         onClick={() => setModalOpen(true)}
       >
-        Get 15% Off
+        {discountCode ? 'Get your 10% Off' : 'Get 10% Off'}
       </button>
 
       {/* Modal overlay */}
@@ -84,17 +80,39 @@ export function DiscountPopup() {
               ✕
             </button>
 
-            {isSuccess ? (
+            {isSuccess && discountCode ? (
+              <div className="discount-modal__body">
+                <h2 className="discount-modal__title">Your Code</h2>
+                <p className="discount-modal__subtitle">
+                  Use this code at checkout for 10% off:
+                </p>
+                <div className="discount-modal__code-wrapper">
+                  <span className="discount-modal__code">{discountCode}</span>
+                  <button
+                    className="btn btn-glass discount-modal__copy-btn"
+                    onClick={handleCopy}
+                  >
+                    {copied ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+                <button
+                  className="discount-modal__decline"
+                  onClick={handleDismiss}
+                >
+                  Close
+                </button>
+              </div>
+            ) : isSuccess ? (
               <div className="discount-modal__body">
                 <h2 className="discount-modal__title">Welcome!</h2>
                 <p className="discount-modal__subtitle">
-                  Check your inbox for your 15% discount code.
+                  Check your inbox for your 10% discount code.
                 </p>
               </div>
             ) : (
               <div className="discount-modal__body">
                 <p className="discount-modal__eyebrow">Unlock</p>
-                <h2 className="discount-modal__title">15% Off</h2>
+                <h2 className="discount-modal__title">10% Off</h2>
                 <p className="discount-modal__subtitle">when you subscribe.</p>
 
                 <fetcher.Form
@@ -102,6 +120,7 @@ export function DiscountPopup() {
                   action="/newsletter"
                   className="discount-modal__form"
                 >
+                  <input type="hidden" name="source" value="discount" />
                   <input
                     ref={inputRef}
                     type="email"
