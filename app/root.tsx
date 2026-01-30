@@ -66,6 +66,22 @@ export function links() {
       href: 'https://shop.app',
     },
     {rel: 'icon', type: 'image/svg+xml', href: favicon},
+    // Preload community carousel images so they're cached before the section loads
+    ...[
+      '/Img/6503d875-bea9-44d4-a82b-0bbf235b80bf.webp',
+      '/Img/690ad09a-c27c-4078-abb3-800071d7c98d.webp',
+      '/Img/8c968cdf-d136-4e8f-8023-0c5bef62d2b5.webp',
+      '/Img/DSC04304.webp',
+      '/Img/DSC04329.webp',
+      '/Img/DSC04476.webp',
+      '/Img/DSC04745.webp',
+      '/Img/DSC04793.webp',
+      '/Img/DSC06673.webp',
+      '/Img/DSC06729.webp',
+      '/Img/DSC08907.webp',
+      '/Img/DSC_7221.webp',
+      '/Img/DSC_7306.webp',
+    ].map((href) => ({rel: 'preload', href, as: 'image', type: 'image/webp'})),
   ];
 }
 

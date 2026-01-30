@@ -3,6 +3,7 @@ import {useGLTF, useAnimations, Environment, useTexture, useFBO} from '@react-th
 import {Suspense, useEffect, useRef, useState, useMemo, useCallback} from 'react';
 import {useDrag} from '@use-gesture/react';
 import * as THREE from 'three';
+import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 import {useTheme} from '~/contexts/ThemeContext';
 
 // Hook to check if device is touch-only (client-side only, safe for SSR)
@@ -19,30 +20,30 @@ function useIsTouchDevice() {
 }
 
 function Model({isTouchDevice}: {isTouchDevice: boolean}) {
-  const {scene, animations} = useGLTF('/3D/dtd_logo7.glb', '/draco/');
-  const {actions, names} = useAnimations(animations, scene);
+  const {scene, animations} = useGLTF('/3D/dtd_logo7_nav.glb', '/draco/');
   const modelRef = useRef<THREE.Group>(null);
   const {pointer} = useThree();
 
-  // Simple metallic material without textures (lighter weight)
-  const material = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
+  // Clone scene to avoid mutating the cached original (shared with NavbarLogo3D)
+  const clonedScene = useMemo(() => {
+    const clone = SkeletonUtils.clone(scene);
+    const material = new THREE.MeshStandardMaterial({
       color: new THREE.Color(0.2, 0.2, 0.2),
       metalness: 1,
       roughness: 0.3,
       envMapIntensity: 0.8,
     });
-  }, []);
-
-  // Apply material to all meshes in the scene
-  useEffect(() => {
-    scene.traverse((child) => {
+    clone.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.material = material;
         child.material.fog = false;
       }
     });
-  }, [scene, material]);
+    return clone;
+  }, [scene]);
+
+  // Clone animations for the cloned scene
+  const {actions, names} = useAnimations(animations, clonedScene);
 
   // Play animation
   useEffect(() => {
@@ -60,7 +61,6 @@ function Model({isTouchDevice}: {isTouchDevice: boolean}) {
   useFrame(() => {
     if (modelRef.current) {
       if (isTouchDevice) {
-        // On touch devices, just maintain base rotation without hover effects
         modelRef.current.rotation.y += ((-Math.PI / 2) - modelRef.current.rotation.y) * 0.02;
         modelRef.current.rotation.x += (0 - modelRef.current.rotation.x) * 0.02;
         modelRef.current.position.x += (0 - modelRef.current.position.x) * 0.02;
@@ -69,7 +69,6 @@ function Model({isTouchDevice}: {isTouchDevice: boolean}) {
         const targetX = pointer.x * 0.1;
         const targetY = pointer.y * 0.05;
 
-        // Smooth interpolation for natural movement
         modelRef.current.rotation.y += (targetX - modelRef.current.rotation.y + (-Math.PI / 2)) * 0.02;
         modelRef.current.rotation.x += (targetY - modelRef.current.rotation.x) * 0.02;
         modelRef.current.position.x += (targetX - modelRef.current.position.x) * 0.02;
@@ -78,14 +77,18 @@ function Model({isTouchDevice}: {isTouchDevice: boolean}) {
     }
   });
 
-  // Cleanup material on unmount
+  // Cleanup cloned scene materials on unmount
   useEffect(() => {
     return () => {
-      material.dispose();
+      clonedScene.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.material) {
+          child.material.dispose();
+        }
+      });
     };
-  }, [material]);
+  }, [clonedScene]);
 
-  return <primitive ref={modelRef} object={scene} scale={isTouchDevice ? 0.40 : 0.45} rotation={[0, -Math.PI / 2, 0]} />;
+  return <primitive ref={modelRef} object={clonedScene} scale={isTouchDevice ? 0.40 : 0.45} rotation={[0, -Math.PI / 2, 0]} />;
 }
 
 // Godray post-processing shaders
@@ -195,8 +198,12 @@ function GodrayEffect({children, isTouchDevice}: {children: React.ReactNode; isT
     return mesh;
   }, [material, postScene]);
 
-  // Render loop with post-processing
+  // Render at ~30fps by skipping every other frame
+  const frameRef = useRef(0);
   useFrame(() => {
+    frameRef.current++;
+    if (frameRef.current % 2 !== 0) return;
+
     // First pass: render scene to render target
     gl.setRenderTarget(renderTarget);
     gl.render(scene, camera);
@@ -421,27 +428,13 @@ function Scene({hdriRotation, isTouchDevice}: {hdriRotation: [number, number, nu
 
 export default function CommunityCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
   const [dpr, setDpr] = useState(1.5);
   const isTouchDevice = useIsTouchDevice();
 
   useEffect(() => {
-    // Set DPR on client side - lower for better performance
     const deviceDpr = window.devicePixelRatio || 2;
-    // Cap DPR at 1.5 for better performance (was 2)
     setDpr(Math.min(deviceDpr, 1.5));
   }, [isTouchDevice]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
-      {threshold: 0.1}
-    );
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-    return () => observer.disconnect();
-  }, []);
 
   // Drag gesture for carousel control (horizontal only, allows vertical scroll)
   const bind = useDrag(
@@ -472,7 +465,7 @@ export default function CommunityCanvas() {
       <Canvas
         camera={{position: [0, 0, 4], fov: 50}}
         dpr={dpr}
-        frameloop={isVisible ? 'always' : 'never'}
+        frameloop="always"
         gl={{antialias: true, powerPreference: 'high-performance'}}
       >
         <Scene hdriRotation={[75 * Math.PI / 180, 0 * Math.PI / 180, 0 * Math.PI / 180]} isTouchDevice={isTouchDevice} />
