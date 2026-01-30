@@ -3,13 +3,12 @@ import type {Route} from './+types/($locale).newsletter';
 import {createDiscountCode} from '~/lib/admin';
 
 const CUSTOMER_CREATE_MUTATION = `#graphql
-  mutation customerCreate($input: CustomerCreateInput!) {
+  mutation customerCreate($input: CustomerInput!) {
     customerCreate(input: $input) {
       customer {
         id
       }
-      customerUserErrors {
-        code
+      userErrors {
         field
         message
       }
@@ -39,11 +38,13 @@ export async function action({request, context}: Route.ActionArgs) {
       },
     });
 
-    const errors = result?.customerCreate?.customerUserErrors;
+    const errors = result?.customerCreate?.userErrors;
 
     if (errors?.length) {
       const alreadyExists = errors.some(
-        (e: {code: string}) => e.code === 'TAKEN' || e.code === 'CUSTOMER_DISABLED',
+        (e: {message: string}) =>
+          e.message.toLowerCase().includes('taken') ||
+          e.message.toLowerCase().includes('already exists'),
       );
       if (alreadyExists) {
         if (source === 'discount') {
