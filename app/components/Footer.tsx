@@ -1,5 +1,5 @@
-import {Link} from 'react-router';
-import {useEffect} from 'react';
+import {Link, useFetcher} from 'react-router';
+import {useEffect, useRef} from 'react';
 
 export function Footer() {
   // Initialize accordion functionality for mobile
@@ -42,6 +42,22 @@ export function Footer() {
     return () => clearTimeout(timeoutId);
   }, []);
 
+  const fetcher = useFetcher<{success: boolean; error: string | null}>();
+  const desktopInputRef = useRef<HTMLInputElement>(null);
+  const mobileInputRef = useRef<HTMLInputElement>(null);
+
+  const isSubmitting = fetcher.state !== 'idle';
+  const isSuccess = fetcher.data?.success === true;
+  const errorMessage = fetcher.data?.error ?? null;
+
+  // Clear inputs on success
+  useEffect(() => {
+    if (isSuccess) {
+      if (desktopInputRef.current) desktopInputRef.current.value = '';
+      if (mobileInputRef.current) mobileInputRef.current.value = '';
+    }
+  }, [isSuccess]);
+
   const footerSections = [
     {
       title: 'Help',
@@ -79,19 +95,28 @@ export function Footer() {
         <div className="footer-links-col footer-newsletter">
           <h3 className="footer-links-title">Newsletter</h3>
           <p className="footer-newsletter-subtitle">Get a look behind the brand</p>
-          <form className="footer-newsletter-form">
-            <input
-              type="email"
-              placeholder="Email address"
-              className="footer-newsletter-input"
-            />
-            <button type="submit" className="btn-glass btn-glass--icon footer-newsletter-btn" aria-label="Subscribe">
-              <svg className="footer-newsletter-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 10L20 15L15 20" stroke="currentColor" strokeMiterlimit="10"></path>
-                <path d="M4 4V12L7 15H20" stroke="currentColor" strokeMiterlimit="10"></path>
-              </svg>
-            </button>
-          </form>
+          {isSuccess ? (
+            <p className="footer-newsletter-success">Thank you for subscribing!</p>
+          ) : (
+            <fetcher.Form method="post" action="/newsletter" className="footer-newsletter-form">
+              <input
+                ref={desktopInputRef}
+                type="email"
+                name="email"
+                placeholder="Email address"
+                className="footer-newsletter-input"
+                required
+                disabled={isSubmitting}
+              />
+              <button type="submit" className="btn-glass btn-glass--icon footer-newsletter-btn" aria-label="Subscribe" disabled={isSubmitting}>
+                <svg className="footer-newsletter-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 10L20 15L15 20" stroke="currentColor" strokeMiterlimit="10"></path>
+                  <path d="M4 4V12L7 15H20" stroke="currentColor" strokeMiterlimit="10"></path>
+                </svg>
+              </button>
+            </fetcher.Form>
+          )}
+          {errorMessage && <p className="footer-newsletter-error">{errorMessage}</p>}
           <p className="footer-newsletter-disclaimer">
             you can unsubscribe at any time. <Link to="/policies#privacy">privacy policy</Link>
           </p>
@@ -144,19 +169,28 @@ export function Footer() {
         {/* Newsletter */}
         <div className="footer-newsletter-mobile">
           <h3 className="footer-newsletter-mobile-title">Newsletter</h3>
-          <form className="footer-newsletter-form">
-            <input
-              type="email"
-              placeholder="Email address"
-              className="footer-newsletter-input"
-            />
-            <button type="submit" className="btn-glass btn-glass--icon footer-newsletter-btn" aria-label="Subscribe">
-              <svg className="footer-newsletter-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M15 10L20 15L15 20" stroke="currentColor" strokeMiterlimit="10"></path>
-                <path d="M4 4V12L7 15H20" stroke="currentColor" strokeMiterlimit="10"></path>
-              </svg>
-            </button>
-          </form>
+          {isSuccess ? (
+            <p className="footer-newsletter-success">Thank you for subscribing!</p>
+          ) : (
+            <fetcher.Form method="post" action="/newsletter" className="footer-newsletter-form">
+              <input
+                ref={mobileInputRef}
+                type="email"
+                name="email"
+                placeholder="Email address"
+                className="footer-newsletter-input"
+                required
+                disabled={isSubmitting}
+              />
+              <button type="submit" className="btn-glass btn-glass--icon footer-newsletter-btn" aria-label="Subscribe" disabled={isSubmitting}>
+                <svg className="footer-newsletter-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 10L20 15L15 20" stroke="currentColor" strokeMiterlimit="10"></path>
+                  <path d="M4 4V12L7 15H20" stroke="currentColor" strokeMiterlimit="10"></path>
+                </svg>
+              </button>
+            </fetcher.Form>
+          )}
+          {errorMessage && <p className="footer-newsletter-error">{errorMessage}</p>}
           <p className="footer-newsletter-disclaimer">
             Sign up to our newsletter to stay updated on new releases. <Link to="/policies#privacy">privacy policy</Link>
           </p>

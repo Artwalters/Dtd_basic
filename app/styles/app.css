@@ -7331,6 +7331,18 @@ button.is-loading {
   color: var(--color-white);
 }
 
+.footer-newsletter-success {
+  font-size: var(--font-base);
+  color: var(--color-success);
+  padding: 0.5em 0;
+}
+
+.footer-newsletter-error {
+  font-size: var(--font-sm);
+  color: #ef4444;
+  margin-top: 0.5em;
+}
+
 .footer-links > .footer-divider-bottom {
   position: absolute;
   bottom: 0;
