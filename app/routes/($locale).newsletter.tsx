@@ -1,14 +1,14 @@
 import {data} from 'react-router';
 import type {Route} from './+types/($locale).newsletter';
-import {createDiscountCode} from '~/lib/admin';
 
 const CUSTOMER_CREATE_MUTATION = `#graphql
-  mutation customerCreate($input: CustomerInput!) {
+  mutation customerCreate($input: CustomerCreateInput!) {
     customerCreate(input: $input) {
       customer {
         id
       }
-      userErrors {
+      customerUserErrors {
+        code
         field
         message
       }
@@ -38,13 +38,11 @@ export async function action({request, context}: Route.ActionArgs) {
       },
     });
 
-    const errors = result?.customerCreate?.userErrors;
+    const errors = result?.customerCreate?.customerUserErrors;
 
     if (errors?.length) {
       const alreadyExists = errors.some(
-        (e: {message: string}) =>
-          e.message.toLowerCase().includes('taken') ||
-          e.message.toLowerCase().includes('already exists'),
+        (e) => e.code === 'TAKEN' || e.code === 'CUSTOMER_DISABLED',
       );
       if (alreadyExists) {
         if (source === 'discount') {
@@ -59,16 +57,7 @@ export async function action({request, context}: Route.ActionArgs) {
       return data({success: false, error: errors[0].message, discountCode: null}, {status: 400});
     }
 
-    let discountCode: string | null = null;
-    if (source === 'discount') {
-      try {
-        discountCode = await createDiscountCode(context.env);
-      } catch (err) {
-        console.error('Discount code generation failed:', err);
-      }
-    }
-
-    return data({success: true, error: null, discountCode});
+    return data({success: true, error: null, discountCode: null});
   } catch (err) {
     console.error('Newsletter signup error:', err);
     return data(

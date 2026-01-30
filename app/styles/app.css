@@ -3680,7 +3680,7 @@ button.is-loading {
   }
 
   .shop-the-look-section-title {
-    font-size: var(--font-md);
+    font-size: var(--font-2xl);
     text-transform: uppercase;
     letter-spacing: var(--tracking-wide);
     font-weight: var(--weight-medium);
@@ -5095,7 +5095,7 @@ button.is-loading {
   gap: 0.5em;
   flex: 1;
   font-size: var(--font-sm);
-  color: var(--white-bright);
+  color: var(--white-strong);
 }
 
 .trust-badge:first-child {

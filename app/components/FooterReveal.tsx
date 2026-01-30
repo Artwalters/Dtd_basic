@@ -4,6 +4,11 @@ import {useLocation} from 'react-router';
 import {gsap} from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
 import {ClientOnly} from '~/components/ClientOnly';
+import applePayBadge from '~/assets/icons/apple-pay-badge-1.svg';
+import shopPayBadge from '~/assets/icons/shop-pay-badge.svg';
+import googlePayBadge from '~/assets/icons/google-pay-badge-1.svg';
+import mastercardBadge from '~/assets/icons/mastercard-badge-2.svg';
+import paypalBadge from '~/assets/icons/paypal-badge-1.svg';
 
 const FooterLogo3D = lazy(() => import('~/components/FooterLogo3D'));
 
@@ -104,11 +109,11 @@ export function FooterParallax() {
         </div>
         <span className="footer-parallax-copyright">©Dare to Dream 2026</span>
         <div className="footer-parallax-badges">
-          <img src="/app/assets/icons/apple-pay-badge-1.svg" alt="Apple Pay" />
-          <img src="/app/assets/icons/shop-pay-badge.svg" alt="Shop Pay" />
-          <img src="/app/assets/icons/google-pay-badge-1.svg" alt="Google Pay" />
-          <img src="/app/assets/icons/mastercard-badge-2.svg" alt="Mastercard" />
-          <img src="/app/assets/icons/paypal-badge-1.svg" alt="PayPal" />
+          <img src={applePayBadge} alt="Apple Pay" />
+          <img src={shopPayBadge} alt="Shop Pay" />
+          <img src={googlePayBadge} alt="Google Pay" />
+          <img src={mastercardBadge} alt="Mastercard" />
+          <img src={paypalBadge} alt="PayPal" />
         </div>
       </footer>
       <div ref={darkRef} className="footer-parallax-dark" />

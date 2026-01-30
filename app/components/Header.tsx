@@ -507,8 +507,6 @@ const SEARCH_SYNONYMS: string[][] = [
 const SITE_PAGES = [
   {label: 'About Us', path: '/about', keywords: ['about', 'about us', 'over', 'over ons', 'story', 'verhaal', 'ons verhaal', 'wie zijn wij']},
   {label: 'Shop', path: '/collections/all', keywords: ['shop', 'products', 'producten', 'collection', 'collectie', 'all', 'winkel', 'alle producten', 'kleding']},
-  {label: 'Community', path: '/community', keywords: ['community', 'gemeenschap', 'athletes', 'atleten']},
-  {label: 'Lookbook', path: '/lookbook', keywords: ['lookbook', 'look', 'looks', 'style', 'stijl', 'outfits', 'inspiratie']},
   {label: 'Account', path: '/account', keywords: ['account', 'login', 'inloggen', 'profiel', 'profile', 'mijn account']},
   {label: 'Privacy Policy', path: '/policies#privacy', keywords: ['privacy', 'policy', 'privacybeleid', 'gegevens', 'data']},
   {label: 'Terms of Service', path: '/policies#terms', keywords: ['terms', 'voorwaarden', 'algemene voorwaarden', 'terms of service', 'tos']},
@@ -533,7 +531,7 @@ const AUTOCOMPLETE_WORDS = [
   'shirts', 'joggers', 'hoodie', 'jacket', 'cap', 'socks', 'sneakers', 'bag', 'accessories',
   'tee', 'pants', 'sweater', 'hat', 'shoes', 'tops', 'bottoms',
   'envision', 'lucid', 'summit', 'origin', 'resist', 'genesis',
-  'about', 'shop', 'community', 'lookbook', 'privacy', 'contact', 'account', 'team',
+  'about', 'shop', 'privacy', 'contact', 'account', 'team',
 ];
 
 function getAutocompleteSuggestion(input: string): string {
@@ -1292,8 +1290,6 @@ export function HeaderMenu({
   const menuItems = [
     { to: '/', label: 'Home', end: true },
     { to: '/collections/all', label: 'Shop' },
-    { to: '/community', label: 'Community' },
-    { to: '/lookbook', label: 'Lookbook' },
     { to: '/about', label: 'About' },
   ];
 

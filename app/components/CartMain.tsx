@@ -4,6 +4,11 @@ import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem} from '~/components/CartLineItem';
 import {CartSummary, CartCheckoutActions} from './CartSummary';
+import applePayBadge from '~/assets/icons/apple-pay-badge-1.svg';
+import shopPayBadge from '~/assets/icons/shop-pay-badge.svg';
+import googlePayBadge from '~/assets/icons/google-pay-badge-1.svg';
+import mastercardBadge from '~/assets/icons/mastercard-badge-2.svg';
+import paypalBadge from '~/assets/icons/paypal-badge-1.svg';
 
 export type CartLayout = 'page' | 'aside';
 
@@ -81,11 +86,11 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
       {/* Fixed corner elements - desktop only */}
       <span className="cart-copyright">©Dare to Dream 2026. All rights reserved.</span>
       <div className="cart-payment-badges">
-        <img src="/app/assets/icons/apple-pay-badge-1.svg" alt="Apple Pay" />
-        <img src="/app/assets/icons/shop-pay-badge.svg" alt="Shop Pay" />
-        <img src="/app/assets/icons/google-pay-badge-1.svg" alt="Google Pay" />
-        <img src="/app/assets/icons/mastercard-badge-2.svg" alt="Mastercard" />
-        <img src="/app/assets/icons/paypal-badge-1.svg" alt="PayPal" />
+        <img src={applePayBadge} alt="Apple Pay" />
+        <img src={shopPayBadge} alt="Shop Pay" />
+        <img src={googlePayBadge} alt="Google Pay" />
+        <img src={mastercardBadge} alt="Mastercard" />
+        <img src={paypalBadge} alt="PayPal" />
       </div>
     </div>
   );
