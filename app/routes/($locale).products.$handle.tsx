@@ -246,6 +246,7 @@ const PRODUCT_VARIANT_FRAGMENT = `#graphql
       name
       value
     }
+    quantityAvailable
     sku
     title
     unitPrice {

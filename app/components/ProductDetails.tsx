@@ -73,11 +73,11 @@ export function ProductDetails({
   }, []);
 
   const sizeOption = productOptions.find(option =>
-    option.name.toLowerCase() === 'size'
+    ['size', 'maat'].includes(option.name.toLowerCase())
   );
 
   const colorOption = productOptions.find(option =>
-    option.name.toLowerCase() === 'color'
+    ['color', 'kleur', 'colour'].includes(option.name.toLowerCase())
   );
 
   const expandableSections: ExpandableSection[] = [
@@ -154,50 +154,37 @@ export function ProductDetails({
           </span>
         </div>
 
-        {/* Size & Fit Guide link */}
-        <button className="size-guide-link product-size-guide-link" onClick={() => setIsSizeGuideOpen(true)}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="1" y="6" width="22" height="12" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-            <path d="M5 6V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M9 6V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M13 6V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M17 6V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
-          <span>Size & Fit Guide</span>
-        </button>
-
         {/* Divider Line with brackets */}
         <div className="section-divider product-section-divider"></div>
 
-        {/* Color Selection */}
-        {colorOption && colorOption.optionValues.length > 0 && (
-          <div className="product-color-section">
-            <span className="section-label">COLOR</span>
-            <div className="color-swatches">
-              {colorOption.optionValues.map((value) => (
-                <button
-                  key={value.name}
-                  className={`color-swatch ${value.selected ? 'selected' : ''}`}
-                  onClick={() => onVariantChange(value.variantUriQuery)}
-                  style={{
-                    backgroundColor: value.swatch?.color || '#4a6ee0',
-                  }}
-                  title={value.name}
-                />
-              ))}
-            </div>
+        {/* Trust Badges */}
+        <div className="product-trust-badges">
+          <div className="trust-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+            </svg>
+            <span>Free insured shipping</span>
           </div>
-        )}
+          <div className="trust-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+            </svg>
+            <span>30-day returns</span>
+          </div>
+          <div className="trust-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+            </svg>
+            <span>Personal customer service</span>
+          </div>
+        </div>
 
         {/* Size Selection */}
         {sizeOption && (
           <div className="product-size-section">
-            <div className="size-header">
-              <span className="size-model-info">Model is 187cm and 75kg wearing size M</span>
-              <button className="size-guide-link" onClick={() => setIsSizeGuideOpen(true)}>
-                <span>Size & Fit Guide</span>
-              </button>
-            </div>
             <div className="size-grid">
               {sizeOption.optionValues.map((value) => (
                 <button
@@ -212,6 +199,33 @@ export function ProductDetails({
             </div>
           </div>
         )}
+
+        {/* Stock + Model Info + Size Guide row */}
+        <div className="product-info-row">
+          {selectedVariant?.availableForSale && (
+            <div className="product-stock-indicator">
+              <span className="stock-dot" />
+              <span>
+                In stock
+                {typeof (selectedVariant as any).quantityAvailable === 'number' &&
+                  (selectedVariant as any).quantityAvailable <= 10 &&
+                  (selectedVariant as any).quantityAvailable > 0 &&
+                  ` – only ${(selectedVariant as any).quantityAvailable} left`}
+              </span>
+            </div>
+          )}
+          <span className="size-model-info">Model is 187cm / 75kg wearing M</span>
+          <button className="size-guide-link product-size-guide-link" onClick={() => setIsSizeGuideOpen(true)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="6" width="22" height="12" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M5 6V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M9 6V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M13 6V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M17 6V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <span>Size Guide</span>
+          </button>
+        </div>
 
         {/* Action Buttons */}
         <div className="product-actions">

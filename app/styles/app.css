@@ -5075,6 +5075,73 @@ button.is-loading {
   margin: 0 0 2em;
 }
 
+/* Trust Badges */
+.product-trust-badges {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 1.25em;
+}
+
+.trust-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  flex: 1;
+  font-size: var(--font-sm);
+  color: var(--white-bright);
+}
+
+.trust-badge svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+/* Product Info Row - stock, model info, size guide */
+.product-info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.25em;
+  font-size: var(--font-base);
+}
+
+.product-info-row > * {
+  flex: 1;
+}
+
+.product-info-row .size-model-info {
+  margin: 0;
+  text-align: center;
+}
+
+.product-info-row .product-size-guide-link {
+  justify-content: flex-end;
+  font-size: var(--font-base);
+}
+
+/* Stock Urgency Indicator */
+.product-stock-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: var(--color-success);
+  font-weight: var(--weight-medium);
+  font-size: var(--font-base);
+}
+
+.stock-dot {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--color-success);
+  animation: stock-pulse 2s ease-in-out infinite;
+}
+
+@keyframes stock-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 /* Section Label */
 .section-label {
   font-size: var(--font-sm);
@@ -5121,7 +5188,7 @@ button.is-loading {
 
 /* Size Section */
 .product-size-section {
-  margin-bottom: 2em;
+  margin-bottom: 1.25em;
 }
 
 .size-header {
@@ -5155,8 +5222,7 @@ button.is-loading {
 }
 
 .product-size-guide-link {
-  margin-top: 0.5em;
-  margin-bottom: 1.5em;
+  margin: 0;
   text-decoration: none;
 }
 
