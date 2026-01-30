@@ -251,31 +251,31 @@ export function ProductDetails({
           </ul>
         </div>
 
-      </div>
+        {/* Trust Badges */}
+        <div className="product-trust-badges">
+          <div className="trust-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+            </svg>
+            <span>Free shipping</span>
+          </div>
+          <div className="trust-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+            </svg>
+            <span>30-day return</span>
+          </div>
+          <div className="trust-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+            </svg>
+            <span>Customer care</span>
+          </div>
+        </div>
 
-      {/* Trust Badges - fixed at bottom of wrapper */}
-      <div className="product-trust-badges">
-        <div className="trust-badge">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-          </svg>
-          <span>Free insured shipping</span>
-        </div>
-        <div className="trust-badge">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-          </svg>
-          <span>30-day returns</span>
-        </div>
-        <div className="trust-badge">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-          </svg>
-          <span>Personal customer service</span>
-        </div>
       </div>
 
       <SizeGuide isOpen={isSizeGuideOpen} onClose={() => setIsSizeGuideOpen(false)} />

@@ -5083,11 +5083,9 @@ button.is-loading {
 .product-trust-badges {
   display: flex;
   flex-direction: row;
-  position: absolute;
-  bottom: 1.5em;
-  left: 0;
-  right: 0;
-  padding: 0 2.5em;
+  margin-top: 1.5em;
+  padding: 0;
+  gap: 0.75em;
 }
 
 .trust-badge {
@@ -5592,6 +5590,7 @@ button.is-loading {
     padding: 1em;
     font-size: var(--font-base);
   }
+
 }
 
 /*
@@ -6322,8 +6321,8 @@ button.is-loading {
 }
 
 @media (max-width: 767px) {
-  .accordion-css__item:last-child {
-    border-bottom: none;
+  .product-details .accordion-css__item:last-child {
+    border-bottom: 1px solid var(--white-light);
   }
 }
 
