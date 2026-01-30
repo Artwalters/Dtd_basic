@@ -154,52 +154,6 @@ export function ProductDetails({
           </span>
         </div>
 
-        {/* Divider Line with brackets */}
-        <div className="section-divider product-section-divider"></div>
-
-        {/* Trust Badges */}
-        <div className="product-trust-badges">
-          <div className="trust-badge">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-            </svg>
-            <span>Free insured shipping</span>
-          </div>
-          <div className="trust-badge">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-            </svg>
-            <span>30-day returns</span>
-          </div>
-          <div className="trust-badge">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-            </svg>
-            <span>Personal customer service</span>
-          </div>
-        </div>
-
-        {/* Size Selection */}
-        {sizeOption && (
-          <div className="product-size-section">
-            <div className="size-grid">
-              {sizeOption.optionValues.map((value) => (
-                <button
-                  key={value.name}
-                  className={`size-grid-option ${value.selected ? 'selected' : ''} ${!value.available ? 'unavailable' : ''}`}
-                  onClick={() => onVariantChange(value.variantUriQuery)}
-                  disabled={!value.available}
-                >
-                  {value.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Stock + Model Info + Size Guide row */}
         <div className="product-info-row">
           {selectedVariant?.availableForSale && (
@@ -226,6 +180,27 @@ export function ProductDetails({
             <span>Size Guide</span>
           </button>
         </div>
+
+        {/* Divider Line with brackets */}
+        <div className="section-divider product-section-divider"></div>
+
+        {/* Size Selection */}
+        {sizeOption && (
+          <div className="product-size-section">
+            <div className="size-grid">
+              {sizeOption.optionValues.map((value) => (
+                <button
+                  key={value.name}
+                  className={`size-grid-option ${value.selected ? 'selected' : ''} ${!value.available ? 'unavailable' : ''}`}
+                  onClick={() => onVariantChange(value.variantUriQuery)}
+                  disabled={!value.available}
+                >
+                  {value.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="product-actions">
@@ -274,6 +249,32 @@ export function ProductDetails({
               </li>
             ))}
           </ul>
+        </div>
+
+      </div>
+
+      {/* Trust Badges - fixed at bottom of wrapper */}
+      <div className="product-trust-badges">
+        <div className="trust-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+          <span>Free insured shipping</span>
+        </div>
+        <div className="trust-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+          <span>30-day returns</span>
+        </div>
+        <div className="trust-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+          <span>Personal customer service</span>
         </div>
       </div>
 

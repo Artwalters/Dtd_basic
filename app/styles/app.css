@@ -5079,7 +5079,11 @@ button.is-loading {
 .product-trust-badges {
   display: flex;
   flex-direction: row;
-  margin-bottom: 1.25em;
+  position: absolute;
+  bottom: 1.5em;
+  left: 0;
+  right: 0;
+  padding: 0 2.5em;
 }
 
 .trust-badge {
@@ -5090,6 +5094,14 @@ button.is-loading {
   flex: 1;
   font-size: var(--font-sm);
   color: var(--white-bright);
+}
+
+.trust-badge:first-child {
+  justify-content: flex-start;
+}
+
+.trust-badge:last-child {
+  justify-content: flex-end;
 }
 
 .trust-badge svg {
