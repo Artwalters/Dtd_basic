@@ -1,13 +1,18 @@
 import {Link, useLoaderData} from 'react-router';
 import type {Route} from './+types/blogs._index';
-import {getPaginationVariables} from '@shopify/hydrogen';
+import {getPaginationVariables, getSeoMeta} from '@shopify/hydrogen';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 import type {BlogsQuery} from 'storefrontapi.generated';
 
 type BlogNode = BlogsQuery['blogs']['nodes'][0];
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: `Hydrogen | Blogs`}];
+  return getSeoMeta({
+    title: 'Blogs',
+    titleTemplate: 'Dare to Dream | %s',
+    description: 'Read the latest from Dare to Dream. Stories, updates and insights from our community.',
+    url: '/blogs',
+  });
 };
 
 export async function loader(args: Route.LoaderArgs) {

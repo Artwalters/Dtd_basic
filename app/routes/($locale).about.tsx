@@ -1,10 +1,17 @@
 import type {Route} from './+types/about';
 import {Link} from 'react-router';
+import {getSeoMeta} from '@shopify/hydrogen';
 import {Footer} from '~/components/Footer';
 import {FooterParallax} from '~/components/FooterReveal';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: 'Dare to Dream | About'}];
+  return getSeoMeta({
+    title: 'About',
+    titleTemplate: 'Dare to Dream | %s',
+    description:
+      'The story behind Dare to Dream. Born from discipline, built in the gym, made for those who dare to dream bigger.',
+    url: '/about',
+  });
 };
 
 export default function AboutPage() {

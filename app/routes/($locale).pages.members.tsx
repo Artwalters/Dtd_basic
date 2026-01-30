@@ -1,10 +1,16 @@
 import type {Route} from './+types/pages.members';
 import {Link} from 'react-router';
+import {getSeoMeta} from '@shopify/hydrogen';
 import {Footer} from '~/components/Footer';
 import {FooterParallax} from '~/components/FooterReveal';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: 'Dare to Dream | Meet the Team'}];
+  return getSeoMeta({
+    title: 'Meet the Team',
+    titleTemplate: 'Dare to Dream | %s',
+    description: 'Meet the people behind Dare to Dream. Our athletes and team members who live the mindset every day.',
+    url: '/pages/members',
+  });
 };
 
 export default function MeetTheTeamPage() {

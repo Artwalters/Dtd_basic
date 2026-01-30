@@ -1,7 +1,7 @@
 import {useState, useEffect, useRef} from 'react';
 import type {Route} from './+types/collections.all';
 import {useLoaderData} from 'react-router';
-import {getPaginationVariables} from '@shopify/hydrogen';
+import {getPaginationVariables, getSeoMeta} from '@shopify/hydrogen';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
 import filterIcon from '~/assets/icons/filter.svg';
 import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
@@ -18,7 +18,13 @@ const filterOptions = [
 ];
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: `Dare to Dream | All Products`}];
+  return getSeoMeta({
+    title: 'All Products',
+    titleTemplate: 'Dare to Dream | %s',
+    description:
+      'Browse the full Dare to Dream collection. Premium streetwear designed for those who dare to dream bigger.',
+    url: '/collections/all',
+  });
 };
 
 export async function loader(args: Route.LoaderArgs) {

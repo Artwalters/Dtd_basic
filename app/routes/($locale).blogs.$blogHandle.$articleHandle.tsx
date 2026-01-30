@@ -1,10 +1,39 @@
 import {useLoaderData} from 'react-router';
 import type {Route} from './+types/blogs.$blogHandle.$articleHandle';
-import {Image} from '@shopify/hydrogen';
+import {Image, getSeoMeta} from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
-export const meta: Route.MetaFunction = ({data}) => {
-  return [{title: `Hydrogen | ${data?.article.title ?? ''} article`}];
+export const meta: Route.MetaFunction<typeof loader> = ({data}) => {
+  const article = data?.article;
+  return getSeoMeta({
+    title: article?.seo?.title ?? article?.title,
+    titleTemplate: 'Dare to Dream | %s',
+    description: article?.seo?.description ?? article?.title ?? '',
+    media: article?.image?.url
+      ? {
+          url: article.image.url,
+          type: 'image' as const,
+          width: String(article.image.width ?? ''),
+          height: String(article.image.height ?? ''),
+          altText: article.image.altText ?? article?.title ?? '',
+        }
+      : undefined,
+    jsonLd: article
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'BlogPosting',
+          headline: article.title,
+          datePublished: article.publishedAt,
+          author: article.author?.name
+            ? {
+                '@type': 'Person',
+                name: article.author.name,
+              }
+            : undefined,
+          image: article.image?.url,
+        }
+      : undefined,
+  });
 };
 
 export async function loader(args: Route.LoaderArgs) {

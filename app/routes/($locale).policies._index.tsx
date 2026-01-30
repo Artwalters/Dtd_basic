@@ -1,11 +1,18 @@
 import {useEffect, useRef, useState} from 'react';
 import type {Route} from './+types/policies._index';
+import {getSeoMeta} from '@shopify/hydrogen';
 import {Footer} from '~/components/Footer';
 import {FooterParallax} from '~/components/FooterReveal';
 import {getLenis} from '~/hooks/useLenis';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: 'Dare to Dream | Policies'}];
+  return getSeoMeta({
+    title: 'Policies',
+    titleTemplate: 'Dare to Dream | %s',
+    description:
+      'Privacy policy, terms of service, shipping, returns and contact information for Dare to Dream.',
+    url: '/policies',
+  });
 };
 
 const policyNavItems = [
@@ -175,6 +182,7 @@ export default function PoliciesPage() {
                 <p>When you visit our website or make a purchase, we collect certain information about you, including:</p>
                 <ul>
                   <li><strong>Personal Information:</strong> Name, email address, shipping and billing address, phone number, and payment information when you make a purchase.</li>
+                  <li><strong>Newsletter:</strong> If you subscribe to our newsletter, we collect your email address to send you promotional updates. You can unsubscribe at any time using the link in each email.</li>
                   <li><strong>Account Information:</strong> If you create an account, we store your login credentials and order history.</li>
                   <li><strong>Device Information:</strong> IP address, browser type, operating system, and device identifiers through cookies and similar technologies.</li>
                   <li><strong>Usage Data:</strong> Pages visited, products viewed, time spent on our site, and referring websites.</li>

@@ -1,9 +1,16 @@
 import {useLoaderData} from 'react-router';
 import type {Route} from './+types/pages.$handle';
+import {getSeoMeta} from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
-export const meta: Route.MetaFunction = ({data}) => {
-  return [{title: `Hydrogen | ${data?.page.title ?? ''}`}];
+export const meta: Route.MetaFunction<typeof loader> = ({data}) => {
+  const page = data?.page;
+  return getSeoMeta({
+    title: page?.seo?.title ?? page?.title,
+    titleTemplate: 'Dare to Dream | %s',
+    description: page?.seo?.description ?? '',
+    url: `/pages/${page?.handle}`,
+  });
 };
 
 export async function loader(args: Route.LoaderArgs) {

@@ -10,7 +10,7 @@ import {
   ScrollRestoration,
   useRouteLoaderData,
 } from 'react-router';
-import {lazy, Suspense, Component, type ReactNode} from 'react';
+import {lazy, Suspense, Component, useEffect, type ReactNode} from 'react';
 import type {Route} from './+types/root';
 import favicon from '~/assets/favicon.svg';
 import {HEADER_QUERY} from '~/lib/fragments';
@@ -139,6 +139,15 @@ export function Layout({children}: {children?: React.ReactNode}) {
   } catch {
     // useNonce is not available in this context
   }
+
+  useEffect(() => {
+    const originalTitle = document.title;
+    const handleVisibilityChange = () => {
+      document.title = document.hidden ? 'Your time is now' : originalTitle;
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   return (
     <html lang="en">

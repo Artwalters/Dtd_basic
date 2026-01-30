@@ -8,6 +8,7 @@ import {
   getProductOptions,
   getAdjacentAndFirstAvailableVariants,
   useSelectedOptionInUrlParam,
+  getSeoMeta,
 } from '@shopify/hydrogen';
 import {ProductGallery} from '~/components/ProductGallery';
 import {ProductDetails} from '~/components/ProductDetails';
@@ -17,14 +18,59 @@ import {Footer} from '~/components/Footer';
 import {FooterParallax} from '~/components/FooterReveal';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 
-export const meta: Route.MetaFunction = ({data}) => {
-  return [
-    {title: `Hydrogen | ${data?.product.title ?? ''}`},
-    {
-      rel: 'canonical',
-      href: `/products/${data?.product.handle}`,
-    },
-  ];
+export const meta: Route.MetaFunction<typeof loader> = ({data}) => {
+  const product = data?.product;
+  return getSeoMeta({
+    title: product?.seo?.title ?? product?.title,
+    titleTemplate: 'Dare to Dream | %s',
+    description:
+      product?.seo?.description ??
+      product?.description?.substring(0, 155),
+    url: `/products/${product?.handle}`,
+    media: (() => {
+      const firstImage = product?.media?.nodes?.find(
+        (m: any) => m.__typename === 'MediaImage',
+      ) as any;
+      if (!firstImage?.image?.url) return undefined;
+      return {
+        url: firstImage.image.url,
+        type: 'image' as const,
+        width: String(firstImage.image.width ?? ''),
+        height: String(firstImage.image.height ?? ''),
+        altText: firstImage.image.altText ?? product?.title ?? '',
+      };
+    })(),
+    jsonLd: product
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.title,
+          description: product.description,
+          image: product.media?.nodes
+            ?.filter((m: any) => m.__typename === 'MediaImage')
+            .map((m: any) => m.image?.url)
+            .filter(Boolean),
+          brand: {
+            '@type': 'Organization',
+            name: product.vendor,
+          },
+          offers: {
+            '@type': 'Offer',
+            url: `/products/${product.handle}`,
+            priceCurrency:
+              product.selectedOrFirstAvailableVariant?.price
+                ?.currencyCode ?? 'EUR',
+            price:
+              product.selectedOrFirstAvailableVariant?.price?.amount ??
+              '0',
+            availability: product.selectedOrFirstAvailableVariant
+              ?.availableForSale
+              ? 'https://schema.org/InStock'
+              : 'https://schema.org/OutOfStock',
+          },
+        }
+      : undefined,
+  });
 };
 
 export async function loader(args: Route.LoaderArgs) {

@@ -1,6 +1,6 @@
 import type {Route} from './+types/_index';
 import {useLoaderData} from 'react-router';
-import {getPaginationVariables} from '@shopify/hydrogen';
+import {getPaginationVariables, getSeoMeta} from '@shopify/hydrogen';
 import {HeroSlider} from '~/components/HeroSlider';
 import {NewDrop} from '~/components/NewDrop';
 import {NewArrivals} from '~/components/NewArrivals';
@@ -38,7 +38,12 @@ const heroSlides = [
 ];
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: 'Dare to Dream'}];
+  return getSeoMeta({
+    title: 'Dare to Dream',
+    description:
+      'Premium streetwear brand born from discipline and ambition. Shop our latest drops, joggers, shirts and more.',
+    url: '/',
+  });
 };
 
 export async function loader(args: Route.LoaderArgs) {

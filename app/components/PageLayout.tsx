@@ -19,6 +19,8 @@ import type {
 import {Aside, useAside} from '~/components/Aside';
 import {Header, HeaderMenu} from '~/components/Header';
 import {CartMain} from '~/components/CartMain';
+import {ClientOnly} from '~/components/ClientOnly';
+import {CookieBanner} from '~/components/CookieBanner';
 import {
   SEARCH_ENDPOINT,
   SearchFormPredictive,
@@ -64,6 +66,9 @@ export function PageLayout({
       <div className="cursor" ref={cursorRef}>
         <p></p>
       </div>
+      <ClientOnly>
+        <CookieBanner />
+      </ClientOnly>
     </Aside.Provider>
   );
 }

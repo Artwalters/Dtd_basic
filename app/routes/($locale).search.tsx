@@ -1,6 +1,6 @@
 import {useLoaderData} from 'react-router';
 import type {Route} from './+types/search';
-import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
+import {getPaginationVariables, Analytics, getSeoMeta} from '@shopify/hydrogen';
 import {SearchForm} from '~/components/SearchForm';
 import {SearchResults} from '~/components/SearchResults';
 import {
@@ -14,7 +14,12 @@ import type {
 } from 'storefrontapi.generated';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: `Hydrogen | Search`}];
+  return getSeoMeta({
+    title: 'Search',
+    titleTemplate: 'Dare to Dream | %s',
+    description: 'Search our collection of premium streetwear.',
+    url: '/search',
+  });
 };
 
 export async function loader({request, context}: Route.LoaderArgs) {

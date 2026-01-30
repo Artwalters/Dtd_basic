@@ -1,11 +1,16 @@
 import {useLoaderData, data, type HeadersFunction} from 'react-router';
 import type {Route} from './+types/cart';
 import type {CartQueryDataReturn} from '@shopify/hydrogen';
-import {CartForm} from '@shopify/hydrogen';
+import {CartForm, getSeoMeta} from '@shopify/hydrogen';
 import {CartMain} from '~/components/CartMain';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: `Hydrogen | Cart`}];
+  return getSeoMeta({
+    title: 'Cart',
+    titleTemplate: 'Dare to Dream | %s',
+    description: 'View your shopping cart and proceed to checkout.',
+    url: '/cart',
+  });
 };
 
 export const headers: HeadersFunction = ({actionHeaders}) => actionHeaders;
