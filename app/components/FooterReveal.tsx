@@ -1,5 +1,6 @@
 "use client";
 import {useEffect, useRef, lazy, Suspense} from 'react';
+import {useLocation} from 'react-router';
 import {gsap} from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
 import {ClientOnly} from '~/components/ClientOnly';
@@ -16,6 +17,7 @@ export function FooterParallax() {
   const targetRef = useRef<HTMLElement>(null);
   const darkRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const {pathname} = useLocation();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -73,7 +75,7 @@ export function FooterParallax() {
       const st = ScrollTrigger.getById('footer-parallax');
       if (st) st.kill();
     };
-  }, []);
+  }, [pathname]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
