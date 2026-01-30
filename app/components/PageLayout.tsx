@@ -21,6 +21,7 @@ import {Header, HeaderMenu} from '~/components/Header';
 import {CartMain} from '~/components/CartMain';
 import {ClientOnly} from '~/components/ClientOnly';
 import {CookieBanner} from '~/components/CookieBanner';
+import {DiscountPopup} from '~/components/DiscountPopup';
 import {
   SEARCH_ENDPOINT,
   SearchFormPredictive,
@@ -68,6 +69,9 @@ export function PageLayout({
       </div>
       <ClientOnly>
         <CookieBanner />
+      </ClientOnly>
+      <ClientOnly>
+        <DiscountPopup />
       </ClientOnly>
     </Aside.Provider>
   );

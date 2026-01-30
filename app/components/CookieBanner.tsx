@@ -9,9 +9,9 @@ interface ConsentToggles {
 }
 
 const DEFAULT_TOGGLES: ConsentToggles = {
-  analytics: false,
-  marketing: false,
-  preferences: false,
+  analytics: true,
+  marketing: true,
+  preferences: true,
 };
 
 export function CookieBanner() {

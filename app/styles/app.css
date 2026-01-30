@@ -9312,3 +9312,199 @@ button.is-loading {
     max-height: calc(100vh - 2em);
   }
 }
+
+/* ===========================================
+   Discount Popup (15% Off)
+   =========================================== */
+
+/* Trigger button — bottom-left */
+.discount-trigger {
+  position: fixed;
+  bottom: 1.5em;
+  left: 1.5em;
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1em);
+  transition:
+    opacity var(--duration-slow) var(--ease-smooth),
+    visibility var(--duration-slow) var(--ease-smooth),
+    transform var(--duration-slow) var(--ease-smooth);
+}
+
+.discount-trigger--visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+@media screen and (max-width: 479px) {
+  .discount-trigger {
+    left: 1em;
+    bottom: 1em;
+  }
+}
+
+/* Overlay */
+.discount-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--black-dark);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Modal */
+.discount-modal {
+  position: relative;
+  width: 90%;
+  max-width: 26em;
+  background: rgba(7, 7, 7, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--white-light);
+  border-radius: 0.75em;
+  overflow: hidden;
+}
+
+.discount-modal__close {
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  background: none;
+  border: none;
+  color: var(--white-strong);
+  font-size: var(--font-md);
+  cursor: pointer;
+  padding: 0.25em;
+  line-height: 1;
+  z-index: 1;
+  transition: color var(--duration-fast) var(--ease-smooth);
+}
+
+.discount-modal__close:hover {
+  color: var(--color-white);
+}
+
+.discount-modal__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3em 2em 2em;
+}
+
+.discount-modal__eyebrow {
+  font-size: var(--font-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--white-strong);
+  margin: 0 0 0.25em;
+}
+
+.discount-modal__title {
+  font-size: var(--font-5xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-white);
+  margin: 0;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.discount-modal__subtitle {
+  font-size: var(--font-base);
+  color: var(--white-bright);
+  margin: 0.25em 0 2em;
+}
+
+.discount-modal__form {
+  display: flex;
+  align-items: stretch;
+  gap: 0.4em;
+  width: 100%;
+}
+
+.discount-modal__form > * {
+  margin: 0;
+}
+
+.discount-modal__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 48px;
+  padding: 0 1em;
+  font-size: var(--font-base);
+  font-family: inherit;
+  background: var(--white-subtle);
+  border: 1px solid var(--white-subtle);
+  border-radius: 0.25em;
+  color: var(--color-white);
+  outline: none;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  transition: all var(--duration-fast) ease;
+  box-sizing: border-box;
+}
+
+.discount-modal__input::placeholder {
+  color: var(--white-strong);
+}
+
+.discount-modal__input:focus {
+  background: var(--white-light);
+  border-color: var(--white-light);
+}
+
+.discount-modal__arrow-btn.btn-glass.btn-glass--icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.discount-modal__error {
+  font-size: var(--font-sm);
+  color: #ef4444;
+  margin: 0.5em 0 0;
+}
+
+.discount-modal__decline {
+  background: none;
+  border: none;
+  color: var(--white-strong);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  cursor: pointer;
+  padding: 0;
+  margin-top: 1.5em;
+  transition: color var(--duration-fast) var(--ease-smooth);
+}
+
+.discount-modal__decline:hover {
+  color: var(--color-white);
+}
+
+@media screen and (max-width: 479px) {
+  .discount-modal {
+    width: 100%;
+    max-width: none;
+    margin: 1em;
+  }
+
+  .discount-modal__body {
+    padding: 2.5em 1.5em 1.5em;
+  }
+
+  .discount-modal__title {
+    font-size: var(--font-4xl);
+  }
+}
