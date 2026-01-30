@@ -1,4 +1,4 @@
-import {Suspense, useState, useEffect, useRef, useCallback, lazy, useMemo} from 'react';
+import {Suspense, useState, useEffect, useRef, lazy} from 'react';
 import {Await, NavLink, useAsyncValue, useNavigate, useFetcher} from 'react-router';
 import {
   type CartViewPayload,
@@ -32,7 +32,6 @@ function splitTextIntoWords(element: HTMLElement): SplitTextResult {
 }
 import {useAside} from '~/components/Aside';
 import {useHeaderScroll} from '~/hooks/useHeaderScroll';
-import {useTheme} from '~/contexts/ThemeContext';
 import {ClientOnly} from '~/components/ClientOnly';
 
 const NavbarLogo3D = lazy(() => import('~/components/NavbarLogo3D'));
@@ -264,22 +263,13 @@ export function Header({
     };
   }, [mobileSearchOpen]);
 
-  // Focus mobile search input when opened (small delay for CSS transition)
-  useEffect(() => {
-    if (mobileSearchOpen && mobileSearchInputRef.current) {
-      const ref = mobileSearchInputRef.current;
-      requestAnimationFrame(() => {
-        ref.focus();
-      });
-    }
-  }, [mobileSearchOpen]);
 
-  // Close mobile search when menu or cart opens
+  // Close mobile search when cart opens
   useEffect(() => {
-    if (isMobileMenuOpen || isCartOpen) {
+    if (isCartOpen) {
       setMobileSearchOpen(false);
     }
-  }, [isMobileMenuOpen, isCartOpen]);
+  }, [isCartOpen]);
   // Desktop nav animation refs
   const leftNavRef = useRef<HTMLElement>(null);
   const rightNavRef = useRef<HTMLElement>(null);
@@ -467,17 +457,6 @@ export function Header({
           >
             <CloseIcon />
           </button>
-        ) : visualMenuOpen ? (
-          <button
-            className="header-nav-item btn-glass--icon mobile-search-button"
-            onClick={() => {
-              close();
-              setTimeout(() => setMobileSearchOpen(true), 300);
-            }}
-            aria-label="Search"
-          >
-            <SearchIcon />
-          </button>
         ) : (
           <>
             <MobileInlineSearch
@@ -486,7 +465,7 @@ export function Header({
               onClose={() => setMobileSearchOpen(false)}
               inputRef={mobileSearchInputRef}
             />
-            <CartToggleMobile cart={cart} />
+            {!visualMenuOpen && <CartToggleMobile cart={cart} />}
           </>
         )}
       </div>
@@ -575,13 +554,137 @@ function getSynonymGroup(input: string): string[] | null {
   return null;
 }
 
+function useSearchWithSynonyms(term: string, isOpen: boolean) {
+  const fetcher = useFetcher();
+  const synonymFetchers = [useFetcher(), useFetcher(), useFetcher()];
+
+  useEffect(() => {
+    if (!isOpen || term.length < 1) return;
+    const timer = setTimeout(() => {
+      fetcher.load(`/search?q=${encodeURIComponent(term)}&limit=10&predictive=true`);
+      const group = getSynonymGroup(term);
+      if (group) {
+        const extras = group.filter((s) => s.toLowerCase() !== term.toLowerCase()).slice(0, 3);
+        extras.forEach((syn, i) => {
+          synonymFetchers[i].load(`/search?q=${encodeURIComponent(syn)}&limit=5&predictive=true`);
+        });
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [term, isOpen]);
+
+  const mainProducts = fetcher.data?.result?.items?.products ?? [];
+  const allSynonymProducts = synonymFetchers.flatMap((f) => f.data?.result?.items?.products ?? []);
+  const seenIds = new Set<string>();
+  const products = [...mainProducts, ...allSynonymProducts].filter((p: any) => {
+    if (seenIds.has(p.id)) return false;
+    seenIds.add(p.id);
+    return true;
+  });
+
+  const matchingPages = filterSitePages(term);
+  const hasResults = products.length > 0 || matchingPages.length > 0;
+  const showDropdown = isOpen && term.length >= 1 && (fetcher.data || matchingPages.length > 0);
+  const suggestion = getAutocompleteSuggestion(term);
+
+  return {products, matchingPages, hasResults, showDropdown, suggestion};
+}
+
+function SearchResults({
+  products,
+  matchingPages,
+  hasResults,
+  onResultClick,
+}: {
+  products: any[];
+  matchingPages: ReturnType<typeof filterSitePages>;
+  hasResults: boolean;
+  onResultClick: () => void;
+}) {
+  if (!hasResults) {
+    return <div className="header-search-empty">No results found</div>;
+  }
+
+  return (
+    <>
+      {matchingPages.length > 0 && (
+        <div className="header-search-group">
+          <span className="header-search-group-label">Pages</span>
+          {matchingPages.map((page) => (
+            <NavLink
+              key={page.path}
+              to={page.path}
+              className="header-search-item"
+              onClick={onResultClick}
+            >
+              <div className="header-search-item-info">
+                <span className="header-search-item-title">{page.label}</span>
+              </div>
+            </NavLink>
+          ))}
+        </div>
+      )}
+      {products.length > 0 && (
+        <div className="header-search-group">
+          <span className="header-search-group-label">Products</span>
+          {products.map((product: any) => (
+            <NavLink
+              key={product.id}
+              to={`/products/${product.handle}`}
+              className="header-search-item"
+              onClick={onResultClick}
+            >
+              {(product.productVideo360?.value || product.selectedOrFirstAvailableVariant?.image) && (
+                <img
+                  className="header-search-item-img"
+                  src={
+                    product.productVideo360?.value
+                      ? `${product.productVideo360.value}0001.webp`
+                      : product.selectedOrFirstAvailableVariant.image.url
+                  }
+                  alt={product.selectedOrFirstAvailableVariant?.image?.altText || product.title}
+                  width={40}
+                  height={40}
+                />
+              )}
+              <div className="header-search-item-info">
+                <span className="header-search-item-title">{product.title}</span>
+                {product.selectedOrFirstAvailableVariant?.price && (
+                  <span className="header-search-item-price">
+                    {new Intl.NumberFormat(undefined, {
+                      style: 'currency',
+                      currency: product.selectedOrFirstAvailableVariant.price.currencyCode,
+                    }).format(Number(product.selectedOrFirstAvailableVariant.price.amount))}
+                  </span>
+                )}
+              </div>
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+function SearchGhostText({term, suggestion}: {term: string; suggestion: string}) {
+  if (!suggestion) return null;
+  return (
+    <>
+      <span className="header-search-ghost-typed">{term}</span>
+      <span className="header-search-ghost-rest">{suggestion.slice(term.length)}</span>
+    </>
+  );
+}
+
 function HeaderSearch() {
   const [isOpen, setIsOpen] = useState(false);
   const [term, setTerm] = useState('');
-  const fetcher = useFetcher();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const {products, matchingPages, hasResults, showDropdown, suggestion} =
+    useSearchWithSynonyms(term, isOpen);
 
   // Focus input when opened
   useEffect(() => {
@@ -616,27 +719,6 @@ function HeaderSearch() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  // Fetch predictive results when term changes (start from 1 character)
-  // Use multiple fetchers for synonym searches
-  const synonymFetchers = [useFetcher(), useFetcher(), useFetcher()];
-  useEffect(() => {
-    if (term.length < 1) return;
-    const timer = setTimeout(() => {
-      // Always search the original term
-      fetcher.load(`/search?q=${encodeURIComponent(term)}&limit=10&predictive=true`);
-      // Also search synonym terms if applicable
-      const group = getSynonymGroup(term);
-      if (group) {
-        // Pick up to 3 unique synonyms different from the original term
-        const extras = group.filter((s) => s.toLowerCase() !== term.toLowerCase()).slice(0, 3);
-        extras.forEach((syn, i) => {
-          synonymFetchers[i].load(`/search?q=${encodeURIComponent(syn)}&limit=5&predictive=true`);
-        });
-      }
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [term]);
-
   const handleSubmit = () => {
     if (term.trim()) {
       navigate(`/search?q=${encodeURIComponent(term.trim())}`);
@@ -646,27 +728,10 @@ function HeaderSearch() {
   };
 
   const handleResultClick = () => {
+    window.dispatchEvent(new CustomEvent('menuNavigation'));
     setIsOpen(false);
     setTerm('');
   };
-
-  // Extract predictive search results (products only), merge main + synonym results
-  const mainProducts = fetcher.data?.result?.items?.products ?? [];
-  const allSynonymProducts = synonymFetchers.flatMap((f) => f.data?.result?.items?.products ?? []);
-  // Merge and deduplicate by id
-  const seenIds = new Set<string>();
-  const products = [...mainProducts, ...allSynonymProducts].filter((p: any) => {
-    if (seenIds.has(p.id)) return false;
-    seenIds.add(p.id);
-    return true;
-  });
-  // Site pages matching the search term
-  const matchingPages = filterSitePages(term);
-  const hasResults = products.length > 0 || matchingPages.length > 0;
-  const showDropdown = isOpen && term.length >= 1 && (fetcher.data || matchingPages.length > 0);
-
-  // Autocomplete ghost suggestion
-  const suggestion = getAutocompleteSuggestion(term);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if ((e.key === 'Tab' || e.key === 'ArrowRight') && suggestion) {
@@ -684,12 +749,7 @@ function HeaderSearch() {
       <div className="header-search-form">
         <div className="header-search-input-wrapper">
           <span className="header-search-ghost" aria-hidden="true">
-            {suggestion ? (
-              <>
-                <span className="header-search-ghost-typed">{term}</span>
-                <span className="header-search-ghost-rest">{suggestion.slice(term.length)}</span>
-              </>
-            ) : null}
+            <SearchGhostText term={term} suggestion={suggestion} />
           </span>
           <input
             ref={inputRef}
@@ -716,67 +776,12 @@ function HeaderSearch() {
       </button>
       {showDropdown && (
         <div className="header-search-dropdown">
-          {hasResults ? (
-            <>
-              {matchingPages.length > 0 && (
-                <div className="header-search-group">
-                  <span className="header-search-group-label">Pages</span>
-                  {matchingPages.map((page) => (
-                    <NavLink
-                      key={page.path}
-                      to={page.path}
-                      className="header-search-item"
-                      onClick={handleResultClick}
-                    >
-                      <div className="header-search-item-info">
-                        <span className="header-search-item-title">{page.label}</span>
-                      </div>
-                    </NavLink>
-                  ))}
-                </div>
-              )}
-              {products.length > 0 && (
-                <div className="header-search-group">
-                  <span className="header-search-group-label">Products</span>
-                  {products.map((product: any) => (
-                    <NavLink
-                      key={product.id}
-                      to={`/products/${product.handle}`}
-                      className="header-search-item"
-                      onClick={handleResultClick}
-                    >
-                      {(product.productVideo360?.value || product.selectedOrFirstAvailableVariant?.image) && (
-                        <img
-                          className="header-search-item-img"
-                          src={
-                            product.productVideo360?.value
-                              ? `${product.productVideo360.value}0001.webp`
-                              : product.selectedOrFirstAvailableVariant.image.url
-                          }
-                          alt={product.selectedOrFirstAvailableVariant?.image?.altText || product.title}
-                          width={40}
-                          height={40}
-                        />
-                      )}
-                      <div className="header-search-item-info">
-                        <span className="header-search-item-title">{product.title}</span>
-                        {product.selectedOrFirstAvailableVariant?.price && (
-                          <span className="header-search-item-price">
-                            {new Intl.NumberFormat(undefined, {
-                              style: 'currency',
-                              currency: product.selectedOrFirstAvailableVariant.price.currencyCode,
-                            }).format(Number(product.selectedOrFirstAvailableVariant.price.amount))}
-                          </span>
-                        )}
-                      </div>
-                    </NavLink>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="header-search-empty">No results found</div>
-          )}
+          <SearchResults
+            products={products}
+            matchingPages={matchingPages}
+            hasResults={hasResults}
+            onResultClick={handleResultClick}
+          />
         </div>
       )}
     </div>
@@ -795,10 +800,13 @@ function MobileInlineSearch({
   inputRef: React.RefObject<HTMLInputElement | null>;
 }) {
   const [term, setTerm] = useState('');
-  const fetcher = useFetcher();
   const navigate = useNavigate();
+  const {close: closeAside} = useAside();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [dropdownTop, setDropdownTop] = useState(0);
+
+  const {products, matchingPages, hasResults, showDropdown, suggestion} =
+    useSearchWithSynonyms(term, isOpen);
 
   // Calculate dropdown position below header
   useEffect(() => {
@@ -811,10 +819,8 @@ function MobileInlineSearch({
       setDropdownTop(rect.bottom);
     };
 
-    // Use rAF to ensure layout is settled after open
     requestAnimationFrame(updatePosition);
 
-    // Recalculate on resize
     window.addEventListener('resize', updatePosition);
     return () => window.removeEventListener('resize', updatePosition);
   }, [isOpen]);
@@ -848,23 +854,6 @@ function MobileInlineSearch({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Fetch predictive results
-  const synonymFetchers = [useFetcher(), useFetcher(), useFetcher()];
-  useEffect(() => {
-    if (!isOpen || term.length < 1) return;
-    const timer = setTimeout(() => {
-      fetcher.load(`/search?q=${encodeURIComponent(term)}&limit=10&predictive=true`);
-      const group = getSynonymGroup(term);
-      if (group) {
-        const extras = group.filter((s) => s.toLowerCase() !== term.toLowerCase()).slice(0, 3);
-        extras.forEach((syn, i) => {
-          synonymFetchers[i].load(`/search?q=${encodeURIComponent(syn)}&limit=5&predictive=true`);
-        });
-      }
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [term, isOpen]);
-
   const handleSubmit = () => {
     if (term.trim()) {
       navigate(`/search?q=${encodeURIComponent(term.trim())}`);
@@ -873,23 +862,10 @@ function MobileInlineSearch({
   };
 
   const handleResultClick = () => {
+    window.dispatchEvent(new CustomEvent('menuNavigation'));
     onClose();
+    closeAside();
   };
-
-  // Merge & deduplicate results
-  const mainProducts = fetcher.data?.result?.items?.products ?? [];
-  const allSynonymProducts = synonymFetchers.flatMap((f) => f.data?.result?.items?.products ?? []);
-  const seenIds = new Set<string>();
-  const products = [...mainProducts, ...allSynonymProducts].filter((p: any) => {
-    if (seenIds.has(p.id)) return false;
-    seenIds.add(p.id);
-    return true;
-  });
-  const matchingPages = filterSitePages(term);
-  const hasResults = products.length > 0 || matchingPages.length > 0;
-  const showDropdown = isOpen && term.length >= 1 && (fetcher.data || matchingPages.length > 0);
-
-  const suggestion = getAutocompleteSuggestion(term);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if ((e.key === 'Tab' || e.key === 'ArrowRight') && suggestion) {
@@ -909,6 +885,9 @@ function MobileInlineSearch({
         onClick={() => {
           window.dispatchEvent(new CustomEvent('closeQuickAdd'));
           onToggle();
+          if (!isOpen && inputRef.current) {
+            inputRef.current.focus();
+          }
         }}
         aria-label="Search"
       >
@@ -917,12 +896,7 @@ function MobileInlineSearch({
       <div className="mobile-inline-search-form">
         <div className="header-search-input-wrapper">
           <span className="header-search-ghost" aria-hidden="true">
-            {suggestion ? (
-              <>
-                <span className="header-search-ghost-typed">{term}</span>
-                <span className="header-search-ghost-rest">{suggestion.slice(term.length)}</span>
-              </>
-            ) : null}
+            <SearchGhostText term={term} suggestion={suggestion} />
           </span>
           <input
             ref={inputRef}
@@ -937,83 +911,15 @@ function MobileInlineSearch({
       </div>
       {showDropdown && (
         <div className="header-search-dropdown" style={dropdownTop ? {top: `${dropdownTop}px`} : undefined}>
-          {hasResults ? (
-            <>
-              {matchingPages.length > 0 && (
-                <div className="header-search-group">
-                  <span className="header-search-group-label">Pages</span>
-                  {matchingPages.map((page) => (
-                    <NavLink
-                      key={page.path}
-                      to={page.path}
-                      className="header-search-item"
-                      onClick={handleResultClick}
-                    >
-                      <div className="header-search-item-info">
-                        <span className="header-search-item-title">{page.label}</span>
-                      </div>
-                    </NavLink>
-                  ))}
-                </div>
-              )}
-              {products.length > 0 && (
-                <div className="header-search-group">
-                  <span className="header-search-group-label">Products</span>
-                  {products.map((product: any) => (
-                    <NavLink
-                      key={product.id}
-                      to={`/products/${product.handle}`}
-                      className="header-search-item"
-                      onClick={handleResultClick}
-                    >
-                      {(product.productVideo360?.value || product.selectedOrFirstAvailableVariant?.image) && (
-                        <img
-                          className="header-search-item-img"
-                          src={
-                            product.productVideo360?.value
-                              ? `${product.productVideo360.value}0001.webp`
-                              : product.selectedOrFirstAvailableVariant.image.url
-                          }
-                          alt={product.selectedOrFirstAvailableVariant?.image?.altText || product.title}
-                          width={40}
-                          height={40}
-                        />
-                      )}
-                      <div className="header-search-item-info">
-                        <span className="header-search-item-title">{product.title}</span>
-                        {product.selectedOrFirstAvailableVariant?.price && (
-                          <span className="header-search-item-price">
-                            {new Intl.NumberFormat(undefined, {
-                              style: 'currency',
-                              currency: product.selectedOrFirstAvailableVariant.price.currencyCode,
-                            }).format(Number(product.selectedOrFirstAvailableVariant.price.amount))}
-                          </span>
-                        )}
-                      </div>
-                    </NavLink>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="header-search-empty">No results found</div>
-          )}
+          <SearchResults
+            products={products}
+            matchingPages={matchingPages}
+            hasResults={hasResults}
+            onResultClick={handleResultClick}
+          />
         </div>
       )}
     </div>
-  );
-}
-
-function ThemeToggle() {
-  const {theme, toggleTheme} = useTheme();
-  return (
-    <button 
-      className="header-nav-item reset" 
-      onClick={toggleTheme}
-      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-    >
-      {theme === 'light' ? '🌙' : '☀️'}
-    </button>
   );
 }
 
@@ -1237,24 +1143,6 @@ function Logo() {
   );
 }
 
-function LogoSmall() {
-  return (
-    <svg
-      className="header-logo-image header-logo-small"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 770.22 647.16"
-      fill="currentColor"
-      aria-label="Dare to Dream"
-    >
-      <g>
-        <path d="M211.82,30.06s30.68,29.62,49.89,38.15c0,0-3-3.54-4-7.34,0,0,34.35,39.55,108.12,42.09h31.45s87.88-3.13,153.38-74.64c0,0-48.82,59.9-83.91,92.71,0,0,13.47-1.73,25.35-6.14,0,0-12.01,8.94-11.47,20.81,0,0,15.21-.53,19.48-7.74,0,0-1.08,7.74-14.69,18.23-13.61,10.49-9.37,24.46-9.37,24.46,0,0-7.26-3.91-7.61-10.58,0,0-8.13,19.01-8.13,43.91,0,0-.89-60.63-53.54-60.63v20.45s4.89.53,7.38-4.54c0,0-1.69,8.45-7.11,12.98v45.45s19.65-14.23,30.33-19.92c0,0-30.5,29.44-30.64,63.05v16.81s4.27-6,12.94-8c0,0-13.21,4.8-13.21,39.89,0,0,1.47,5.87,11.61,7.87,0,0-10.94-.93-10.94,4.8v32.55s-.27,7.6,4.14,12.14l25.75-33.48s-25.35,36.82-24.55,102.99c0,0-6.67-6.4-7.2-17.88l-5.07,39.59,12.81,24.98-17.08-12.01s-4.8,53.09-9.34,85.91-6.14,90.18-6.14,90.18c0,0-3.2-109.39-7.74-137.4-4.54-28.01-10.67-33.08-10.94-55.76,0,0-4.8,5.6-12.01,9.34,0,0,12.81-21.52,6.14-39.4-6.67-17.88-33.35,2.22-33.35,2.22,0,0,31.48-41.71,31.48-68.21v-40.82l-17.25-22.59,16.45,8.54v-30.77s-4.45-22.59-21.61-33.08c0,0,18.77,3.56,21.43,9.52v-33.8s-3.56-11.67-18.9-30.95c0,0,14.54,4.27,19.41,14.21v-54.41s-52.63.36-52.63,49.53c0,0,.09-25.16-21.97-49.35s-27.39-23.66-36.29-46.6c0,0,8.36,12.27,22.06,16.01,13.7,3.74,26.5,12.1,26.5,12.1,0,0-3.91-16.9-23.48-30.77,0,0,2.79-.72,3.96-.16,0,0-49.23-42.53-59.9-64.5h0Z"/>
-        <path d="M250.39,426.88s5.74-7.34,7.87-6.8c6.56,1.64,12.01,0,12.01,0,0,0-8.8-3.2-.27-7.87,8.54-4.67,22.95-26.95,22.95-26.95,16.27-1.07,34.82,11.47,34.82,11.47,0,0-20.01-17.88-24.68-25.75-4.67-7.87-3.7-26.75-3.7-26.75,10.27,14.14,24.51,14.74,24.51,14.74-13.47-17.48-21.26-33.12-23.03-43.89-1.6-9.7-1.15-32.46-.89-59.5.26-27.32,22.68-35.04,22.68-35.04-12.45.8-25.26,6.49-25.26,6.49-17.7-37.53-58.34-56.47-66.75-68.43-10-14.23-20.68-25.88-20.68-25.88,0,0,18.81,23.08-5.6,11.61s-14.41-27.35-14.41-27.35c-8,4-9.07,13.07-9.07,13.07-59.9-26.55-59.36-58.83-59.36-58.83-2.61,14.99,2.7,32.59,4.34,37.49-1.84-2.33-9.31-8.6-37.96-25.08C45.49,59.23,42.69,0,42.69,0c-14.41,31.04,17.88,96.18,17.88,96.18C32.02,69.77,0,59.1,0,59.1c33.08,17.74,74.04,80.57,74.04,80.57-18.54-14.14-66.43-23.61-66.43-23.61,58.94,30.62,84.09,61.55,87.96,86.12,4.22,26.87,3.16,37.31,3.16,37.31-3.51-4.58-16.9-5.5-16.9-5.5,12.1,9.25,15.3,22.59,15.3,22.59v19.21c-9.07-11.38-34.51-19.92-34.51-19.92,0,0,25.08,16.54,32.19,39.13s4.01,77.06,4.01,77.06c-6.54-10.94-23.4-19.25-23.4-19.25,32.07,44.33-6.4,64.21-6.4,64.21,20.07-6.94,37.71-17.96,22.41,14.23-15.3,32.19-75.77,82.18-75.77,82.18,51.4-37.89,90.18-46.96,81.64-37.53-39.35,43.44-50.16,155.99-50.16,155.99,35.34-127.96,112.28-153.37,112.28-153.37-11.47,12.81-17.48,46.16-17.48,46.16,0,0,9.74-19.48,25.35-34.42,15.61-14.94,43.62-14.54,43.62-14.54-17.08-.93-29.62-6.8-29.62-6.8,0,0,8.27-7.07,43.62-19.08,35.35-12.01,82.04,14.81,82.04,14.81-22.68-23.88-56.56-37.75-56.56-37.75v-.02ZM240.67,362.54c.53-11.03-5.51-22.95-5.51-22.95-6.05,67.77-75.06,82.18-75.06,82.18v-11.74c6.05-9.6,16.36-10.14,16.36-10.14-11.56-2.13-17.61-11.21-17.61-11.21v-13.16c-.36-40.73,21.88-73.5,21.88-73.5l-21.48,22.28v-43.36c0-30.15,31.22-49.89,31.22-49.89-18.41,5.6-32.42,19.08-32.42,19.08v-21.08c0-30.68,15.21-34.68,15.21-34.68-7.34-1.6-15.87,6.8-15.87,6.8,0-13.21,7.47-18.14,7.47-18.14,12.32,4.31,32.68,20.01,32.68,20.01-8.14,1.33-10.81,8.94-10.81,8.94,0,0,6.54-6.54,18.81-1.73,12.27,4.8,26.55,25.61,26.55,25.61.13-6.14-7.34-18.54-7.34-18.54,0,0,18.68,11.07,20.68,20.81,2,9.74-7.87,7.34-7.87,7.34,8.8,4.94,8.45,13.3,8.45,13.3v39.75c-5.87-6.76-17.61-9.6-17.61-9.6,19.57,22.95,19.74,39.31,19.74,39.31,0,24.37-7.47,34.33-7.47,34.33v-.02Z"/>
-        <path d="M463.27,468.06s46.69-26.81,82.04-14.81c35.35,12.01,43.62,19.08,43.62,19.08,0,0-12.54,5.87-29.62,6.8,0,0,28.01-.4,43.62,14.54s25.35,34.42,25.35,34.42c0,0-6-33.35-17.48-46.16,0,0,76.94,25.41,112.28,153.37,0,0-10.81-112.55-50.16-155.99-8.54-9.43,30.24-.36,81.64,37.53,0,0-60.48-49.98-75.77-82.18-15.3-32.19,2.35-21.17,22.41-14.23,0,0-38.48-19.88-6.4-64.21,0,0-16.86,8.32-23.4,19.25,0,0-3.1-54.47,4.01-77.06s32.19-39.13,32.19-39.13c0,0-25.44,8.54-34.51,19.92v-19.21s3.2-13.34,15.3-22.59c0,0-13.38.92-16.9,5.5,0,0-1.07-10.44,3.16-37.31,3.86-24.58,29.02-55.51,87.96-86.12,0,0-47.89,9.47-66.43,23.61,0,0,40.95-62.83,74.04-80.57,0,0-32.02,10.67-60.56,37.09,0,0,32.28-65.14,17.88-96.18,0,0-2.8,59.23-45.22,83.64-28.64,16.48-36.12,22.75-37.96,25.08,1.64-4.9,6.95-22.49,4.34-37.49,0,0,.53,32.28-59.36,58.83,0,0-1.07-9.07-9.07-13.07,0,0,10.01,15.87-14.41,27.35-24.41,11.47-5.6-11.61-5.6-11.61,0,0-10.68,11.65-20.68,25.88-8.4,11.96-49.05,30.9-66.75,68.43,0,0-12.81-5.69-25.26-6.49,0,0,22.42,7.72,22.68,35.04.26,27.01.82,49.08-.89,59.5-1.77,10.77-9.56,26.41-23.03,43.89,0,0,14.24-.6,24.51-14.74,0,0,.97,18.88-3.7,26.75s-24.68,25.75-24.68,25.75c0,0,18.54-12.54,34.82-11.47,0,0,14.41,22.28,22.95,26.95s-.27,7.87-.27,7.87c0,0,5.45,1.64,12.01,0,2.13-.53,7.87,6.8,7.87,6.8,0,0-33.88,13.87-56.56,37.75h0ZM522.09,331.64s.18-16.36,19.74-39.31c0,0-11.74,2.85-17.61,9.6v-39.75s-.36-8.36,8.45-13.3c0,0-9.87,2.4-7.87-7.34,2-9.74,20.68-20.81,20.68-20.81,0,0-7.47,12.41-7.34,18.54,0,0,14.27-20.81,26.55-25.61,12.27-4.8,18.81,1.73,18.81,1.73,0,0-2.67-7.6-10.81-8.94,0,0,20.37-15.7,32.68-20.01,0,0,7.47,4.94,7.47,18.14,0,0-8.54-8.4-15.87-6.8,0,0,15.21,4,15.21,34.68v21.08s-14.01-13.47-32.42-19.08c0,0,31.22,19.74,31.22,49.89v43.36l-21.48-22.28s22.23,32.77,21.88,73.5v13.16s-6.05,9.07-17.61,11.21c0,0,10.32.53,16.36,10.14v11.74s-69.01-14.41-75.06-82.18c0,0-6.05,11.92-5.51,22.95,0,0-7.47-9.96-7.47-34.33v.02Z"/>
-      </g>
-    </svg>
-  );
-}
-
 function ChevronIcon() {
   return (
     <svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -1383,17 +1271,10 @@ function MenuItemWithReveal({
   );
 }
 
-// Keep HeaderMenu for mobile aside menu
 export function HeaderMenu({
-  menu,
-  primaryDomainUrl,
   viewport,
-  publicStoreDomain,
 }: {
-  menu: HeaderProps['header']['menu'];
-  primaryDomainUrl: HeaderProps['header']['shop']['primaryDomain']['url'];
   viewport: 'desktop' | 'mobile';
-  publicStoreDomain: HeaderProps['publicStoreDomain'];
 }) {
   const className = `header-menu-${viewport}`;
   const {close, type} = useAside();
