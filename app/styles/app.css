@@ -1895,7 +1895,7 @@ button.is-loading {
 
   /* Mobile tag font size */
   .product-item-tag.btn.btn-glass {
-    font-size: var(--font-base);
+    font-size: var(--font-sm);
     padding: 0.4em 0.6em;
   }
 
@@ -4101,6 +4101,10 @@ button.is-loading {
   .new-drop-products {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .new-drop-image-wrapper {
+    aspect-ratio: 3/4;
+  }
 }
 
 /*
@@ -4308,7 +4312,7 @@ button.is-loading {
 }
 
 .product-item-tag {
-  font-size: var(--font-base);
+  font-size: var(--font-sm);
   pointer-events: none;
 }
 
